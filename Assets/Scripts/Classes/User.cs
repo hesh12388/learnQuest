@@ -6,7 +6,7 @@ public class User
     public string createdAt;
     public string selectecCourse;
     public CourseStructure courseStructure;
-
+    public int playerAvatar;
     public User(string email, string username, string createdAt)
     {
         this.email = email;

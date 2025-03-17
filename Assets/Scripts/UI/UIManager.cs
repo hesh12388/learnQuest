@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;  // Import TextMeshPro
-
+using System.Collections;
+using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Panels")]
@@ -11,15 +12,14 @@ public class UIManager : MonoBehaviour
     [Header("Login Fields")]
     public TMP_InputField loginEmailField;
     public TMP_InputField loginPasswordField;
-    public GameObject loginSuccessPanel;
     public GameObject loginFailedMessage;
 
     [Header("Register Fields")]
     public TMP_InputField registerEmailField;
     public TMP_InputField registerUsernameField;
     public TMP_InputField registerPasswordField;
-    public GameObject registrationSuccessPanel;
     public GameObject registrationFailedMessage;
+    public GameObject registrationSuccessMessage;
 
     [Header("Course Selection Fields")]
     public GameObject courseSelectionPanel;
@@ -43,6 +43,25 @@ public class UIManager : MonoBehaviour
     private int currentChapterIndex = 0;
     public TextMeshProUGUI chapterNameText;
 
+    [Header("Loading Screen")]
+    public GameObject loadingPanel;
+
+    [Header("Player Avatars")]
+    public GameObject [] playerAvatarPrefabs; // List of available player avatar prefabs
+    public GameObject currentPlayerAvatar;      // Reference to the current player in the scene
+    private int currentAvatarIndex = 0;         // Track which avatar is currently active
+
+
+    [Header("Navigation")]
+    public GameObject characterSelectionPanel;
+    public GameObject chatPanel;
+    public GameObject leaderboardPanel;
+    public GameObject skillsPanel;
+    public GameObject objectivesPanel;
+    public GameObject settingsPanel;
+    public GameObject achievementsPanel;
+    public GameObject levelsGamePanel;
+
     public static UIManager Instance { get; private set; } // Singleton instance
 
         private void Awake()
@@ -58,6 +77,127 @@ public class UIManager : MonoBehaviour
             }
         }
 
+
+    // Method to change the player avatar
+    public void ChangePlayerAvatar(int avatarIndex)
+    {
+       
+        
+        // Save the selected index
+        currentAvatarIndex = avatarIndex;
+        
+        // If we're in a scene with a player, swap the avatar
+        SwapPlayerAvatar();
+        
+    }
+
+    public void setGameUIPanelsInactive(){
+        characterSelectionPanel.SetActive(false);
+        chatPanel.SetActive(false);
+        objectivesPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        achievementsPanel.SetActive(false);
+        leaderboardPanel.SetActive(false);
+        skillsPanel.SetActive(false);
+        levelsGamePanel.SetActive(false);
+    }
+    public void ShowCharacterSelection()
+    {
+        setGameUIPanelsInactive();
+        characterSelectionPanel.SetActive(true);
+    }
+
+    public void ShowGameLevels(){
+        setGameUIPanelsInactive();
+        levelsGamePanel.SetActive(true);
+    }
+    
+    public void ShowChat(){
+        setGameUIPanelsInactive();
+        chatPanel.SetActive(true);
+    }
+
+    public void ShowObjectives(){
+        setGameUIPanelsInactive();
+        objectivesPanel.SetActive(true);
+    }
+
+    public void ShowSettings(){
+        setGameUIPanelsInactive();
+        settingsPanel.SetActive(true);
+    }
+
+    public void ShowAchievements(){
+        setGameUIPanelsInactive();
+        settingsPanel.SetActive(true);
+    }
+
+    public void ShowLeaderboard(){
+        setGameUIPanelsInactive();
+        leaderboardPanel.SetActive(true);
+    }
+
+    public void ShowSkills(){
+        setGameUIPanelsInactive();
+        skillsPanel.SetActive(true);
+    }
+
+    // Swap the current player avatar with the selected one
+    public void SwapPlayerAvatar()
+    {
+        // Find the current player avatar if not already tracked
+        if (currentPlayerAvatar == null)
+        {
+            currentPlayerAvatar = GameObject.FindWithTag("Player");
+            
+            // If still null, the player might not be in the scene yet
+            if (currentPlayerAvatar == null)
+            {
+                Debug.Log("No player avatar found in the scene");
+                return;
+            }
+        }
+        
+        // Store the current position and rotation
+        Vector3 position = currentPlayerAvatar.transform.position;
+        Quaternion rotation = currentPlayerAvatar.transform.rotation;
+        
+        // Get any important components/values from the current avatar that need to be preserved
+        // For example, you might need to save the current health, inventory, etc.
+        // PlayerController playerController = currentPlayerAvatar.GetComponent<PlayerController>();
+        // float health = playerController != null ? playerController.health : 100f;
+        
+        // Destroy the current avatar
+        Destroy(currentPlayerAvatar);
+        
+        // Instantiate the new avatar prefab at the same position
+        currentPlayerAvatar = Instantiate(playerAvatarPrefabs[currentAvatarIndex], position, rotation);
+        
+        // Restore any important components/values to the new avatar
+        // playerController = currentPlayerAvatar.GetComponent<PlayerController>();
+        // if (playerController != null) playerController.health = health;
+        
+        // Make sure the new avatar has the "Player" tag for future reference
+        currentPlayerAvatar.tag = "Player";
+    
+    }
+    private void Start(){
+        StartCoroutine(showLanding());
+    }
+
+    IEnumerator showLanding(){
+        yield return new WaitForSeconds(1);
+
+        if(landingPage!=null){
+            landingPage.SetActive(true);
+        }
+    }
+
+    public void startLevel(int level){
+        setPanelsInactive();
+        StartCoroutine(TransitionManager.Instance.transition(level));
+    }
+
     public void ShowLogin()
     {
         setPanelsInactive();
@@ -68,8 +208,6 @@ public class UIManager : MonoBehaviour
         landingPage.SetActive(false);
         loginPanel.SetActive(false);
         registerPanel.SetActive(false);
-        registrationSuccessPanel.SetActive(false);
-        loginSuccessPanel.SetActive(false);
         courseSelectionPanel.SetActive(false);
         savedGamesPanel.SetActive(false);
         courseSelectionErrorPanel.SetActive(false);
@@ -77,9 +215,22 @@ public class UIManager : MonoBehaviour
         levelsPanel.SetActive(false);
     }
 
+    // Helper methods for loading panel
+    private void ShowLoading()
+    {
+        loadingPanel.SetActive(true);
+    }
+
+    private void HideLoading()
+    {
+        loadingPanel.SetActive(false);
+    }
+
     public void ShowRegister()
     {
         setPanelsInactive();
+        registrationSuccessMessage.SetActive(false);
+        registrationFailedMessage.SetActive(false);
         registerPanel.SetActive(true);
     }
 
@@ -97,10 +248,12 @@ public class UIManager : MonoBehaviour
     
     public void showLevels() {
         setPanelsInactive();
+        ShowLoading();
         levelsPanel.SetActive(true);
         
         // Fetch course structure and display levels when ready
         DatabaseManager.Instance.GetCourseStructure((courseStructure) => {
+            HideLoading();
             if (courseStructure != null) {
                 Debug.Log("Course structure retrieved successfully");
                 currentChapterIndex = 0; // Reset to first chapter
@@ -169,8 +322,10 @@ public class UIManager : MonoBehaviour
 
     public void startCourse(){
         string courseName = courseNameText.text;
+        ShowLoading();
         DatabaseManager.Instance.startCourse(courseName, (bool success) =>
         {
+            HideLoading();
             if (success)
             {
                 setPanelsInactive();
@@ -195,7 +350,7 @@ public class UIManager : MonoBehaviour
                 if (success)
                 {
                     setPanelsInactive();
-                    loginSuccessPanel.SetActive(true);
+                    ShowSavedGames();
                 }
                 else
                 {
@@ -207,8 +362,10 @@ public class UIManager : MonoBehaviour
 
     public void restartCourse(){
         string courseName = courseNameText.text;
+        ShowLoading();
         DatabaseManager.Instance.restartCourse(courseName, (bool success) =>
         {
+            HideLoading();
             if (success)
             {
                 setPanelsInactive();
@@ -225,12 +382,13 @@ public class UIManager : MonoBehaviour
     public void ShowSavedGames()
     {
         setPanelsInactive();
+        ShowLoading();
         savedGamesPanel.SetActive(true); // Show Saved Games UI
-       
+
 
         DatabaseManager.Instance.GetUserCourses((Course[] courses) =>
         {
-
+            HideLoading();
             // Clear existing saved game entries before adding new ones
             foreach (Transform child in savedGamesContentPanel)
             {
@@ -260,8 +418,7 @@ public class UIManager : MonoBehaviour
             if (success)
             {
                 setPanelsInactive();
-                registrationSuccessPanel.SetActive(true);
-
+                registrationSuccessMessage.SetActive(true);
             }
             else
             {

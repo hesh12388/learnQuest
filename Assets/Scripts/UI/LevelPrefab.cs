@@ -2,6 +2,8 @@ using System;
 using System.Globalization;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class LevelPrefab : MonoBehaviour
 {
@@ -9,10 +11,13 @@ public class LevelPrefab : MonoBehaviour
     public GameObject starsPanel;
     public GameObject goldStar;
     public GameObject emptyStar;
+    
 
+    private int levelIndex;
     
     public void setLevelData(Level level){
         this.levelNumber.text = level.levelNumber.ToString();
+        this.levelIndex = level.levelNumber;
         int score = level.score;
         for (int i = 0; i < score; i++)
         {
@@ -22,5 +27,9 @@ public class LevelPrefab : MonoBehaviour
         {
             Instantiate(emptyStar, starsPanel.transform);
         }
+    }
+
+    public void startLevel(){
+        UIManager.Instance.startLevel(levelIndex);
     }
 }
