@@ -6,6 +6,8 @@ public class User
     public string createdAt;
     public string selectecCourse;
     public CourseStructure courseStructure;
+    public int currentChapter;
+    public int currentLevel;
     public int playerAvatar;
     public User(string email, string username, string createdAt)
     {

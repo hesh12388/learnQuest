@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;  // Import TextMeshPro
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
@@ -62,6 +63,19 @@ public class UIManager : MonoBehaviour
     public GameObject achievementsPanel;
     public GameObject levelsGamePanel;
 
+    [Header("Leaderboard UI")]
+    public Transform leaderboardContentPanel;  
+    public GameObject leaderboardEntryPrefab; 
+    public List<LeaderboardEntry> leaderboard;
+
+    [Header("Objectives UI")]
+    public Transform objectivesContentPanel;
+    public GameObject objectivePrefab;
+
+
+    public GameObject inGameUiPanel;
+    public GameObject landingPanel;
+
     public static UIManager Instance { get; private set; } // Singleton instance
 
         private void Awake()
@@ -120,6 +134,37 @@ public class UIManager : MonoBehaviour
     public void ShowObjectives(){
         setGameUIPanelsInactive();
         objectivesPanel.SetActive(true);
+        
+        // Show loading indicator while fetching objectives
+        ShowLoading();
+        
+        // Get objectives from DatabaseManager
+        DatabaseManager.Instance.GetObjectives((objectives) => {
+            // Hide loading indicator when data is retrieved
+            HideLoading();
+            
+            // Clear existing objectives first
+            foreach (Transform child in objectivesContentPanel) {
+                Destroy(child.gameObject);
+            }
+            
+            if (objectives != null && objectives.Count > 0) {
+                // Populate the panel with objective prefabs
+                foreach (Objective objective in objectives) {
+                    GameObject objectiveObject = Instantiate(objectivePrefab, objectivesContentPanel);
+                    ObjectiveUI objectiveUI = objectiveObject.GetComponent<ObjectiveUI>();
+                    
+                    if (objectiveUI != null) {
+                        // Determine if objective is completed
+                        bool isCompleted = objective.status.ToLower() == "completed";
+                        
+                        // Set the objective data in the UI component
+                        objectiveUI.SetObjective(objective.objective_name, isCompleted, objective.description, objective.difficulty);
+                    }
+
+                }
+            }
+        });
     }
 
     public void ShowSettings(){
@@ -132,9 +177,122 @@ public class UIManager : MonoBehaviour
         settingsPanel.SetActive(true);
     }
 
-    public void ShowLeaderboard(){
+    public void ShowLeaderboard()
+    {
         setGameUIPanelsInactive();
         leaderboardPanel.SetActive(true);
+        
+        // Show loading while fetching leaderboard data
+        ShowLoading();
+        
+        // Get leaderboard data from the database
+        DatabaseManager.Instance.GetLeaderboard((leaderboardEntries) => {
+            // Hide loading indicator when data is retrieved
+            HideLoading();
+            
+            // Clear any existing entries first
+            foreach (Transform child in leaderboardContentPanel)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            if (leaderboardEntries != null && leaderboardEntries.Count > 0)
+            {
+                leaderboardEntries.Sort((a, b) => b.score.CompareTo(a.score));
+                leaderboard = leaderboardEntries;
+                int i=0;
+                // Populate the leaderboard with entries
+                foreach (LeaderboardEntry entry in leaderboardEntries)
+                {
+                    GameObject entryObject = Instantiate(leaderboardEntryPrefab, leaderboardContentPanel);
+                    LeaderboardEntryUI entryUI = entryObject.GetComponent<LeaderboardEntryUI>();
+                    
+                    if (entryUI != null)
+                    {
+                        entryUI.SetEntryData(entry.username, entry.score, i);
+                        i+=1;
+                    }
+                }
+            }
+        });
+    }
+
+    public void ShowLeaderboardbyBestTime(){
+        // Clear any existing entries first
+            foreach (Transform child in leaderboardContentPanel)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            if (leaderboard != null && leaderboard.Count > 0)
+            {
+                leaderboard.Sort((a, b) => a.bestTime.CompareTo(b.bestTime));
+                int i=0;
+                // Populate the leaderboard with entries
+                foreach (LeaderboardEntry entry in leaderboard)
+                {
+                    GameObject entryObject = Instantiate(leaderboardEntryPrefab, leaderboardContentPanel);
+                    LeaderboardEntryUI entryUI = entryObject.GetComponent<LeaderboardEntryUI>();
+                    
+                    if (entryUI != null)
+                    {
+                        entryUI.SetEntryData(entry.username, entry.bestTime, i);
+                        i+=1;
+                    }
+                }
+            }
+    }
+
+    public void ShowLeaderboardbyAchievements(){
+        // Clear any existing entries first
+            foreach (Transform child in leaderboardContentPanel)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            if (leaderboard != null && leaderboard.Count > 0)
+            {
+                leaderboard.Sort((a, b) => b.numAchievements.CompareTo(a.numAchievements));
+                int i=0;
+                // Populate the leaderboard with entries
+                foreach (LeaderboardEntry entry in leaderboard)
+                {
+                    GameObject entryObject = Instantiate(leaderboardEntryPrefab, leaderboardContentPanel);
+                    LeaderboardEntryUI entryUI = entryObject.GetComponent<LeaderboardEntryUI>();
+                    
+                    if (entryUI != null)
+                    {
+                        entryUI.SetEntryData(entry.username, entry.numAchievements, i);
+                        i+=1;
+                    }
+                }
+            }
+    }
+
+    public void ShowLeaderboardbyScore(){
+        // Clear any existing entries first
+            foreach (Transform child in leaderboardContentPanel)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            if (leaderboard != null && leaderboard.Count > 0)
+            {
+                leaderboard.Sort((a, b) => b.score.CompareTo(a.score));
+                int i=0;
+                // Populate the leaderboard with entries
+                foreach (LeaderboardEntry entry in leaderboard)
+                {
+                    GameObject entryObject = Instantiate(leaderboardEntryPrefab, leaderboardContentPanel);
+                    LeaderboardEntryUI entryUI = entryObject.GetComponent<LeaderboardEntryUI>();
+                    
+                    if (entryUI != null)
+                    {
+                        entryUI.SetEntryData(entry.username, entry.score, i);
+                        i+=1;
+                    }
+                }
+            }
     }
 
     public void ShowSkills(){
@@ -195,7 +353,11 @@ public class UIManager : MonoBehaviour
 
     public void startLevel(int level){
         setPanelsInactive();
+        DatabaseManager.Instance.loggedInUser.currentLevel = level;
+        DatabaseManager.Instance.StartLevel();
         StartCoroutine(TransitionManager.Instance.transition(level));
+        landingPanel.SetActive(false);
+        inGameUiPanel.SetActive(true);
     }
 
     public void ShowLogin()
@@ -267,6 +429,8 @@ public class UIManager : MonoBehaviour
 
     // Display the levels for the current chapter
     private void DisplayChapterLevels(CourseStructure courseStructure) {
+
+        DatabaseManager.Instance.loggedInUser.currentChapter = currentChapterIndex;
         // Clear existing level prefabs
         foreach (Transform child in levelsContentPanel.transform) {
             Destroy(child.gameObject);

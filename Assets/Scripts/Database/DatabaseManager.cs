@@ -26,6 +26,8 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+
+
     // 📌 Register a new user (returns success/failure via callback)
     public void Register(string email, string username, string password, Action<bool> callback)
     {
@@ -58,6 +60,161 @@ public class DatabaseManager : MonoBehaviour
             {
                 Debug.LogError("Registration failed: " + request.error);
                 callback?.Invoke(false); // Failure
+            }
+        }
+    }
+
+    // 📌 Start a specific level for the user
+    public void StartLevel()
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot start level: No user is logged in");
+            return;
+        }
+
+        StartCoroutine(StartLevelRequest());
+    }
+
+    // 📌 Get Objectives for the current level
+    public void GetObjectives(Action<List<Objective>> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot get objectives: No user is logged in or no current level set");
+            callback?.Invoke(null);
+            return;
+        }
+
+        StartCoroutine(GetObjectivesRequest(callback));
+    }
+
+    private IEnumerator GetObjectivesRequest(Action<List<Objective>> callback)
+    {
+        string username = loggedInUser.username;
+        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel].level_name;
+        string url = $"{serverUrl}/get-objectives/{username}/{level_name}";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("Objectives retrieved: " + jsonResponse);
+
+                try
+                {
+                    // Parse JSON using JObject
+                    JObject responseObj = JObject.Parse(jsonResponse);
+                    JArray objectivesArray = (JArray)responseObj["objectives"];
+                    
+                    List<Objective> objectives = new List<Objective>();
+                    
+                    foreach (JObject objectiveObj in objectivesArray)
+                    {
+                        string objectiveName = objectiveObj["objective_name"].ToString();
+                        string status = objectiveObj["status"].ToString();
+                        string description = objectiveObj["description"].ToString();
+                        int difficulty = objectiveObj["difficulty"].ToObject<int>();
+                        
+                        objectives.Add(new Objective(objectiveName, status, description, difficulty));
+                    }
+                    
+                    callback?.Invoke(objectives);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing objectives JSON: " + ex.Message);
+                    callback?.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to retrieve objectives: {request.error}");
+                callback?.Invoke(null);
+            }
+        }
+    }
+
+    private IEnumerator StartLevelRequest()
+    {
+        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel].level_name;
+        string json = "{\"username\":\"" + loggedInUser.username + "\", \"level_name\":\"" + level_name + "\"}";
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/start-level", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Level started successfully: " + responseText);
+            }
+            else
+            {
+                Debug.LogError("Failed to start level: " + request.error);
+            }
+        }
+    }
+
+    // 📌 Get Leaderboard Rankings
+    public void GetLeaderboard(Action<List<LeaderboardEntry>> callback)
+    {
+        StartCoroutine(GetLeaderboardRequest(callback));
+    }
+
+    private IEnumerator GetLeaderboardRequest(Action<List<LeaderboardEntry>> callback)
+    {
+        string url = $"{serverUrl}/leaderboard";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("Leaderboard retrieved: " + jsonResponse);
+
+                try
+                {
+                    // Parse JSON array
+                    JArray leaderboardArray = JArray.Parse(jsonResponse);
+                    List<LeaderboardEntry> leaderboardEntries = new List<LeaderboardEntry>();
+                    
+                    foreach (JObject entryObj in leaderboardArray)
+                    {
+                        string username = entryObj["username"].ToString();
+                        int score = entryObj["score"].ToObject<int>();
+                        int bestTime = entryObj["bestTime"].ToObject<int>();
+                        int numAchievements = entryObj["numAchievements"].ToObject<int>();
+                        
+                        leaderboardEntries.Add(new LeaderboardEntry(username, score, numAchievements, bestTime));
+                    }
+                    
+                    callback?.Invoke(leaderboardEntries);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing leaderboard JSON: " + ex.Message);
+                    callback?.Invoke(new List<LeaderboardEntry>());
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to retrieve leaderboard: {request.error}");
+                callback?.Invoke(new List<LeaderboardEntry>());
             }
         }
     }
