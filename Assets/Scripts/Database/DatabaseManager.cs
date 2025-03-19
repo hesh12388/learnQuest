@@ -166,6 +166,74 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    // 📌 Get all available shop items
+    public void GetShopItems(Action<ShopItemsResponse> callback)
+    {
+        StartCoroutine(GetShopItemsRequest(callback));
+    }
+
+    private IEnumerator GetShopItemsRequest(Action<ShopItemsResponse> callback)
+    {
+        string url = $"{serverUrl}/items";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("Shop items retrieved: " + jsonResponse);
+
+                try
+                {
+                    // Parse JSON using JObject
+                    JObject responseObj = JObject.Parse(jsonResponse);
+                    JObject itemsObj = (JObject)responseObj["items"];
+                    
+                    ShopItemsResponse shopItems = new ShopItemsResponse();
+                    
+                    // Loop through each category (weapon, potion, armor)
+                    foreach (var category in itemsObj.Properties())
+                    {
+                        string categoryName = category.Name; // "weapon", "potion", "armor"
+                        Debug.Log("Parsing category: " + categoryName);
+                        JArray itemsArray = (JArray)category.Value;
+                        
+                        List<ShopItem> categoryItems = new List<ShopItem>();
+                        
+                        // Process each item in this category
+                        foreach (JObject itemObj in itemsArray)
+                        {
+                            string itemName = itemObj["item_name"].ToString();
+                            int cost = itemObj["cost"].ToObject<int>();
+                            Debug.Log("Parsing item: " + itemName + " for " + categoryName);
+                            categoryItems.Add(new ShopItem(itemName, cost));
+                        }
+                        
+                        // Add this category to our response
+                        shopItems.categories.Add(categoryName, categoryItems);
+                    }
+                    
+                    Debug.Log(shopItems);
+                    callback?.Invoke(shopItems);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing shop items JSON: " + ex.Message);
+                    callback?.Invoke(new ShopItemsResponse());
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to retrieve shop items: {request.error}");
+                callback?.Invoke(new ShopItemsResponse());
+            }
+        }
+    }
+
     // 📌 Get Leaderboard Rankings
     public void GetLeaderboard(Action<List<LeaderboardEntry>> callback)
     {
@@ -360,6 +428,83 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    // 📌 Purchase an item from the shop
+    public void BuyItem(string itemName, string itemType, Action<bool> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot buy item: No user is logged in");
+            callback?.Invoke(false);
+            return;
+        }
+
+        StartCoroutine(BuyItemRequest(itemName, itemType, callback));
+    }
+
+    private IEnumerator BuyItemRequest(string itemName, string itemType, Action<bool> callback)
+    {
+        string json = "{\"username\":\"" + loggedInUser.username + "\", \"item_name\":\"" + itemName + "\", \"item_type\":\"" + itemType + "\"}";
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/buy-item", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Item purchased successfully: " + responseText);
+                
+                // Parse response to check purchase result and update user data if needed
+                try
+                {
+                    JObject response = JObject.Parse(responseText);
+                    
+                    // If response includes updated user score/coins, update the local user object
+                    if (response.ContainsKey("remaining_credits"))
+                    {
+                        int newBalance = response["remaining_credits"].ToObject<int>();
+                        loggedInUser.score = newBalance;  // Assuming score is used as currency
+                        
+                        Debug.Log($"User balance updated to: {newBalance}");
+                    }
+                    
+                    callback?.Invoke(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing purchase response: " + ex.Message);
+                    callback?.Invoke(true);  // Purchase likely succeeded even if parsing failed
+                }
+            }
+            else
+            {
+                string errorMessage = request.error;
+                
+                // Try to get more detailed error from response if available
+                if (request.downloadHandler != null && !string.IsNullOrEmpty(request.downloadHandler.text))
+                {
+                    try
+                    {
+                        JObject errorResponse = JObject.Parse(request.downloadHandler.text);
+                        if (errorResponse.ContainsKey("error"))
+                        {
+                            errorMessage = errorResponse["error"].ToString();
+                        }
+                    }
+                    catch { /* Use default error message if parsing fails */ }
+                }
+                
+                Debug.LogError($"Failed to purchase item: {errorMessage}");
+                callback?.Invoke(false);
+            }
+        }
+    }
+
     // 📌 Helper function to wrap JSON array for Unity's JsonUtility
     private string WrapJsonArray(string json)
     {
@@ -391,10 +536,11 @@ public class DatabaseManager : MonoBehaviour
                     string username = jsonResponse["username"].ToString();
                     string emailAddress = jsonResponse["email"].ToString();
                     string createdAt = jsonResponse["createdAt"].ToString();
+                    int score = jsonResponse["score"].ToObject<int>();
 
 
                     // Create and store the User object
-                    loggedInUser = new User(emailAddress, username, createdAt);
+                    loggedInUser = new User(emailAddress, username, createdAt, score);
                 }
 
                 callback?.Invoke(true); // Success
@@ -408,87 +554,147 @@ public class DatabaseManager : MonoBehaviour
     }
 
 
-// 📌 Get Course Structure
-public void GetCourseStructure(Action<CourseStructure> callback)
-{
-    if (loggedInUser == null)
+    // 📌 Get Course Structure
+    public void GetCourseStructure(Action<CourseStructure> callback)
     {
-        Debug.LogError("Cannot get course structure: No user is logged in");
-        callback?.Invoke(null);
-        return;
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot get course structure: No user is logged in");
+            callback?.Invoke(null);
+            return;
+        }
+
+        StartCoroutine(GetCourseStructureRequest(callback));
     }
 
-    StartCoroutine(GetCourseStructureRequest(callback));
-}
-
-private IEnumerator GetCourseStructureRequest(Action<CourseStructure> callback)
-{
-    string username = loggedInUser.username;
-    string courseName = loggedInUser.selectecCourse;
-    string url = $"{serverUrl}/course-structure/{username}/{courseName}";
-    
-    using (UnityWebRequest request = UnityWebRequest.Get(url))
+    // 📌 Get all items owned by the user
+    public void GetUserItems(Action<List<UserItem>> callback)
     {
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        if (loggedInUser == null)
         {
-            string jsonResponse = request.downloadHandler.text;
-            Debug.Log("Course structure retrieved: " + jsonResponse);
+            Debug.LogError("Cannot get user items: No user is logged in");
+            callback?.Invoke(null);
+            return;
+        }
 
-            try
+        StartCoroutine(GetUserItemsRequest(callback));
+    }
+
+    private IEnumerator GetUserItemsRequest(Action<List<UserItem>> callback)
+    {
+        string url = $"{serverUrl}/user-items/{loggedInUser.username}";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                // Parse JSON using JObject
-                JObject courseObj = JObject.Parse(jsonResponse);
-                
-                string name = courseObj["course_name"].ToString();
-                int id = courseObj["course_id"].ToObject<int>();
-                int numChapters = courseObj["numChapters"].ToObject<int>();
-                
-                List<Chapter> chapters = new List<Chapter>();
-                JArray chaptersArray = (JArray)courseObj["chapters"];
-                
-                Debug.Log("Parsing chapters");
-                foreach (JObject chapterObj in chaptersArray)
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("User items retrieved: " + jsonResponse);
+
+                try
                 {
-                    string chapterName = chapterObj["chapter_name"].ToString();
-                    string status = chapterObj["status"].ToString();
+                    // Parse JSON using JObject
+                    JObject responseObj = JObject.Parse(jsonResponse);
+                    JArray itemsArray = (JArray)responseObj["items"];
                     
-                    List<Level> levels = new List<Level>();
-                    JArray levelsArray = (JArray)chapterObj["levels"];
+                    List<UserItem> userItems = new List<UserItem>();
                     
-                    Debug.Log("Parsing levels");
-                    foreach (JObject levelObj in levelsArray)
+                    foreach (JObject itemObj in itemsArray)
                     {
-                        string levelName = levelObj["level_name"].ToString();
-                        int score = levelObj["score"].ToObject<int>();
-                        string level_status = levelObj["status"].ToString();
-                        int levelNumber = levelObj["levelNumber"].ToObject<int>();
+                        string itemName = itemObj["item_name"].ToString();
+                        string itemType = itemObj["item_type"].ToString();
                         
-                        levels.Add(new Level(levelName, score, level_status, levelNumber));
+                        userItems.Add(new UserItem(itemName, itemType));
                     }
                     
-                    chapters.Add(new Chapter(chapterName, status, levels));
+                    callback?.Invoke(userItems);
                 }
-                
-                Debug.Log("Setting course structure");
-                CourseStructure courseStructure = new CourseStructure(name, id, numChapters, chapters);
-                loggedInUser.courseStructure=courseStructure;
-                callback?.Invoke(courseStructure);
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing user items JSON: " + ex.Message);
+                    callback?.Invoke(new List<UserItem>());
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Debug.LogError("Error parsing course structure JSON: " + ex.Message);
+                Debug.LogError($"Failed to retrieve user items: {request.error}");
+                callback?.Invoke(new List<UserItem>());
+            }
+        }
+    }
+
+    private IEnumerator GetCourseStructureRequest(Action<CourseStructure> callback)
+    {
+        string username = loggedInUser.username;
+        string courseName = loggedInUser.selectecCourse;
+        string url = $"{serverUrl}/course-structure/{username}/{courseName}";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("Course structure retrieved: " + jsonResponse);
+
+                try
+                {
+                    // Parse JSON using JObject
+                    JObject courseObj = JObject.Parse(jsonResponse);
+                    
+                    string name = courseObj["course_name"].ToString();
+                    int id = courseObj["course_id"].ToObject<int>();
+                    int numChapters = courseObj["numChapters"].ToObject<int>();
+                    
+                    List<Chapter> chapters = new List<Chapter>();
+                    JArray chaptersArray = (JArray)courseObj["chapters"];
+                    
+                    Debug.Log("Parsing chapters");
+                    foreach (JObject chapterObj in chaptersArray)
+                    {
+                        string chapterName = chapterObj["chapter_name"].ToString();
+                        string status = chapterObj["status"].ToString();
+                        
+                        List<Level> levels = new List<Level>();
+                        JArray levelsArray = (JArray)chapterObj["levels"];
+                        
+                        Debug.Log("Parsing levels");
+                        foreach (JObject levelObj in levelsArray)
+                        {
+                            string levelName = levelObj["level_name"].ToString();
+                            int score = levelObj["score"].ToObject<int>();
+                            string level_status = levelObj["status"].ToString();
+                            int levelNumber = levelObj["levelNumber"].ToObject<int>();
+                            
+                            levels.Add(new Level(levelName, score, level_status, levelNumber));
+                        }
+                        
+                        chapters.Add(new Chapter(chapterName, status, levels));
+                    }
+                    
+                    Debug.Log("Setting course structure");
+                    CourseStructure courseStructure = new CourseStructure(name, id, numChapters, chapters);
+                    loggedInUser.courseStructure=courseStructure;
+                    callback?.Invoke(courseStructure);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing course structure JSON: " + ex.Message);
+                    callback?.Invoke(null);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to retrieve course structure: {request.error}");
                 callback?.Invoke(null);
             }
         }
-        else
-        {
-            Debug.LogError($"Failed to retrieve course structure: {request.error}");
-            callback?.Invoke(null);
-        }
     }
-}
 }

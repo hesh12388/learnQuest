@@ -9,10 +9,12 @@ public class User
     public int currentChapter;
     public int currentLevel;
     public int playerAvatar;
-    public User(string email, string username, string createdAt)
+    public int score;
+    public User(string email, string username, string createdAt, int score)
     {
         this.email = email;
         this.username = username; 
         this.createdAt = createdAt;
+        this.score= score;
     }
 }

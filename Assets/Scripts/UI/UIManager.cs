@@ -62,6 +62,7 @@ public class UIManager : MonoBehaviour
     public GameObject settingsPanel;
     public GameObject achievementsPanel;
     public GameObject levelsGamePanel;
+    public GameObject shopPanel;
 
     [Header("Leaderboard UI")]
     public Transform leaderboardContentPanel;  
@@ -73,6 +74,7 @@ public class UIManager : MonoBehaviour
     public GameObject objectivePrefab;
 
 
+    private ShopItemsResponse shop;
     public GameObject inGameUiPanel;
     public GameObject landingPanel;
 
@@ -124,6 +126,35 @@ public class UIManager : MonoBehaviour
     public void ShowGameLevels(){
         setGameUIPanelsInactive();
         levelsGamePanel.SetActive(true);
+    }
+
+    public void ShowShop() {
+        setGameUIPanelsInactive();
+        shopPanel.SetActive(true);
+        
+        // Show loading while fetching shop items
+        ShowLoading();
+        
+        // Get shop items from the database
+        DatabaseManager.Instance.GetShopItems((shopItemsResponse) => {
+            // Hide loading indicator when data is retrieved
+            HideLoading();
+            
+            shop=shopItemsResponse;
+            ShopManager.Instance.getBoughtItems(shop);
+        });
+    }
+
+    public void ShowShopByCharacters(){
+         ShopManager.Instance.PopulateCharacterItems(shop);
+    }
+
+    public void ShowShopByInstructors(){
+         ShopManager.Instance.PopulateInstructorItems(shop);
+    }
+
+    public void ShowShopByBoosts(){
+         ShopManager.Instance.PopulateBoostItems(shop);
     }
     
     public void ShowChat(){
