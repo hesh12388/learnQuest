@@ -28,10 +28,15 @@ public class TransitionManager : MonoBehaviour
 
 
     public IEnumerator transition(int levelIndex){
-        
         transitionAnimator.SetTrigger("End");
         yield return new WaitForSeconds(1f);
         SceneManager.LoadScene("Module" + levelIndex);
+        transitionAnimator.SetTrigger("Start");
+    }
+
+    public IEnumerator contentTransition(){
+        transitionAnimator.SetTrigger("End");
+        yield return new WaitForSeconds(1f);
         transitionAnimator.SetTrigger("Start");
     }
 }

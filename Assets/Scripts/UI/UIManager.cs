@@ -3,6 +3,7 @@ using TMPro;  // Import TextMeshPro
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Panels")]
@@ -77,6 +78,44 @@ public class UIManager : MonoBehaviour
     private ShopItemsResponse shop;
     public GameObject inGameUiPanel;
     public GameObject landingPanel;
+
+    [Header("Evaluation UI")]
+    public Image playerImage;
+    public Image eval_npcImage;
+    public TMP_Text eval_dialogueText;
+    public Button[] answerButtons;
+    
+    public GameObject evaluationPanel;
+    public GameObject battlePanel;
+    public GameObject npcIntroPanel;
+
+    //player hud variables
+    public TMP_Text playerNameText;
+    public TMP_Text playerLevelText;
+    public Transform playerHealthBar;
+
+    //npc hud variables
+    public TMP_Text npcNameText;
+    public TMP_Text npcLevelText;
+    public Transform npcHealthBar;
+
+    //intro panel variables
+    public Image npcIntroImage;
+    public TMP_Text npcIntroNameText;
+    public GameObject optionPanel;
+
+
+    [Header("Demonstration UI")]
+    public Image demonstration_npcImage;
+    public GameObject dialoguePanel;
+    public TMP_Text demonstration_dialogueText;
+    public GameObject graphicsPanel;
+    public Image graphicsImage;
+    public GameObject graphicsImagePanel;
+    public Image graphicsInstructorImage;
+    public GameObject questionsPanel;
+    public Button[] demonstration_answerButtons;
+    public GameObject npcImagePanel;
 
     public static UIManager Instance { get; private set; } // Singleton instance
 
@@ -386,9 +425,8 @@ public class UIManager : MonoBehaviour
         setPanelsInactive();
         DatabaseManager.Instance.loggedInUser.currentLevel = level;
         DatabaseManager.Instance.StartLevel();
-        StartCoroutine(TransitionManager.Instance.transition(level));
+        StartCoroutine(TransitionManager.Instance.transition(5));
         landingPanel.SetActive(false);
-        inGameUiPanel.SetActive(true);
     }
 
     public void ShowLogin()

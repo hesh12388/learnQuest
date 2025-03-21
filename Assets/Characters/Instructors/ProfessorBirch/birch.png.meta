@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 74eb6945c939746438235468d56776e0
+guid: 480826fe785a24461b0137c30e43ddc9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,7 +72,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: character2-removebg-preview_0
+      name: birch_0
       rect:
         serializedVersion: 2
-        x: 204
-        y: 282
-        width: 54
-        height: 71
+        x: 5
+        y: 12
+        width: 234
+        height: 359
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,19 +124,124 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 240448a8a5c0347d1906c471b7add677
-      internalID: -1083875162
+      spriteID: 7bd1f889b8ed443c4ae59fe5055e7dde
+      internalID: 1579828676
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_1
+      name: birch_1
       rect:
         serializedVersion: 2
-        x: 292
-        y: 282
-        width: 51
+        x: 295
+        y: 296
+        width: 64
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a0df9c2cc1fc3479ca837f543fc7a93b
+      internalID: 1017598801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: birch_2
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 293
+        width: 62
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91d7432630a6b4b888718d987c5bb4ec
+      internalID: -1134284023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: birch_3
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 296
+        width: 64
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa607bd5d3ff64bf7b59cbf07f1d74f0
+      internalID: 785360074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: birch_4
+      rect:
+        serializedVersion: 2
+        x: 581
+        y: 293
+        width: 62
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1bb1c31cf50a4ebd81c018cd078e683
+      internalID: -400234799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: birch_5
+      rect:
+        serializedVersion: 2
+        x: 305
+        y: 200
+        width: 50
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eeca0d38d2ebb420d84d2347e1600a5e
+      internalID: -653638828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: birch_6
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 200
+        width: 49
         height: 76
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -145,20 +250,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f45cdf5bb0d194ea2a7de84ac0512b52
-      internalID: 877873358
+      spriteID: 72e207960d8254db9a24f444c1b03f97
+      internalID: -828489774
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_2
+      name: birch_7
       rect:
         serializedVersion: 2
-        x: 380
-        y: 282
-        width: 54
-        height: 71
+        x: 496
+        y: 200
+        width: 50
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,20 +271,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b01011304a9774e4986689a0c66eb23b
-      internalID: -1217241854
+      spriteID: 8496ca8b7594f41478ee6202835c3da2
+      internalID: 1378339164
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_3
+      name: birch_8
       rect:
         serializedVersion: 2
-        x: 465
-        y: 282
-        width: 54
-        height: 77
+        x: 592
+        y: 200
+        width: 49
+        height: 76
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -187,20 +292,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0c125a81e47214f9fa8bc1e351200092
-      internalID: 1724029008
+      spriteID: 8854a0dfc246f41a492fd681a9250d17
+      internalID: 22785658
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_4
+      name: birch_9
       rect:
         serializedVersion: 2
-        x: 9
-        y: 63
-        width: 134
-        height: 202
+        x: 299
+        y: 105
+        width: 50
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -208,20 +313,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e2e7c64845284c1bb30985f2be9e960
-      internalID: 383931880
+      spriteID: 9141a4987e9c04f508483d40ba46cd3c
+      internalID: -2018318247
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_5
+      name: birch_10
       rect:
         serializedVersion: 2
-        x: 209
-        y: 195
-        width: 54
-        height: 70
+        x: 395
+        y: 105
+        width: 49
+        height: 76
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -229,20 +334,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2dbd0a0f2304f435db7c1b189d7dd075
-      internalID: -762427368
+      spriteID: 072f481e84e91451eb9444f13fc91117
+      internalID: 194263581
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_6
+      name: birch_11
       rect:
         serializedVersion: 2
-        x: 297
-        y: 194
-        width: 51
-        height: 77
+        x: 490
+        y: 105
+        width: 50
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -250,20 +355,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 78cda5b10d33d4303a1ae3d99ba66023
-      internalID: 228338309
+      spriteID: af694b283bbf449b0a07498311415e83
+      internalID: -16983848
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_7
+      name: birch_12
       rect:
         serializedVersion: 2
-        x: 385
-        y: 194
-        width: 54
-        height: 71
+        x: 586
+        y: 105
+        width: 49
+        height: 76
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -271,20 +376,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b949cee06102a42c190fb6a64bec086b
-      internalID: -1386728992
+      spriteID: 5b09e51d388dc42298a64730c0e62c3b
+      internalID: -819756629
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_8
+      name: birch_13
       rect:
         serializedVersion: 2
-        x: 473
-        y: 195
-        width: 53
-        height: 75
+        x: 295
+        y: 9
+        width: 64
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -292,20 +397,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 183482c84941c4739a2b33cec335b863
-      internalID: -1979227968
+      spriteID: 01ddcbc2871d54882a3cae67cde20617
+      internalID: -567086338
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_9
+      name: birch_14
       rect:
         serializedVersion: 2
-        x: 207
-        y: 107
-        width: 54
-        height: 68
+        x: 393
+        y: 6
+        width: 62
+        height: 79
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -313,20 +418,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 098b2bcc339534aeeb4ca2c472b7fba2
-      internalID: 1843641410
+      spriteID: 18e7f8db6cd5d4651b269ce67eb5de42
+      internalID: 1651032449
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_10
+      name: birch_15
       rect:
         serializedVersion: 2
-        x: 296
-        y: 107
-        width: 52
-        height: 70
+        x: 486
+        y: 9
+        width: 64
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -334,20 +439,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8067f38874b6b432488b7241234b11f6
-      internalID: -1564902263
+      spriteID: b8992c65502e94a32b95b95a5c3b81de
+      internalID: -166165963
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character2-removebg-preview_11
+      name: birch_16
       rect:
         serializedVersion: 2
-        x: 383
-        y: 107
-        width: 53
-        height: 68
+        x: 581
+        y: 6
+        width: 62
+        height: 79
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -355,113 +460,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e0e4ae8bf4fd46bab3db4475b0bc78a
-      internalID: -1511182969
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: character2-removebg-preview_12
-      rect:
-        serializedVersion: 2
-        x: 470
-        y: 107
-        width: 54
-        height: 70
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8dd19fb675c834f898785084c8d0b432
-      internalID: -1660263826
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: character2-removebg-preview_13
-      rect:
-        serializedVersion: 2
-        x: 204
-        y: 19
-        width: 51
-        height: 68
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 93096e345bc90420e934c0f8603a9ff5
-      internalID: 205804976
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: character2-removebg-preview_14
-      rect:
-        serializedVersion: 2
-        x: 292
-        y: 19
-        width: 51
-        height: 70
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 84e92504470264e729a1c69a434fc273
-      internalID: -1658796398
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: character2-removebg-preview_15
-      rect:
-        serializedVersion: 2
-        x: 380
-        y: 19
-        width: 51
-        height: 68
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e14fb7c4030d6441287bb5cac7616e58
-      internalID: 173710576
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: character2-removebg-preview_16
-      rect:
-        serializedVersion: 2
-        x: 468
-        y: 19
-        width: 51
-        height: 70
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a7a7dda910fc945b281fa8c48d2711f2
-      internalID: 416554953
+      spriteID: a27abcb05556f4a2b9890eccb35599f1
+      internalID: -2015810325
       vertices: []
       indices: 
       edges: []
@@ -477,23 +477,23 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      character2-removebg-preview_0: -1083875162
-      character2-removebg-preview_1: 877873358
-      character2-removebg-preview_10: -1564902263
-      character2-removebg-preview_11: -1511182969
-      character2-removebg-preview_12: -1660263826
-      character2-removebg-preview_13: 205804976
-      character2-removebg-preview_14: -1658796398
-      character2-removebg-preview_15: 173710576
-      character2-removebg-preview_16: 416554953
-      character2-removebg-preview_2: -1217241854
-      character2-removebg-preview_3: 1724029008
-      character2-removebg-preview_4: 383931880
-      character2-removebg-preview_5: -762427368
-      character2-removebg-preview_6: 228338309
-      character2-removebg-preview_7: -1386728992
-      character2-removebg-preview_8: -1979227968
-      character2-removebg-preview_9: 1843641410
+      birch_0: 1579828676
+      birch_1: 1017598801
+      birch_10: 194263581
+      birch_11: -16983848
+      birch_12: -819756629
+      birch_13: -567086338
+      birch_14: 1651032449
+      birch_15: -166165963
+      birch_16: -2015810325
+      birch_2: -1134284023
+      birch_3: 785360074
+      birch_4: -400234799
+      birch_5: -653638828
+      birch_6: -828489774
+      birch_7: 1378339164
+      birch_8: 22785658
+      birch_9: -2018318247
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

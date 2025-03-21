@@ -1,0 +1,60 @@
+{
+    "levels": [
+      {
+        "level_name": "CSS Box Model",
+        "questions": [
+          {
+            "question": "Why is using the CSS box model preferred over using tables for layout?",
+            "options": [
+              "Tables are more responsive to screen sizes",
+              "The box model allows for more flexible and accessible layouts",
+              "The box model removes the need for any styling",
+              "Tables automatically adjust margins and padding"
+            ],
+            "correctIndex": 1
+          },
+          {
+            "question": "What are the four main components of the CSS box model?",
+            "options": [
+              "Content, Padding, Border, Margin",
+              "Header, Body, Footer, Sidebar",
+              "Div, Span, Table, Image",
+              "Top, Right, Bottom, Left"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "question": "What does padding do in the CSS box model?",
+            "options": [
+              "Adds space between the box and other elements",
+              "Removes the border",
+              "Adds space inside the box between the content and the border",
+              "Defines how wide the border is"
+            ],
+            "correctIndex": 2
+          },
+          {
+            "question": "Which CSS property would you use to make a box always span the full width of its container?",
+            "options": [
+              "width: full;",
+              "max-width: 100px;",
+              "width: 100%;",
+              "display: block;"
+            ],
+            "correctIndex": 2
+          },
+          {
+            "question": "Why is using tables for layout problematic for accessibility?",
+            "options": [
+              "They load slower",
+              "They don’t support images",
+              "They confuse assistive technologies like screen readers",
+              "They can't be styled with CSS"
+            ],
+            "correctIndex": 2
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -1,0 +1,126 @@
+{
+    "dialogues": [
+        {
+            "npcName": "What is the CSS Box Model?",
+            "dialogue": [
+                "Welcome! Before we dive in, let me show you something. Many early web developers used tables to structure web pages.",
+                "Here’s a simple table layout.",
+                "But tables have limitations. They are rigid and not ideal for responsive designs.",
+                "Instead, we use something called the CSS box model. It allows us to structure content more flexibly.",
+                "Imagine every element on a webpage as a box. Each box has properties like width, height, margins, and padding.",
+                "For example, this is a webpage structured using the CSS box model.",
+                "Because of this flexibility, websites can adapt to different screen sizes. Look at this example.",
+                "See how it adjusts to different screen sizes? That’s the power of the CSS box model.",
+                "Alright! Let's move on and break down how this box model works."
+            ],
+            "images": [
+                null,
+                "table_layout.png",
+                null,
+                null,
+                null,
+                "css_box_model_layout.png",
+                null,
+                "responsive_design.png",
+                null
+            ],
+            "autoProgressLines": [true, true, false, true, true, true, false, true, false],
+            "requiredPreviousDialogues": [],
+            "questions": [
+                {
+                    "index": 4,
+                    "question": "What is the CSS Box Model?",
+                    "answers": [
+                        "It allows for responsive designs",
+                        "It is a rigid layout system",
+                        "It is used for creating tables",
+                        "It is a type of database"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The CSS Box Model allows for responsive designs.",
+                    "incorrectResponse": "Incorrect. The CSS Box Model allows for responsive designs."
+                }
+            ]
+        },
+        {
+            "npcName": "The components of boxes",
+            "dialogue": [
+                "Think of a neighborhood. Each house sits on a plot of land, surrounded by a yard, a fence, and a sidewalk.",
+                "In the CSS box model, every webpage element is like a house, and its surrounding elements define how it appears.",
+                "Let’s break it down further. Each CSS box has four parts: Content, Padding, Border, and Margins.",
+                "Here’s a visual representation of these components.",
+                "The content is the actual text or image inside the box.",
+                "Padding adds space between the content and the border.",
+                "The border wraps around the padding and content.",
+                "Margins create space between this box and other elements.",
+                "By adjusting these properties, developers control how elements are arranged on a webpage."
+            ],
+            "images": [
+                "neighborhood_example.png",
+                null,
+                null,
+                "box_model_breakdown.png",
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "autoProgressLines": [true, true, false, true, false, true, true, true, false],
+            "requiredPreviousDialogues": ["What is the CSS Box Model?"],
+            "questions": [
+                {
+                    "index": 3,
+                    "question": "What are the four parts of a CSS box?",
+                    "answers": [
+                        "Content, Padding, Border, Margins",
+                        "Header, Footer, Sidebar, Content",
+                        "Width, Height, Depth, Radius",
+                        "Text, Image, Video, Background"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! A CSS box consists of Content, Padding, Border, and Margins.",
+                    "incorrectResponse": "Incorrect. A CSS box consists of Content, Padding, Border, and Margins."
+                }
+            ]
+        },
+        {
+            "npcName": "Set the width and height of a CSS box",
+            "dialogue": [
+                "Now, let’s see how to create a CSS box step by step.",
+                "First, define an ID selector in your CSS. Let’s name it 'hero-main-page'.",
+                "Next, we set the width to 100%.",
+                "Then, we set the height to 500 pixels.",
+                "Finally, we apply this style to a <div> element in our HTML.",
+                "Here's what the code looks like when put together.",
+                "This is how the final result will appear on the webpage!"
+            ],
+            "images": [
+                null,
+                "css_id_selector.png",
+                "css_width_example.png",
+                "css_height_example.png",
+                "html_div_example.png",
+                "full_css_code.png",
+                null
+            ],
+            "autoProgressLines": [true, false, true, true, true, false, false],
+            "requiredPreviousDialogues": ["The components of boxes"],
+            "questions": [
+                {
+                    "index": 2,
+                    "question": "What CSS property defines the width of a box?",
+                    "answers": [
+                        "width",
+                        "height",
+                        "padding",
+                        "margin"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The 'width' property defines the width of a CSS box.",
+                    "incorrectResponse": "Incorrect. The 'width' property defines the width of a CSS box."
+                }
+            ]
+        }
+    ]
+}

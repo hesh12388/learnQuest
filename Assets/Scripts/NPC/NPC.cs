@@ -1,0 +1,288 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+public class NPC : MonoBehaviour, IInteractable
+{
+    public NPCDialogue dialogueData;
+    
+    private Image npcImage;
+    private GameObject dialoguePanel;
+    private TMP_Text dialogueText;
+    private GameObject graphicsPanel;
+    private Image graphicsImage;
+    private GameObject graphicsImagePanel;
+    private Image graphicsInstructorImage;
+    private GameObject questionsPanel;
+    private Button[] answerButtons;
+    private GameObject npcImagePanel;
+
+    public bool isInstructing;
+    private int dialogueIndex ;
+    private bool isTyping, isDialogueActive;
+
+    private bool isOnQuestion;
+
+    private void Start(){
+        npcImage=UIManager.Instance.demonstration_npcImage;
+        dialoguePanel= UIManager.Instance.dialoguePanel;
+        dialogueText= UIManager.Instance.demonstration_dialogueText;
+        graphicsPanel= UIManager.Instance.graphicsPanel;
+        graphicsImage= UIManager.Instance.graphicsImage;
+        graphicsImagePanel= UIManager.Instance.graphicsImagePanel;
+        graphicsInstructorImage= UIManager.Instance.graphicsInstructorImage;
+        questionsPanel= UIManager.Instance.questionsPanel;
+        answerButtons= UIManager.Instance.demonstration_answerButtons;
+        npcImagePanel= UIManager.Instance.npcImagePanel;
+    }
+
+    public bool CanInteract()
+    {
+        return !isDialogueActive;
+    }
+
+    public void Interact()
+    {
+        if(dialogueData == null)
+        {
+            Debug.LogWarning("No dialogue data assigned to this NPC");
+            return;
+        }
+
+        isInstructing=true;
+        Player.Instance.pausePlayer();
+        // Start the interaction coroutine instead of doing everything immediately
+        StartCoroutine(InteractSequence());
+    }
+
+    private IEnumerator InteractSequence()
+    {
+        if(!isDialogueActive){
+            // Now load the dialogue (after transition is complete)
+            dialogueData.LoadDialogue();
+            // Wait for the transition to complete
+            yield return StartCoroutine(TransitionManager.Instance.contentTransition());
+        }
+
+        for(int i=0; i<dialogueData.requiredPreviousDialogues.Length; i++)
+        {
+            if(!NPCManager.Instance.HasCompletedNPC(dialogueData.requiredPreviousDialogues[i]))
+            {
+               DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to learn " + dialogueData.requiredPreviousDialogues[i] + " first.", dialogueData.requiredPreviousDialogues[i]);
+                yield break;
+            }
+        }
+
+        if(isDialogueActive && isOnQuestion){
+            yield break;
+        }
+        else if(isDialogueActive)
+        {
+            NextLine();
+        }
+        else
+        {
+            StartDialogue();
+        }
+    }
+
+    void StartDialogue(){
+        isDialogueActive=true;
+        dialogueIndex=0;
+
+        npcImage.sprite=dialogueData.npcSprite;
+
+        dialoguePanel.SetActive(true);
+
+        StartCoroutine(TypeDialogue());
+    }
+
+    void NextLine(){
+        if(isTyping)
+        {
+            StopAllCoroutines();
+            dialogueText.SetText(dialogueData.dialogue[dialogueIndex]);
+            isTyping=false;
+        }
+        else if(++dialogueIndex<dialogueData.dialogue.Length)
+        {
+            // Check if there's a question at this index
+            var question = dialogueData.questions.Find(q => q.index == dialogueIndex);
+            if (question != null)
+            {
+                ShowQuestion(question);
+            }
+            else
+            {
+                StartCoroutine(TypeDialogue());
+            }
+        }
+        else
+        {
+            EndDialogue();
+        }
+    }
+
+     void ShowQuestion(NPCDialogue.QuestionData questionData)
+    {
+        isOnQuestion = true;
+        graphicsPanel.SetActive(true);
+        graphicsInstructorImage.sprite = dialogueData.npcSprite;
+        graphicsImagePanel.SetActive(false);
+        questionsPanel.SetActive(true);
+        npcImagePanel.SetActive(false);
+
+        // Start typing the question
+        StartCoroutine(TypeText(dialogueText, questionData.question, dialogueData.typingSpeed));
+
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (i < questionData.answers.Length)
+            {
+                TMP_Text answerText = answerButtons[i].GetComponentInChildren<TMP_Text>();
+                int capturedIndex = i;
+                answerButtons[i].onClick.RemoveAllListeners();
+                answerButtons[i].onClick.AddListener(() => OnAnswerSelected(capturedIndex, questionData));
+
+                // Start typing the answer text
+                StartCoroutine(TypeText(answerText, questionData.answers[i], dialogueData.typingSpeed));
+            }
+            else
+            {
+                answerButtons[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+
+    private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)
+    {
+        textObject.text = ""; // Clear the text before typing
+        foreach (char letter in message.ToCharArray())
+        {
+            textObject.text += letter; // Add one character at a time
+            yield return new WaitForSeconds(typingSpeed); // Wait before adding the next character
+        }
+    }
+
+    void OnAnswerSelected(int index, NPCDialogue.QuestionData questionData)
+    {
+
+        Debug.Log("Selected answer: " + index);
+        
+        if (index == questionData.correctAnswerIndex)
+        {
+            dialogueText.text = questionData.correctResponse;
+        }
+        else
+        {
+            dialogueText.text = questionData.incorrectResponse;
+        }
+
+        StartCoroutine(ContinueAfterResponse());
+    }
+
+    IEnumerator ContinueAfterResponse()
+    {
+        yield return new WaitForSeconds(2f);
+        isOnQuestion = false;
+        NextLine();
+    }
+
+    // Display a message when prerequisites aren't met
+    public void DisplayPrerequisiteMessage(string message, string requiredNPC)
+    {
+        // Stop any ongoing dialogue
+        StopAllCoroutines();
+        
+        // Show the dialogue panel
+        dialoguePanel.SetActive(true);
+        npcImage.sprite=dialogueData.npcSprite;
+        // Display only the NPC image, not graphics
+        npcImagePanel.SetActive(true);
+        graphicsPanel.SetActive(false);
+        
+        // Start typing the prerequisite message
+        StartCoroutine(TypePrerequisiteMessage(message, requiredNPC));
+    }
+
+    // Similar to TypeDialogue but for prerequisite messages
+    private IEnumerator TypePrerequisiteMessage(string message, string requiredNPC)
+    {
+        // Set typing state
+        isTyping = true;
+        dialogueText.SetText("");
+        
+        // Type out the message character by character
+        foreach(char letter in message.ToCharArray())
+        {
+            dialogueText.text += letter;
+            yield return new WaitForSeconds(dialogueData.typingSpeed);
+        }
+        
+        isTyping = false;
+        
+        // Auto-close the message after a delay
+        yield return new WaitForSeconds(3f);
+
+        // Call NPCManager method here
+        NPCManager.Instance.showIndicator(requiredNPC);
+        
+        // Close dialogue and resume player
+        StopAllCoroutines();
+        isDialogueActive = false;
+        dialogueText.SetText("");
+        dialoguePanel.SetActive(false);
+        isInstructing = false;
+        Player.Instance.resumePlayer();
+    }
+
+    IEnumerator TypeDialogue(){
+
+        if(dialogueData.dialogueImages!=null && dialogueData.dialogueImages.Length>dialogueIndex && dialogueData.dialogueImages[dialogueIndex]!=null)
+        {
+            graphicsInstructorImage.sprite=dialogueData.npcSprite;
+            graphicsPanel.SetActive(true);
+            graphicsImagePanel.SetActive(true);
+            questionsPanel.SetActive(false);
+            graphicsImage.sprite=dialogueData.dialogueImages[dialogueIndex];
+            npcImagePanel.SetActive(false);
+        }
+        else
+        {
+            npcImagePanel.SetActive(true);
+            graphicsPanel.SetActive(false);
+        }
+
+        isTyping=true;
+        dialogueText.SetText("");
+
+        foreach(char letter in dialogueData.dialogue[dialogueIndex].ToCharArray())
+        {
+            dialogueText.text+=letter;
+            yield return new WaitForSeconds(dialogueData.typingSpeed);
+        }
+
+        isTyping=false;
+
+        if(dialogueData.autoProgressLines.Length>dialogueIndex && dialogueData.autoProgressLines[dialogueIndex] && !isOnQuestion)
+        {
+            yield return new WaitForSeconds(dialogueData.autoProgressDelay);
+            NextLine();
+        }
+       
+    }
+
+    public void EndDialogue(){
+        StopAllCoroutines();
+        isDialogueActive=false;
+        dialogueText.SetText("");
+        dialoguePanel.SetActive(false);
+        NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
+        isInstructing=false;
+        Player.Instance.resumePlayer();
+    }
+
+
+}
