@@ -121,6 +121,236 @@
                     "incorrectResponse": "Incorrect. The 'width' property defines the width of a CSS box."
                 }
             ]
+        },
+        {
+            "npcName": "Learn about tags and elements",
+            "dialogue": [
+                "Welcome! Let's begin by understanding the basic building blocks of HTML: tags and elements.",
+                "HTML elements are made up of tags that wrap around content. For example, to emphasize text, we use the <em> element.",
+                "Let me show you what that looks like: <em>I\u2019m emphasized</em>",
+                "Here's a breakdown: the opening tag is <em>, and the closing tag is </em>. The tag name is simply 'em'.",
+                "Take a look at this diagram that explains the parts of an element visually.",
+                "Remember, HTML is all about syntax\u2014the structure of the language. Syntax includes the terms used and how they relate.",
+                "Tags and elements are essential parts of HTML syntax and the first step in creating content in HTML.",
+                "Now that we understand the <em> element, let\u2019s explore how browsers handle HTML elements.",
+                "HTML is a declarative language. That means it tells browsers what the content is, not how to render it.",
+                "There\u2019s a group called WHATWG that defines how HTML is written. They describe how parsers\u2014like browsers\u2014should interpret it.",
+                "Take the <em> element for example: it represents stress emphasis, but doesn't dictate visual styling.",
+                "Browsers often display emphasized text in italics, but that\u2019s not a strict rule.",
+                "In fact, the <em> element is not the same as <i>. The <i> element is for changing voice or mood.",
+                "Also, the <em> tag doesn\u2019t imply importance\u2014use <strong> if that\u2019s what you mean."
+            ],
+            "images": [
+                null,
+                null,
+                null,
+                null,
+                "element_structure_diagram.png",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "browser_em_display.png",
+                null,
+                null
+            ],
+            "autoProgressLines": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+            ],
+            "requiredPreviousDialogues": [],
+            "questions": [
+                {
+                    "index": 4,
+                    "question": "What is the correct syntax for an emphasis element in HTML?",
+                    "answers": [
+                        "<em>I\u2019m emphasized</em>",
+                        "<emphasized>I\u2019m emphasized</emphasized>",
+                        "<italics>I\u2019m emphasized</italics>",
+                        "<i>I\u2019m emphasized</i>"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The <em> tag is used for emphasizing text.",
+                    "incorrectResponse": "Incorrect. The correct format is <em>I\u2019m emphasized</em>."
+                },
+                {
+                    "index": 11,
+                    "question": "What does the <em> element represent in HTML?",
+                    "answers": [
+                        "Stress emphasis",
+                        "Importance",
+                        "Mood change",
+                        "Nothing"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The <em> tag represents stress emphasis in HTML.",
+                    "incorrectResponse": "Incorrect. The <em> tag is used for stress emphasis, not importance or mood change."
+                }
+            ]
+        },
+        {
+            "npcName": "Nest HTML elements",
+            "dialogue": [
+                "Imagine packing a suitcase. Throwing everything in loosely might work, but it gets messy.",
+                "Now imagine using smaller bags for socks, shampoo, and shoes. That\u2019s more organized!",
+                "HTML nesting works the same way. We put elements inside other elements for better structure.",
+                "For example, here\u2019s a <div> element containing three <p> elements.",
+                "<div><p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p></div>",
+                "The <div> is the parent, and the <p> tags are its children.",
+                "This structure helps with layout and styling. Child elements can inherit styles from their parent."
+            ],
+            "images": [
+                "suitcase_packing.png",
+                null,
+                null,
+                null,
+                "nested_div_paragraphs.png",
+                null,
+                "inheritance_example.png"
+            ],
+            "autoProgressLines": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+            ],
+            "requiredPreviousDialogues": [
+                "Learn about tags and elements"
+            ],
+            "questions": [
+                {
+                    "index": 5,
+                    "question": "What is a 'parent' element in HTML?",
+                    "answers": [
+                        "An element that contains other elements",
+                        "An element that comes first in the file",
+                        "An element with bold styling",
+                        "An element with a closing tag"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! Parent elements contain other elements inside them.",
+                    "incorrectResponse": "Incorrect. A parent element contains other nested elements."
+                }
+            ]
+        },
+        {
+            "npcName": "Understand the anatomy of an HTML page",
+            "dialogue": [
+                "Let\u2019s go over the basic structure of a full HTML page. Think of it as the skeleton of your webpage.",
+                "Every HTML page starts with a DOCTYPE declaration: <!DOCTYPE html>",
+                "Next is the <html> element. This wraps the whole document.",
+                "Inside <html>, you\u2019ll find two sections: <head> and <body>.",
+                "The <head> element holds things like metadata, styles, and scripts\u2014stuff users don\u2019t directly see.",
+                "The <body> is where all the visible content goes: text, images, videos, etc.",
+                "Here's the complete structure of a basic HTML page."
+            ],
+            "images": [
+                null,
+                "doctype_example.png",
+                "html_tag_wrap.png",
+                "html_head_body.png",
+                "head_example.png",
+                "body_example.png",
+                "html_page_structure.png"
+            ],
+            "autoProgressLines": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+            ],
+            "requiredPreviousDialogues": [
+                "Nest HTML elements"
+            ],
+            "questions": [
+                {
+                    "index": 6,
+                    "question": "Which element wraps all content in an HTML page?",
+                    "answers": [
+                        "<html>",
+                        "<body>",
+                        "<head>",
+                        "<meta>"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The <html> element wraps all the content of the page.",
+                    "incorrectResponse": "Incorrect. The <html> element is the root element that wraps all others."
+                }
+            ]
+        },
+        {
+            "npcName": "Identify the most common HTML elements",
+            "dialogue": [
+                "Let\u2019s explore some common HTML elements, like spices in your kitchen\u2014they\u2019re essential in many combinations!",
+                "The <p> tag is used for paragraphs. It provides spacing above and below text blocks.",
+                "<h1> to <h6> tags are for headings, from most to least important.",
+                "The <a> tag creates links to other pages. For example: <a href='https://example.com'>Visit site</a>",
+                "The <span> tag is used for styling inline text or small text snippets.",
+                "<blockquote> is used for quoting other sources.",
+                "br creates a simple line break. It doesn\u2019t have a closing tag.",
+                "<img> embeds images and requires a 'src' attribute to specify the image path.",
+                "<hr> adds a horizontal line as a visual break between sections."
+            ],
+            "images": [
+                "spices_analogy.png",
+                "p_tag_example.png",
+                "header_tags_example.png",
+                "anchor_tag_example.png",
+                "span_example.png",
+                "blockquote_example.png",
+                "br_example.png",
+                "img_example.png",
+                "hr_example.png"
+            ],
+            "autoProgressLines": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+            ],
+            "requiredPreviousDialogues": [
+                "Understand the anatomy of an HTML page"
+            ],
+            "questions": [
+                {
+                    "index": 7,
+                    "question": "Which attribute is required in the <img> tag?",
+                    "answers": [
+                        "src",
+                        "href",
+                        "alt",
+                        "title"
+                    ],
+                    "correctAnswerIndex": 0,
+                    "correctResponse": "Correct! The 'src' attribute specifies the image source.",
+                    "incorrectResponse": "Incorrect. The <img> tag must include a 'src' attribute pointing to the image location."
+                }
+            ]
         }
     ]
 }

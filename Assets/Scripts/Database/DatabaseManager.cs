@@ -92,7 +92,7 @@ public class DatabaseManager : MonoBehaviour
     private IEnumerator GetObjectivesRequest(Action<List<Objective>> callback)
     {
         string username = loggedInUser.username;
-        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel].level_name;
+        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
         string url = $"{serverUrl}/get-objectives/{username}/{level_name}";
         
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -120,8 +120,8 @@ public class DatabaseManager : MonoBehaviour
                         string status = objectiveObj["status"].ToString();
                         string description = objectiveObj["description"].ToString();
                         int difficulty = objectiveObj["difficulty"].ToObject<int>();
-                        
-                        objectives.Add(new Objective(objectiveName, status, description, difficulty));
+                        int points = objectiveObj["points"].ToObject<int>();
+                        objectives.Add(new Objective(objectiveName, status, description, difficulty, points));
                     }
                     
                     callback?.Invoke(objectives);
@@ -142,7 +142,7 @@ public class DatabaseManager : MonoBehaviour
 
     private IEnumerator StartLevelRequest()
     {
-        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel].level_name;
+        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
         string json = "{\"username\":\"" + loggedInUser.username + "\", \"level_name\":\"" + level_name + "\"}";
         byte[] jsonData = Encoding.UTF8.GetBytes(json);
 
@@ -162,6 +162,52 @@ public class DatabaseManager : MonoBehaviour
             else
             {
                 Debug.LogError("Failed to start level: " + request.error);
+            }
+        }
+    }
+
+    // Public method to remove an item from a user's inventory
+    public void RemoveUserItem(string itemName, Action<bool> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot remove item: No user is logged in");
+            callback?.Invoke(false);
+            return;
+        }
+
+        StartCoroutine(RemoveUserItemRequest(itemName, callback));
+    }
+
+    private IEnumerator RemoveUserItemRequest(string itemName, Action<bool> callback)
+    {
+        string username = loggedInUser.username;
+        string url = $"{serverUrl}/user-items/{username}/{itemName}";
+        
+        using (UnityWebRequest request = UnityWebRequest.Delete(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.downloadHandler = new DownloadHandlerBuffer(); // Required to read response
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log($"Item '{itemName}' removed successfully: {responseText}");
+                
+                // Also remove the item from the local purchasedItems list if it exists
+                if (loggedInUser.purchasedItems != null)
+                {
+                    loggedInUser.purchasedItems.RemoveAll(item => item.item_name == itemName);
+                }
+                
+                callback?.Invoke(true);
+            }
+            else
+            {
+                Debug.LogError($"Failed to remove item '{itemName}': {request.error}");
+                callback?.Invoke(false);
             }
         }
     }
@@ -234,6 +280,68 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    // 📌 Get user achievements
+    public void GetUserAchievements(Action<List<Achievement>> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot get achievements: No user is logged in");
+            callback?.Invoke(null);
+            return;
+        }
+
+        StartCoroutine(GetUserAchievementsRequest(callback));
+    }
+
+    private IEnumerator GetUserAchievementsRequest(Action<List<Achievement>> callback)
+    {
+        string url = $"{serverUrl}/get-achievements/{loggedInUser.username}";
+        
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log("User achievements retrieved: " + jsonResponse);
+
+                try
+                {
+                    // Parse JSON using JObject
+                    JObject responseObj = JObject.Parse(jsonResponse);
+                    JArray achievementsArray = (JArray)responseObj["achievements"];
+                    
+                    List<Achievement> achievements = new List<Achievement>();
+                    
+                    foreach (JObject achievementObj in achievementsArray)
+                    {
+                        string name = achievementObj["achievement_name"].ToString();
+                        string description = achievementObj["description"].ToString();
+                        int gems = achievementObj["gems"].ToObject<int>();
+                        string status = achievementObj["status"].ToString();
+                        
+                        achievements.Add(new Achievement(name, description, gems, status));
+                    }
+                    
+                    callback?.Invoke(achievements);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing achievements JSON: " + ex.Message);
+                    callback?.Invoke(new List<Achievement>());
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to retrieve achievements: {request.error}");
+                callback?.Invoke(new List<Achievement>());
+            }
+        }
+    }
+    
     // 📌 Get Leaderboard Rankings
     public void GetLeaderboard(Action<List<LeaderboardEntry>> callback)
     {
@@ -265,10 +373,10 @@ public class DatabaseManager : MonoBehaviour
                     {
                         string username = entryObj["username"].ToString();
                         int score = entryObj["score"].ToObject<int>();
-                        int bestTime = entryObj["bestTime"].ToObject<int>();
+                        int numGems = entryObj["numGems"].ToObject<int>();
                         int numAchievements = entryObj["numAchievements"].ToObject<int>();
                         
-                        leaderboardEntries.Add(new LeaderboardEntry(username, score, numAchievements, bestTime));
+                        leaderboardEntries.Add(new LeaderboardEntry(username, score, numAchievements, numGems));
                     }
                     
                     callback?.Invoke(leaderboardEntries);
@@ -472,7 +580,14 @@ public class DatabaseManager : MonoBehaviour
                         
                         Debug.Log($"User balance updated to: {newBalance}");
                     }
-                    
+                    // Add the newly purchased item to the user's purchased items list
+                    if (loggedInUser.purchasedItems != null)
+                    {
+                        UserItem newItem = new UserItem(itemName, itemType);
+                        loggedInUser.purchasedItems.Add(newItem);
+                        Debug.Log($"Added {itemName} to user's purchased items");
+                    }
+
                     callback?.Invoke(true);
                 }
                 catch (Exception ex)
@@ -537,10 +652,13 @@ public class DatabaseManager : MonoBehaviour
                     string emailAddress = jsonResponse["email"].ToString();
                     string createdAt = jsonResponse["createdAt"].ToString();
                     int score = jsonResponse["score"].ToObject<int>();
+                    int numGems= jsonResponse["numGems"].ToObject<int>();
 
 
                     // Create and store the User object
-                    loggedInUser = new User(emailAddress, username, createdAt, score);
+                    loggedInUser = new User(emailAddress, username, createdAt, score, numGems);
+                    StartCoroutine(LoadUserItemsAfterLogin(callback));
+                    yield break;
                 }
 
                 callback?.Invoke(true); // Success
@@ -553,6 +671,45 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    private IEnumerator LoadUserItemsAfterLogin(Action<bool> loginCallback)
+    {
+        // Wait for the coroutine to complete and store items in the user object
+        bool itemsLoaded = false;
+        GetUserItems((items) => {
+            if (items != null)
+            {
+                loggedInUser.purchasedItems = items;
+                Debug.Log($"Loaded {items.Count} purchased items for user {loggedInUser.username}");
+
+                // Extract player moves from purchased items
+                List<string> movesList = new List<string>();
+                foreach (UserItem item in items)
+                {
+                    if (item.item_type == "Move" && movesList.Count < 4)
+                    {
+                        movesList.Add(item.item_name);
+                    }
+                    else if(item.item_type == "character" && item.item_name=="Jessica"){
+                        loggedInUser.equippedCharacter = item.item_name;
+                    }
+                }
+                
+                // Set the player moves
+                loggedInUser.playerMoves = movesList.ToArray();
+                Debug.Log($"Set {loggedInUser.playerMoves.Length} player moves");
+            }
+            itemsLoaded = true;
+        });
+        
+        // Wait until items are loaded
+        while (!itemsLoaded)
+        {
+            yield return null;
+        }
+        
+        // Now finalize the login process
+        loginCallback?.Invoke(true);
+    }
 
     // 📌 Get Course Structure
     public void GetCourseStructure(Action<CourseStructure> callback)
@@ -627,6 +784,124 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    // Completes the current level with time and score data
+    public void CompleteLevel(bool isFailed, Action<bool> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot complete level: No user is logged in");
+            callback?.Invoke(false);
+            return;
+        }
+
+        // Get the current level name from the course structure
+        string levelName = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
+        
+        // Get time and score from the user object
+        float timeTaken = loggedInUser.getLevelTime();
+        float score = loggedInUser.getLevelScore();
+        
+        StartCoroutine(CompleteLevelRequest(levelName, timeTaken, score, isFailed, callback));
+    }
+
+    private IEnumerator CompleteLevelRequest(string levelName, float timeTaken, float score, bool isFailed, Action<bool> callback)
+    {
+        // Create JSON data with all required parameters
+        string json = "{" +
+        "\"username\":\"" + loggedInUser.username + "\"," +
+        "\"level_name\":\"" + levelName + "\"," + 
+        "\"time_taken\":" + timeTaken.ToString("F2") + "," + // Format time to 2 decimal places
+        "\"score\":" + score + "," +
+        "\"isFailed\":" + isFailed.ToString().ToLower() + // Convert to lowercase "true" or "false"
+    "}";
+        
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/complete-level", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Level completed successfully: " + responseText);
+                
+                try
+                {
+                    // Parse response to check for any updates (e.g., achievements unlocked)
+                    JObject response = JObject.Parse(responseText);
+                    
+                    // Update user data if needed (e.g., if server returns updated score or gems)
+                    if (response.ContainsKey("score"))
+                    {
+                        loggedInUser.score = response["score"].ToObject<int>();
+                    }
+                    
+                    if (response.ContainsKey("numGems"))
+                    {
+                        loggedInUser.numGems = response["numGems"].ToObject<int>();
+                    }
+                    
+                    callback?.Invoke(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing level completion response: " + ex.Message);
+                    callback?.Invoke(true); // Level likely completed even if parsing failed
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to complete level: " + request.error);
+                callback?.Invoke(false);
+            }
+        }
+    }
+
+    public void CompleteObjective(string objectiveName, Action<bool> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot complete objective: No user is logged in");
+            callback?.Invoke(false);
+            return;
+        }
+
+        StartCoroutine(CompleteObjectiveRequest(objectiveName, callback));
+    }
+
+    private IEnumerator CompleteObjectiveRequest(string objectiveName, Action<bool> callback)
+    {
+        string json = "{\"username\":\"" + loggedInUser.username + "\", \"objective_name\":\"" + objectiveName + "\"}";
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/complete-objective", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Objective completed successfully: " + responseText);
+                
+                callback?.Invoke(true);
+            }
+            else
+            {
+                Debug.LogError("Failed to complete objective: " + request.error);
+                callback?.Invoke(false);
+            }
+        }
+    }
+
     private IEnumerator GetCourseStructureRequest(Action<CourseStructure> callback)
     {
         string username = loggedInUser.username;
@@ -672,8 +947,10 @@ public class DatabaseManager : MonoBehaviour
                             int score = levelObj["score"].ToObject<int>();
                             string level_status = levelObj["status"].ToString();
                             int levelNumber = levelObj["levelNumber"].ToObject<int>();
+                            int points = levelObj["points"].ToObject<int>();
+                            bool isCompleted = levelObj["isCompleted"].ToObject<bool>();
                             
-                            levels.Add(new Level(levelName, score, level_status, levelNumber));
+                            levels.Add(new Level(levelName, score, level_status, levelNumber, points, isCompleted));
                         }
                         
                         chapters.Add(new Chapter(chapterName, status, levels));

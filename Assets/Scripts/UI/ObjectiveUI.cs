@@ -15,11 +15,12 @@ public class ObjectiveUI : MonoBehaviour
     public GameObject failedIcon;
     public GameObject inProgressIcon;
     public GameObject statusPanel;
-    public void SetObjective(string objective_name, bool isCompleted, string description, int difficulty)
+    public TextMeshProUGUI pointsText;
+    public void SetObjective(string objective_name, bool isCompleted, string description, int difficulty, int points)
     {
       objectiveNameText.text = objective_name;
       descriptionText.text = description;
-
+      pointsText.text = "X" + points.ToString();
       for (int i = 0; i < difficulty; i++)
       {
           GameObject star = Instantiate(starPrefab, starsPanel.transform);

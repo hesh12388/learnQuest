@@ -22,13 +22,19 @@ public class Player : MonoBehaviour
     public bool isPaused;
 
     public static Player Instance;
-    
+    public Transform PlayerTransform { get; private set; } // Reference to the player's Transform
     private void Awake()
     {
          if (Instance == null)
+         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
+         }
         else
+        {
             Destroy(gameObject);
+        }
+        PlayerTransform = transform;
         animator = GetComponent<Animator>();
     }
 
@@ -52,6 +58,9 @@ public class Player : MonoBehaviour
     void Update()
     {
 
+        if(!UIManager.Instance.isInGame){
+            return;
+        }
         
         // Calculate the direction the player is facing
         Vector2 facingDir = new Vector2(animator.GetFloat("moveX"), animator.GetFloat("moveY"));
@@ -132,7 +141,7 @@ public class Player : MonoBehaviour
     private bool isWalkable(Vector3 targetPos)
     {
         // Cast a box around the player to check for collisions
-        var hit = Physics2D.OverlapCircle(targetPos, 0.2f, layerMask | interactableLayer);
+        var hit = Physics2D.OverlapCircle(targetPos, 0.3f, layerMask | interactableLayer);
 
         // If there is no collision, the target position is walkable
         return hit == null;

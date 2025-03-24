@@ -2,6 +2,8 @@
     "levels": [
       {
         "level_name": "CSS Box Model",
+        "enemy_name": "Shadow",
+        "enemy_moves": ["Shadow Punch", "Shadow Ball", "Shadow Claw", "Shadow Sneak"],
         "questions": [
           {
             "question": "Why is using the CSS box model preferred over using tables for layout?",
@@ -52,6 +54,63 @@
               "They can't be styled with CSS"
             ],
             "correctIndex": 2
+          }
+        ]
+      },
+      {
+        "level_name": "Set Up a Web Page with HTML",
+        "enemy_name": "Raven",
+        "enemy_moves": ["Code Slash", "Tag Trap", "Syntax Shuriken", "Markup Storm"],
+        "questions": [
+          {
+            "question": "In a standard HTML document, the body element stands in what relationship to the HTML element?",
+            "options": [
+              "Peer",
+              "Head",
+              "Parent",
+              "Child"
+            ],
+            "correctIndex": 3
+          },
+          {
+            "question": "Jay is creating a web page that contains a lot of information and data that might be difficult for visitors to his web page to read. He wants to break up the text into smaller sentences on new lines, so the text is easier to read.\n\nWhich of the following elements should Jay use to separate lines of text in his web page?",
+            "options": [
+              "<br>",
+              "<h1></h1>",
+              "<span></span>",
+              "<a></a>"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "question": "Arnold is creating a website and would like to add paragraphs.\n\nWhat code should Arnold use?",
+            "options": [
+              "<div>\n  <p>paragraph 1</p>\n  <p>paragraph 2</p>\n  <p>paragraph 3</p>\n</div>",
+              "<div>\n  <paragraph>1</paragraph>\n  <paragraph>2</paragraph>\n  <paragraph>3</paragraph>\n</div>",
+              "<div>\n  <p>p1\n  <p>p2\n  <p>p3\n</div>",
+              "<div>\n  <paragraph>1\n  <paragraph>2\n  <paragraph>3\n</div>"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "question": "Shema would like to add a quote with a link to the quote’s author to her resume web page.\n\nWhat two elements would she need to use?",
+            "options": [
+              "blockquote <blockquote></blockquote> and anchor <a></a>",
+              "blockquote <blockquote></blockquote> and link <link></link>",
+              "quote <quote></quote> and anchor <a></a>",
+              "anchor <a></a> and link </link>"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "question": "Which part of an HTML document should include metadata, links to stylesheets, and scripts that don’t directly display on the page?",
+            "options": [
+              "<meta>",
+              "<head>",
+              "<body>",
+              "<html>"
+            ],
+            "correctIndex": 1
           }
         ]
       }

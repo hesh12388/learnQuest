@@ -12,6 +12,9 @@ public class ShopItemUI: MonoBehaviour
     public Button purchaseButton; 
     public ShopItem item;
     public string itemCategory;
+    public Image item_cost_image;
+    public Sprite gem_sprite;
+    public Sprite coin_sprite;
     
     private void Awake()
     {
@@ -49,10 +52,28 @@ public class ShopItemUI: MonoBehaviour
         item_cost_text.text = cost.ToString();
         imagePanel.GetComponent<Image>().sprite = image;
 
+        if(itemCategory=="Move"){
+            item_cost_image.sprite = gem_sprite;
+        }
+        else{
+            item_cost_image.sprite = coin_sprite;
+        }
 
-        if(ShopManager.Instance.isPurchased(item_name)){
+        if(ShopManager.Instance.isEquipped(item_name, itemCategory)){
             SetButtonInteractable(false);
-            item_cost_text.text = "Owned";
+            item_cost_text.text = "Equipped";
+        }
+
+        else if(ShopManager.Instance.isPurchased(item_name)){
+
+            if(itemCategory=="character" || itemCategory=="Move"){
+                SetButtonInteractable(true);
+                item_cost_text.text = "Equip";
+            }
+            else{
+                SetButtonInteractable(false);
+                item_cost_text.text = "Owned";
+            }
         }
 
         else if(cost>DatabaseManager.Instance.loggedInUser.score)
@@ -68,8 +89,22 @@ public class ShopItemUI: MonoBehaviour
     public void refreshItem(){
 
         if(ShopManager.Instance.isPurchased(item.item_name)){
-            SetButtonInteractable(false);
-            item_cost_text.text = "Owned";
+            
+            if(itemCategory=="character" || itemCategory=="Move"){
+                
+                if(ShopManager.Instance.isEquipped(item.item_name, itemCategory)){
+                    SetButtonInteractable(false);
+                    item_cost_text.text = "Equipped";
+                }
+                else{
+                    SetButtonInteractable(true);
+                    item_cost_text.text = "Equip";
+                }
+            }
+            else{
+                SetButtonInteractable(false);
+                item_cost_text.text = "Owned";
+            }
         }
        
         else if(item.cost>DatabaseManager.Instance.loggedInUser.score)

@@ -6,11 +6,13 @@ public class Objective
     public string status;
     public string description;
     public int difficulty;
-    public Objective(string name, string status, string description, int difficulty)
+    public int points;
+    public Objective(string name, string status, string description, int difficulty, int points)
     {
         this.objective_name = name;
         this.status = status;
         this.description = description;
         this.difficulty = difficulty;
+        this.points= points;
     }
 }

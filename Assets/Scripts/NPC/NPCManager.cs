@@ -15,7 +15,7 @@ public class NPCManager : MonoBehaviour
    
     private HashSet<string> completedNPCs = new HashSet<string>();
 
-    public int numNpcs;
+    private int numNpcs;
     public static NPCManager Instance;
     public CinemachineVirtualCamera shallowCamera;
     public CinemachineVirtualCamera wideCamera;
@@ -40,6 +40,49 @@ public class NPCManager : MonoBehaviour
         
         // Convert the list to a dictionary at runtime
         InitializeDictionary();
+    }
+
+    private void Start()
+    {
+        // Load objectives from database when the scene starts
+        LoadObjectivesFromDatabase();
+    }
+
+    // Load objectives from database and initialize the completedNPCs HashSet
+    private void LoadObjectivesFromDatabase()
+    {
+        // Check if there's a logged in user
+        if (DatabaseManager.Instance.loggedInUser == null)
+        {
+            Debug.LogWarning("Cannot load objectives: No user is logged in");
+            return;
+        }
+
+        // Call the DatabaseManager to get objectives
+        DatabaseManager.Instance.GetObjectives((objectives) => {
+            if (objectives != null)
+            {
+                completedNPCs.Clear(); // Clear the current HashSet
+
+                // Add completed objectives to the HashSet
+                foreach (var objective in objectives)
+                {
+                    if (objective.status.ToLower() == "completed")
+                    {
+                        completedNPCs.Add(objective.objective_name);
+                    }
+                }
+
+                Debug.Log($"Loaded {completedNPCs.Count} completed NPCs/objectives from database");
+                
+                // Update the numNpcs based on the total number of objectives
+                numNpcs = objectives.Count;
+            }
+            else
+            {
+                Debug.LogError("Failed to load objectives from database");
+            }
+        });
     }
 
     // Initialize the dictionary from inspector-assigned list
@@ -81,18 +124,29 @@ public class NPCManager : MonoBehaviour
         return completedNPCs.Contains(npcName);
     }
 
-    public  void MarkNPCCompleted(string npcName)
+    public void MarkNPCCompleted(string npcName)
     {
+        // Only proceed if NPC is not already marked as completed
         if (!completedNPCs.Contains(npcName))
         {
+            // Add to local HashSet for immediate feedback
             completedNPCs.Add(npcName);
-        }
-
-        if (AreAllNPCsCompleted())
-        {
-            Debug.Log("All NPCs completed!");
-            AspectController.Instance.SetBattleAspect();
-            EvaluationManager.Instance.StartEvaluation();
+            
+            // Call DatabaseManager to update the database
+            DatabaseManager.Instance.CompleteObjective(npcName, (success) => {
+                if (success)
+                {
+                    Debug.Log($"NPC/Objective '{npcName}' marked as completed in the database");
+                    StartCoroutine(UIManager.Instance.ShowObjectiveComplete(npcName));
+                    
+                }
+                else
+                {
+                    // If the database update failed, remove from local HashSet to maintain consistency
+                    Debug.LogError($"Failed to mark NPC/Objective '{npcName}' as completed in database");
+                    completedNPCs.Remove(npcName);
+                }
+            });
         }
     }
 

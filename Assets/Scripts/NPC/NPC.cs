@@ -19,11 +19,13 @@ public class NPC : MonoBehaviour, IInteractable
     private GameObject npcImagePanel;
 
     public bool isInstructing;
+    public bool isEvaluation;
     private int dialogueIndex ;
     private bool isTyping, isDialogueActive;
 
     private bool isOnQuestion;
 
+    private string currentMenu;
     private void Start(){
         npcImage=UIManager.Instance.demonstration_npcImage;
         dialoguePanel= UIManager.Instance.dialoguePanel;
@@ -44,6 +46,12 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void Interact()
     {
+
+        if(isOnQuestion || EvaluationManager.Instance.isEvaluating)
+        {
+            return;
+        }
+        
         if(dialogueData == null)
         {
             Debug.LogWarning("No dialogue data assigned to this NPC");
@@ -58,6 +66,19 @@ public class NPC : MonoBehaviour, IInteractable
 
     private IEnumerator InteractSequence()
     {
+        if(isEvaluation)
+        {
+            if(NPCManager.Instance.AreAllNPCsCompleted()){
+                EvaluationManager.Instance.StartEvaluation();
+                yield break;
+            }
+            else{
+                yield return StartCoroutine(EvaluationManager.Instance.NotReady());
+                Player.Instance.resumePlayer();
+                isInstructing=false;
+                yield break;
+            }
+        }
         if(!isDialogueActive){
             // Now load the dialogue (after transition is complete)
             dialogueData.LoadDialogue();
@@ -74,10 +95,8 @@ public class NPC : MonoBehaviour, IInteractable
             }
         }
 
-        if(isDialogueActive && isOnQuestion){
-            yield break;
-        }
-        else if(isDialogueActive)
+      
+        if(isDialogueActive)
         {
             NextLine();
         }
@@ -112,6 +131,7 @@ public class NPC : MonoBehaviour, IInteractable
             if (question != null)
             {
                 ShowQuestion(question);
+
             }
             else
             {
@@ -170,9 +190,11 @@ public class NPC : MonoBehaviour, IInteractable
     {
 
         Debug.Log("Selected answer: " + index);
-        
+        // Stop all typing coroutines first
+        StopAllCoroutines();
         if (index == questionData.correctAnswerIndex)
         {
+           
             dialogueText.text = questionData.correctResponse;
         }
         else
@@ -187,7 +209,14 @@ public class NPC : MonoBehaviour, IInteractable
     {
         yield return new WaitForSeconds(2f);
         isOnQuestion = false;
-        NextLine();
+        if (dialogueIndex < dialogueData.dialogue.Length)
+        {
+            yield return StartCoroutine(TypeDialogue());
+        }
+        else
+        {
+            EndDialogue();
+        }
     }
 
     // Display a message when prerequisites aren't met
