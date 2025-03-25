@@ -14,6 +14,8 @@ public class CourseSelector : MonoBehaviour
 
     private int currentIndex = 0; // Track the selected course
 
+    private string allowedCourse="WebDev";
+
     void Start()
     {
         UpdateCourseDisplay();
@@ -21,7 +23,6 @@ public class CourseSelector : MonoBehaviour
         // Add button listeners
         leftButton.onClick.AddListener(PreviousCourse);
         rightButton.onClick.AddListener(NextCourse);
-        selectButton.onClick.AddListener(SelectCourse);
     }
 
     void UpdateCourseDisplay()
@@ -29,6 +30,14 @@ public class CourseSelector : MonoBehaviour
         // Update UI with new course image & name
         courseImageUI.sprite = courseImages[currentIndex];
         courseNameText.text = courseNames[currentIndex];
+
+        if(courseNames[currentIndex] == allowedCourse){
+            selectButton.interactable = true;
+            selectButton.GetComponentInChildren<TextMeshProUGUI>().text = "SELECT";
+        }else{
+            selectButton.interactable = false;
+            selectButton.GetComponentInChildren<TextMeshProUGUI>().text = "Soon!";
+        }
     }
 
     public void NextCourse()
@@ -47,11 +56,5 @@ public class CourseSelector : MonoBehaviour
             currentIndex = courseImages.Length - 1; // Loop back to last course
 
         UpdateCourseDisplay();
-    }
-
-    public void SelectCourse()
-    {
-        Debug.Log("Selected Course: " + courseNames[currentIndex]);
-        // Implement logic to load the selected course or store selection
     }
 }

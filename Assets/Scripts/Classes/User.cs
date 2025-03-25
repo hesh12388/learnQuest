@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Globalization;
+using System;
 
 [System.Serializable]
 public class User
@@ -18,9 +20,10 @@ public class User
     public List<UserItem> purchasedItems; // New field for purchased items
     public string [] playerMoves;
     public string equippedCharacter;
-    private float currentLevelStartTime;
+    public string currentLevelStartTime;
     private float currentLevelScore;
-    public User(string email, string username, string createdAt, int score, int numGems)
+    public int consecutiveLevelsWithoutFailure;
+    public User(string email, string username, string createdAt, int score, int numGems, int consecutiveLevelsWithoutFailure)
     {
         this.email = email;
         this.username = username; 
@@ -28,6 +31,7 @@ public class User
         this.score = score;
         this.purchasedItems = new List<UserItem>(); // Initialize the list
         this.numGems = numGems;
+        this.consecutiveLevelsWithoutFailure = consecutiveLevelsWithoutFailure;
     }
     
     // Helper method to check if an item is purchased
@@ -44,11 +48,6 @@ public class User
         return false;
     }
 
-    public void startLevelTimer()
-    {
-        currentLevelStartTime = Time.time;
-    }
-
     public void setLevelScore(float score)
     {
         currentLevelScore = score;
@@ -61,7 +60,30 @@ public class User
     
     public float getLevelTime()
     {
-        float levelTime = Time.time - currentLevelStartTime;
-        return levelTime;
+        if (string.IsNullOrEmpty(currentLevelStartTime))
+        {
+            Debug.LogWarning("Level start time not set");
+            return 0f;
+        }
+        
+        try
+        {
+            // Parse the ISO 8601 format timestamp (e.g., "2023-05-15T14:30:45.123Z")
+            DateTime startDateTime = DateTime.Parse(currentLevelStartTime, null, DateTimeStyles.RoundtripKind);
+            
+            // Get current time in UTC
+            DateTime currentTime = DateTime.UtcNow;
+            
+            // Calculate the time span between now and when the level started
+            TimeSpan timePlayed = currentTime - startDateTime;
+            
+            // Return seconds as float
+            return (float)timePlayed.TotalSeconds;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error calculating level time: {ex.Message}");
+            return 0f;
+        }
     }
 }

@@ -19,6 +19,7 @@ public class NPCManager : MonoBehaviour
     public static NPCManager Instance;
     public CinemachineVirtualCamera shallowCamera;
     public CinemachineVirtualCamera wideCamera;
+    public bool isInstructing { get; set; } = false;
 
     private Dictionary<string, GameObject> npcIndicators = new Dictionary<string, GameObject>();
 

@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
 
     public bool isPaused;
 
+    public bool stop_interaction;
+
     public static Player Instance;
     public Transform PlayerTransform { get; private set; } // Reference to the player's Transform
     private void Awake()
@@ -45,6 +47,14 @@ public class Player : MonoBehaviour
     }
 
 
+    public void stopInteraction(){
+        stop_interaction = true;
+    }
+
+    public void resumeInteraction(){
+        stop_interaction = false;
+    }
+
     public void pausePlayer()
     {
         isPaused = true;
@@ -58,7 +68,7 @@ public class Player : MonoBehaviour
     void Update()
     {
 
-        if(!UIManager.Instance.isInGame){
+        if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen){
             return;
         }
         
@@ -131,6 +141,7 @@ public class Player : MonoBehaviour
                     // Start the movement coroutine
                     StartCoroutine(Move(pos));
                 }
+                
             }
         }
 
@@ -141,11 +152,14 @@ public class Player : MonoBehaviour
     private bool isWalkable(Vector3 targetPos)
     {
         // Cast a box around the player to check for collisions
-        var hit = Physics2D.OverlapCircle(targetPos, 0.3f, layerMask | interactableLayer);
+        var hit = Physics2D.OverlapCircle(targetPos, 0.55f, layerMask | interactableLayer);
 
         // If there is no collision, the target position is walkable
         return hit == null;
     }
+
+  
+
 
     // Coroutine to smoothly move the player to the target position
     IEnumerator Move(Vector3 pos)

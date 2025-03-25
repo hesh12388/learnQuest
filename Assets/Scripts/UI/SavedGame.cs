@@ -15,26 +15,50 @@ public class SavedGame : MonoBehaviour
             courseName.text = course;
         
         if (timeStarted != null)
-            timeStarted.text = startTime;
-        
-
-        if (timePlayed != null)
         {
+            // Parse the UTC time string
             DateTime startDateTime;
-            string format = "M/d/yyyy h:mm:ss tt";  // Matches "3/15/2025 12:53:12 AM"
-
-            if (DateTime.TryParseExact(startTime, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime))
+            string format = "M/d/yyyy h:mm:ss tt";  // Same format as used later
+            
+            if (DateTime.TryParseExact(startTime, format, CultureInfo.InvariantCulture, 
+                DateTimeStyles.AdjustToUniversal, out startDateTime))
             {
-                TimeSpan playTimeSpan = DateTime.UtcNow - startDateTime.ToUniversalTime();
-                timePlayed.text = playTimeSpan.ToString(@"hh\:mm\:ss");
+                // Convert UTC time to local time
+                DateTime localDateTime = startDateTime.ToLocalTime();
+                
+                // Format the local time for display
+                timeStarted.text = localDateTime.ToString("M/d/yyyy h:mm:ss tt");
             }
             else
             {
-                timePlayed.text = "Invalid Start Time";
-                Debug.LogError($"Failed to parse start time: {startTime}");
+                // Fallback if parsing fails
+                timeStarted.text = startTime;
             }
         }
         
+        if (timePlayed != null)
+        {
+            DateTime startDateTime;
+            // Make sure the format string matches EXACTLY what you're receiving
+            string format = "M/d/yyyy h:mm:ss tt";  // Matches "3/24/2025 11:42:03 AM"
+            
+            // Debug both the input and the parsed result
+            Debug.Log($"Input time string: {startTime}");
+            
+            if (DateTime.TryParseExact(startTime, format, CultureInfo.InvariantCulture, 
+                DateTimeStyles.AdjustToUniversal, out startDateTime))
+            {
+                // Ensure we're comparing UTC time to UTC time
+                DateTime utcNow = DateTime.UtcNow;
+                TimeSpan playTimeSpan = utcNow - startDateTime;
+                
+                // Debug to verify the calculation
+                Debug.Log($"Start time (UTC): {startDateTime:u}, Current time (UTC): {utcNow:u}, Difference: {playTimeSpan}");
+                
+                timePlayed.text = playTimeSpan.ToString(@"hh\:mm\:ss");
+            }
+       
+        }
     }
 
     public void selectCourse(){

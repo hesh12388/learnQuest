@@ -1,356 +1,234 @@
 {
     "dialogues": [
         {
-            "npcName": "What is the CSS Box Model?",
-            "dialogue": [
-                "Welcome! Before we dive in, let me show you something. Many early web developers used tables to structure web pages.",
-                "Here’s a simple table layout.",
-                "But tables have limitations. They are rigid and not ideal for responsive designs.",
-                "Instead, we use something called the CSS box model. It allows us to structure content more flexibly.",
-                "Imagine every element on a webpage as a box. Each box has properties like width, height, margins, and padding.",
-                "For example, this is a webpage structured using the CSS box model.",
-                "Because of this flexibility, websites can adapt to different screen sizes. Look at this example.",
-                "See how it adjusts to different screen sizes? That’s the power of the CSS box model.",
-                "Alright! Let's move on and break down how this box model works."
-            ],
-            "images": [
-                null,
-                "table_layout.png",
-                null,
-                null,
-                null,
-                "css_box_model_layout.png",
-                null,
-                "responsive_design.png",
-                null
-            ],
-            "autoProgressLines": [true, true, false, true, true, true, false, true, false],
-            "requiredPreviousDialogues": [],
-            "questions": [
-                {
-                    "index": 4,
-                    "question": "What is the CSS Box Model?",
-                    "answers": [
-                        "It allows for responsive designs",
-                        "It is a rigid layout system",
-                        "It is used for creating tables",
-                        "It is a type of database"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The CSS Box Model allows for responsive designs.",
-                    "incorrectResponse": "Incorrect. The CSS Box Model allows for responsive designs."
-                }
-            ]
-        },
-        {
-            "npcName": "The components of boxes",
-            "dialogue": [
-                "Think of a neighborhood. Each house sits on a plot of land, surrounded by a yard, a fence, and a sidewalk.",
-                "In the CSS box model, every webpage element is like a house, and its surrounding elements define how it appears.",
-                "Let’s break it down further. Each CSS box has four parts: Content, Padding, Border, and Margins.",
-                "Here’s a visual representation of these components.",
-                "The content is the actual text or image inside the box.",
-                "Padding adds space between the content and the border.",
-                "The border wraps around the padding and content.",
-                "Margins create space between this box and other elements.",
-                "By adjusting these properties, developers control how elements are arranged on a webpage."
-            ],
-            "images": [
-                "neighborhood_example.png",
-                null,
-                null,
-                "box_model_breakdown.png",
-                null,
-                null,
-                null,
-                null,
-                null
-            ],
-            "autoProgressLines": [true, true, false, true, false, true, true, true, false],
-            "requiredPreviousDialogues": ["What is the CSS Box Model?"],
-            "questions": [
-                {
-                    "index": 3,
-                    "question": "What are the four parts of a CSS box?",
-                    "answers": [
-                        "Content, Padding, Border, Margins",
-                        "Header, Footer, Sidebar, Content",
-                        "Width, Height, Depth, Radius",
-                        "Text, Image, Video, Background"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! A CSS box consists of Content, Padding, Border, and Margins.",
-                    "incorrectResponse": "Incorrect. A CSS box consists of Content, Padding, Border, and Margins."
-                }
-            ]
-        },
-        {
-            "npcName": "Set the width and height of a CSS box",
-            "dialogue": [
-                "Now, let’s see how to create a CSS box step by step.",
-                "First, define an ID selector in your CSS. Let’s name it 'hero-main-page'.",
-                "Next, we set the width to 100%.",
-                "Then, we set the height to 500 pixels.",
-                "Finally, we apply this style to a <div> element in our HTML.",
-                "Here's what the code looks like when put together.",
-                "This is how the final result will appear on the webpage!"
-            ],
-            "images": [
-                null,
-                "css_id_selector.png",
-                "css_width_example.png",
-                "css_height_example.png",
-                "html_div_example.png",
-                "full_css_code.png",
-                null
-            ],
-            "autoProgressLines": [true, false, true, true, true, false, false],
-            "requiredPreviousDialogues": ["The components of boxes"],
-            "questions": [
-                {
-                    "index": 2,
-                    "question": "What CSS property defines the width of a box?",
-                    "answers": [
-                        "width",
-                        "height",
-                        "padding",
-                        "margin"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The 'width' property defines the width of a CSS box.",
-                    "incorrectResponse": "Incorrect. The 'width' property defines the width of a CSS box."
-                }
-            ]
-        },
-        {
             "npcName": "Learn about tags and elements",
             "dialogue": [
-                "Welcome! Let's begin by understanding the basic building blocks of HTML: tags and elements.",
-                "HTML elements are made up of tags that wrap around content. For example, to emphasize text, we use the <em> element.",
-                "Let me show you what that looks like: <em>I\u2019m emphasized</em>",
-                "Here's a breakdown: the opening tag is <em>, and the closing tag is </em>. The tag name is simply 'em'.",
-                "Take a look at this diagram that explains the parts of an element visually.",
-                "Remember, HTML is all about syntax\u2014the structure of the language. Syntax includes the terms used and how they relate.",
-                "Tags and elements are essential parts of HTML syntax and the first step in creating content in HTML.",
-                "Now that we understand the <em> element, let\u2019s explore how browsers handle HTML elements.",
-                "HTML is a declarative language. That means it tells browsers what the content is, not how to render it.",
-                "There\u2019s a group called WHATWG that defines how HTML is written. They describe how parsers\u2014like browsers\u2014should interpret it.",
-                "Take the <em> element for example: it represents stress emphasis, but doesn't dictate visual styling.",
-                "Browsers often display emphasized text in italics, but that\u2019s not a strict rule.",
-                "In fact, the <em> element is not the same as <i>. The <i> element is for changing voice or mood.",
-                "Also, the <em> tag doesn\u2019t imply importance\u2014use <strong> if that\u2019s what you mean."
+              "Hey there! Let's look at how HTML is built—I'll walk you through it step by step.",
+              "Imagine we're writing a sentence and we want part of it to stand out. Let's say: I'm emphasized.",
+              "To make that text emphasized in HTML, we’ll use something called an element. Follow along!",
+              "First, we start with an opening tag. Type this: <em>",
+              "Next, we put our content inside the element. Let’s add the text: I’m emphasized",
+              "Now we need to close the element with a closing tag. That looks like this: </em>",
+              "Great! Here’s the full element together: <em>I’m emphasized</em>",
+              "Take a look at this diagram—it breaks it down into the opening tag, content, and closing tag.",
+              "When a browser sees this element, it emphasizes the text. Usually, it shows up in italics like this.",
+              "But here’s the twist—HTML doesn’t *tell* the browser to use italics. It just says: 'This part is emphasized.'",
+              "It’s up to the browser, which is a type of parser, to decide how to show that emphasis.",
+              "Fun fact: if you're trying to show importance or a different tone, there are other tags like <strong> or <i> that might be more appropriate.",
+              "You're doing great! This is your first step into real HTML. Let’s keep going!"
             ],
             "images": [
-                null,
-                null,
-                null,
-                null,
-                "element_structure_diagram.png",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "browser_em_display.png",
-                null,
-                null
+              null,
+              null,
+              null,
+              "em_opening.jpeg",
+              "em_content.jpeg",
+              "em_closing.jpeg",
+              "em_closing.jpeg",
+              "em_element_diagram.png",
+              null,
+              null,
+              "strong_element.png",
+              null
             ],
-            "autoProgressLines": [
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false
-            ],
+            "autoProgressLines": [true, true, true, false, false, false, true, true, true, true, true, true, false],
             "requiredPreviousDialogues": [],
             "questions": [
-                {
-                    "index": 4,
-                    "question": "What is the correct syntax for an emphasis element in HTML?",
-                    "answers": [
-                        "<em>I\u2019m emphasized</em>",
-                        "<emphasized>I\u2019m emphasized</emphasized>",
-                        "<italics>I\u2019m emphasized</italics>",
-                        "<i>I\u2019m emphasized</i>"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The <em> tag is used for emphasizing text.",
-                    "incorrectResponse": "Incorrect. The correct format is <em>I\u2019m emphasized</em>."
-                },
-                {
-                    "index": 11,
-                    "question": "What does the <em> element represent in HTML?",
-                    "answers": [
-                        "Stress emphasis",
-                        "Importance",
-                        "Mood change",
-                        "Nothing"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The <em> tag represents stress emphasis in HTML.",
-                    "incorrectResponse": "Incorrect. The <em> tag is used for stress emphasis, not importance or mood change."
-                }
+              {
+                "index": 9,
+                "question": "What does the <em> element tell the browser?",
+                "answers": [
+                  "That the text should be bold",
+                  "That the text should be centered",
+                  "That the text should be emphasized",
+                  "That the text should be hidden"
+                ],
+                "correctAnswerIndex": 2,
+                "correctResponse": "Exactly! The <em> element tells the browser the text should be emphasized.",
+                "incorrectResponse": "Not quite. The <em> element is used to emphasize text, like making it stand out."
+              }
             ]
-        },
-        {
-            "npcName": "Nest HTML elements",
+          }
+          ,
+          {
+            "npcName": "Nest HTML Elements",
             "dialogue": [
-                "Imagine packing a suitcase. Throwing everything in loosely might work, but it gets messy.",
-                "Now imagine using smaller bags for socks, shampoo, and shoes. That\u2019s more organized!",
-                "HTML nesting works the same way. We put elements inside other elements for better structure.",
-                "For example, here\u2019s a <div> element containing three <p> elements.",
-                "<div><p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p></div>",
-                "The <div> is the parent, and the <p> tags are its children.",
-                "This structure helps with layout and styling. Child elements can inherit styles from their parent."
+              "Hey again! Let’s try something together. Imagine you’re packing a suitcase for a trip.",
+              "You could toss everything into one big compartment—your socks, shoes, and shampoo all mixed together.",
+              "But you know what happens then—it gets messy fast. Let me show you a better way.",
+              "Instead, let’s pack smarter. You put your socks in a small bag, your shampoo in another, and so on. Then all those bags go into the suitcase.",
+              "Now let’s bring that idea to HTML. You can actually *nest* HTML elements the same way.",
+              "Let’s build an example together. First, write a `<div>` element. This is like our suitcase.",
+              "Inside that `<div>`, we’ll add some `<p>` elements—like packing smaller bags. Let’s start with the first one: `<p>Paragraph 1</p>`",
+              "Now add two more: `<p>Paragraph 2</p>` and `<p>Paragraph 3</p>` inside the same `<div>`.",
+              "Here’s the full structure we built:",
+              "see how each paragraph is packed neatly inside the parent element?",
+              "When we nest elements like this, we give structure to our HTML. It’s like organizing a suitcase.",
+              "And here’s a bonus: if we apply a style to the parent, like `font-weight: bold`, the child elements can inherit it automatically.",
+              "That’s inheritance in action—and it all starts with nesting!"
             ],
             "images": [
-                "suitcase_packing.png",
-                null,
-                null,
-                null,
-                "nested_div_paragraphs.png",
-                null,
-                "inheritance_example.png"
+              null,
+              "suitcase_loose_items.png",
+              null,
+              "toiletries_in_bags.png",
+              null,
+              "nested_div.jpeg",
+              "nested_p.jpeg",
+              "nested_p2.jpeg",
+              "nested_p2.jpeg",
+              null,
+              null,
+              null,
+              null
             ],
-            "autoProgressLines": [
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false
-            ],
-            "requiredPreviousDialogues": [
-                "Learn about tags and elements"
-            ],
+            "autoProgressLines": [true, true, true, true, true, false, false, false, true, true, true, true, false],
+            "requiredPreviousDialogues": ["Learn about tags and elements"],
             "questions": [
-                {
-                    "index": 5,
-                    "question": "What is a 'parent' element in HTML?",
-                    "answers": [
-                        "An element that contains other elements",
-                        "An element that comes first in the file",
-                        "An element with bold styling",
-                        "An element with a closing tag"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! Parent elements contain other elements inside them.",
-                    "incorrectResponse": "Incorrect. A parent element contains other nested elements."
-                }
+              {
+                "index": 11,
+                "question": "What happens when a style is applied to a parent element?",
+                "answers": [
+                  "Nothing happens to the child elements",
+                  "The parent element disappears",
+                  "Child elements can inherit that style",
+                  "Only the first child gets the style"
+                ],
+                "correctAnswerIndex": 2,
+                "correctResponse": "Exactly! Child elements can inherit styles from their parent.",
+                "incorrectResponse": "Not quite. Child elements can inherit styles that are applied to their parent element."
+              }
             ]
-        },
-        {
-            "npcName": "Understand the anatomy of an HTML page",
+          },
+          {
+            "npcName": "Understand the anatomy of an HTML Page",
             "dialogue": [
-                "Let\u2019s go over the basic structure of a full HTML page. Think of it as the skeleton of your webpage.",
-                "Every HTML page starts with a DOCTYPE declaration: <!DOCTYPE html>",
-                "Next is the <html> element. This wraps the whole document.",
-                "Inside <html>, you\u2019ll find two sections: <head> and <body>.",
-                "The <head> element holds things like metadata, styles, and scripts\u2014stuff users don\u2019t directly see.",
-                "The <body> is where all the visible content goes: text, images, videos, etc.",
-                "Here's the complete structure of a basic HTML page."
+              "Hey! Let’s build the foundation of a real HTML page together. We'll walk through each part step by step.",
+              "First up, we start with a declaration that tells the browser what kind of document it’s reading. Go ahead and write this: `<!DOCTYPE html>`",
+              "Nice! Now let’s create the main container of the page—the `<html>` element. It wraps everything else. Add `<html>` and don’t forget to close it later with `</html>`.",
+              "Inside the `<html>` element, we’ll add two major sections: `<head>` and `<body>`. Let’s tackle the head first.",
+              "Write your `<head>` element: `<head></head>`. This is where metadata, styles, and scripts go. It’s not visible to users, but it’s super important.",
+              "Now let’s add the `<body>` section right after the head: `<body></body>`. This is where the content of your web page lives—text, images, videos, you name it.",
+              "Great! Here’s how the full structure looks when we put it all together:",
+              "See how the `<head>` and `<body>` are both nested inside the `<html>` element? That nesting keeps everything structured properly.",
+              "Most users only see what’s in the body, but everything in this structure plays an important role.",
+              "You're building a strong foundation here. With this structure in place, you’re ready to start creating real web pages!"
             ],
             "images": [
-                null,
-                "doctype_example.png",
-                "html_tag_wrap.png",
-                "html_head_body.png",
-                "head_example.png",
-                "body_example.png",
-                "html_page_structure.png"
+              null,
+              "doctype.jpeg",
+              "html_tag.jpeg",
+              null,
+              "head_tag.jpeg",
+              "body_tag.jpeg",
+              "body_tag.jpeg",
+              null,
+              null,
+              null
             ],
-            "autoProgressLines": [
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false
-            ],
-            "requiredPreviousDialogues": [
-                "Nest HTML elements"
-            ],
+            "autoProgressLines": [true, false, false, true, false, false, true, true, true, true, false],
+            "requiredPreviousDialogues": ["Nest HTML Elements"],
             "questions": [
-                {
-                    "index": 6,
-                    "question": "Which element wraps all content in an HTML page?",
-                    "answers": [
-                        "<html>",
-                        "<body>",
-                        "<head>",
-                        "<meta>"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The <html> element wraps all the content of the page.",
-                    "incorrectResponse": "Incorrect. The <html> element is the root element that wraps all others."
-                }
+              {
+                "index": 8,
+                "question": "Which elements are nested inside the <html> element?",
+                "answers": [
+                  "Only the <body> element",
+                  "Only the <head> element",
+                  "<head> and <body> elements",
+                  "<meta> and <script> elements"
+                ],
+                "correctAnswerIndex": 2,
+                "correctResponse": "Correct! The <head> and <body> elements are both nested inside the <html> element.",
+                "incorrectResponse": "Not quite. Both the <head> and <body> elements are inside the <html> element."
+              }
             ]
-        },
-        {
-            "npcName": "Identify the most common HTML elements",
+          },          
+          {
+            "npcName": "Identify the Most Common HTML Elements",
             "dialogue": [
-                "Let\u2019s explore some common HTML elements, like spices in your kitchen\u2014they\u2019re essential in many combinations!",
-                "The <p> tag is used for paragraphs. It provides spacing above and below text blocks.",
-                "<h1> to <h6> tags are for headings, from most to least important.",
-                "The <a> tag creates links to other pages. For example: <a href='https://example.com'>Visit site</a>",
-                "The <span> tag is used for styling inline text or small text snippets.",
-                "<blockquote> is used for quoting other sources.",
-                "br creates a simple line break. It doesn\u2019t have a closing tag.",
-                "<img> embeds images and requires a 'src' attribute to specify the image path.",
-                "<hr> adds a horizontal line as a visual break between sections."
+              "Hey! Let’s build a basic HTML page together using some of the most common HTML elements.",
+              "Think of HTML elements like spices in cooking. Some are used in nearly every dish—others only occasionally.",
+              "First, let’s start with the base structure. Type this:",
+              "`<!DOCTYPE html>`",
+              "`<html>`",
+              "`  <head>`",
+              "`    <title>My First Page</title>`",
+              "`  </head>`",
+              "`  <body>`",
+              "`  </body>`",
+              "`</html>`",
+              "Now let’s add a heading to the body to give the page a title. Type this inside the `<body>`: `<h1>Welcome to My Page</h1>`",
+              "You’ll see this as the biggest text on the page. It helps organize sections.",
+              "Next, let’s add some text. Use a paragraph tag like this: `<p>This is my first HTML paragraph.</p>`",
+              "(Optional) Let’s break up the paragraph with a line break. Add `<br>` right after the word 'paragraph'.",
+              "Now let’s link to another site. Type this: `<a href='https://www.example.com'>Visit Example</a>`",
+              "Nice! That creates a clickable link.",
+              "Sometimes you want to emphasize just a few words. For that, we’ll use the `<span>` tag. Try this:",
+              "`<p>This is a <span style='color:red;'>red word</span> in a sentence.</p>`",
+              "Let’s add a quote from someone. Use this:",
+              "`<blockquote>This is a wise quote from a wise person.</blockquote>`",
+              "Now we’ll add a horizontal line to separate content. Add: `<hr>`",
+              "Let’s finish with an image. Add this line to the bottom of the body:",
+              "`<img src='https://www.example.com/image.jpg' alt='Example image'>`",
+              "Here’s what your complete HTML document looks like now:",
+              "That’s a complete page using the most common elements! You’ve just built a full HTML document from scratch."
             ],
             "images": [
-                "spices_analogy.png",
-                "p_tag_example.png",
-                "header_tags_example.png",
-                "anchor_tag_example.png",
-                "span_example.png",
-                "blockquote_example.png",
-                "br_example.png",
-                "img_example.png",
-                "hr_example.png"
+              null,
+              "spices_metaphor.png",
+              null,
+              "doctype.jpeg",
+              "html_tag.jpeg",
+              "head_tag.jpeg",
+              "title_tag.jpeg",
+              "title_tag.jpeg",
+              "html_structure_step1.png",
+              "html_structure_step1.png",
+              "html_structure_step1.png",
+              "h1_output.png",
+              null,
+              "p_output.png",
+              null,
+              "a_tag_output.png",
+              null,
+              "span_output.png",
+              "blockquote_output.png",
+              "hr_output.png",
+              "img_output.png",
+              null
             ],
-            "autoProgressLines": [
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false
-            ],
-            "requiredPreviousDialogues": [
-                "Understand the anatomy of an HTML page"
-            ],
+            "autoProgressLines": [true, true, true, false, false, false, false, false, false, true, false, true, true, false, true, true, true, false, true, true],
+            "requiredPreviousDialogues": [],
             "questions": [
-                {
-                    "index": 7,
-                    "question": "Which attribute is required in the <img> tag?",
-                    "answers": [
-                        "src",
-                        "href",
-                        "alt",
-                        "title"
-                    ],
-                    "correctAnswerIndex": 0,
-                    "correctResponse": "Correct! The 'src' attribute specifies the image source.",
-                    "incorrectResponse": "Incorrect. The <img> tag must include a 'src' attribute pointing to the image location."
-                }
+              {
+                "index": 10,
+                "question": "What does the <h1> element do?",
+                "answers": [
+                  "Makes text bold",
+                  "Creates a large top-level heading",
+                  "Creates a link",
+                  "Wraps a block of quoted text"
+                ],
+                "correctAnswerIndex": 1,
+                "correctResponse": "Correct! The <h1> element creates the largest heading and is used for top-level titles.",
+                "incorrectResponse": "Not quite. The <h1> element creates a large, top-level heading."
+              },
+              {
+                "index": 14,
+                "question": "What’s the purpose of the <span> tag?",
+                "answers": [
+                  "To break text onto a new line",
+                  "To create a new paragraph",
+                  "To apply styling to part of a line",
+                  "To link to another page"
+                ],
+                "correctAnswerIndex": 2,
+                "correctResponse": "Exactly! The <span> tag is great for styling specific words or phrases inline.",
+                "incorrectResponse": "Not quite. The <span> tag is used to apply styling within a line of text."
+              }
             ]
-        }
+          }
+          
     ]
 }

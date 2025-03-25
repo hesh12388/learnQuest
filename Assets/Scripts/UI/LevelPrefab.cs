@@ -27,9 +27,13 @@ public class LevelPrefab : MonoBehaviour
         {
             Instantiate(emptyStar, starsPanel.transform);
         }
+
     }
 
     public void startLevel(){
+        if(levelIndex ==DatabaseManager.Instance.loggedInUser.currentLevel){
+            return;
+        }
         UIManager.Instance.startLevel(levelIndex);
     }
 }

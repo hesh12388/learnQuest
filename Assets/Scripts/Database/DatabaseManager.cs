@@ -653,10 +653,11 @@ public class DatabaseManager : MonoBehaviour
                     string createdAt = jsonResponse["createdAt"].ToString();
                     int score = jsonResponse["score"].ToObject<int>();
                     int numGems= jsonResponse["numGems"].ToObject<int>();
+                    int streak_counter = jsonResponse["streak_counter"].ToObject<int>();
 
 
                     // Create and store the User object
-                    loggedInUser = new User(emailAddress, username, createdAt, score, numGems);
+                    loggedInUser = new User(emailAddress, username, createdAt, score, numGems, streak_counter);
                     StartCoroutine(LoadUserItemsAfterLogin(callback));
                     yield break;
                 }
@@ -796,28 +797,32 @@ public class DatabaseManager : MonoBehaviour
 
         // Get the current level name from the course structure
         string levelName = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
+        string chapter_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].chapter_name;
         
         // Get time and score from the user object
         float timeTaken = loggedInUser.getLevelTime();
         float score = loggedInUser.getLevelScore();
         
-        StartCoroutine(CompleteLevelRequest(levelName, timeTaken, score, isFailed, callback));
+        StartCoroutine(CompleteLevelRequest(levelName, chapter_name, loggedInUser.currentLevel, timeTaken, score, isFailed, callback));
     }
 
-    private IEnumerator CompleteLevelRequest(string levelName, float timeTaken, float score, bool isFailed, Action<bool> callback)
+    private IEnumerator CompleteLevelRequest(string levelName, string chapter_name, int level_number, float timeTaken, float score, bool isFailed, Action<bool> callback)
     {
         // Create JSON data with all required parameters
         string json = "{" +
         "\"username\":\"" + loggedInUser.username + "\"," +
         "\"level_name\":\"" + levelName + "\"," + 
-        "\"time_taken\":" + timeTaken.ToString("F2") + "," + // Format time to 2 decimal places
+        "\"chapter_name\":\"" + chapter_name + "\"," +
+        "\"level_number\":" + level_number + "," +
+        "\"time_taken\":" + timeTaken.ToString("F2") + "," +
         "\"score\":" + score + "," +
-        "\"isFailed\":" + isFailed.ToString().ToLower() + // Convert to lowercase "true" or "false"
-    "}";
+        "\"isFailed\":" + isFailed.ToString().ToLower() + "," +
+        "\"streak_counter\":" + loggedInUser.consecutiveLevelsWithoutFailure +
+    "}";;
         
         byte[] jsonData = Encoding.UTF8.GetBytes(json);
 
-        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/complete-level", "POST"))
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/update-level", "POST"))
         {
             request.uploadHandler = new UploadHandlerRaw(jsonData);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -835,17 +840,38 @@ public class DatabaseManager : MonoBehaviour
                     // Parse response to check for any updates (e.g., achievements unlocked)
                     JObject response = JObject.Parse(responseText);
                     
-                    // Update user data if needed (e.g., if server returns updated score or gems)
-                    if (response.ContainsKey("score"))
+                    if (!isFailed && loggedInUser.courseStructure != null)
                     {
-                        loggedInUser.score = response["score"].ToObject<int>();
+                        // Update current level
+                        Chapter currentChapter = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter];
+                        Level currentLevel = currentChapter.levels[loggedInUser.currentLevel - 1];
+                        
+                        // Update level properties
+                        currentLevel.isCompleted = true;
+        
+                        if ((int)score > currentLevel.score)
+                        {
+                            currentLevel.score = (int)score;
+                        }
+                        
+                        // Find and unlock the next level
+                        if (loggedInUser.currentLevel < currentChapter.levels.Count)
+                        {
+                            // Unlock next level in same chapter
+                            Level nextLevel = currentChapter.levels[loggedInUser.currentLevel];
+                            nextLevel.status = "unlocked";
+                        }
+                        
+                        Debug.Log("Updated local course structure after level completion");
                     }
-                    
-                    if (response.ContainsKey("numGems"))
-                    {
-                        loggedInUser.numGems = response["numGems"].ToObject<int>();
+                    else{
+                        Chapter currentChapter = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter];
+                        Level currentLevel = currentChapter.levels[loggedInUser.currentLevel - 1];
+                        if ((int)score > currentLevel.score)
+                        {
+                            currentLevel.score = (int)score;
+                        }
                     }
-                    
                     callback?.Invoke(true);
                 }
                 catch (Exception ex)
@@ -857,6 +883,74 @@ public class DatabaseManager : MonoBehaviour
             else
             {
                 Debug.LogError("Failed to complete level: " + request.error);
+                callback?.Invoke(false);
+            }
+        }
+    }
+
+        // Unlock an achievement for the current user
+    public void UnlockAchievement(string achievementName, Action<bool> callback)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot unlock achievement: No user is logged in");
+            callback?.Invoke(false);
+            return;
+        }
+
+        StartCoroutine(UnlockAchievementRequest(achievementName, callback));
+    }
+
+    private IEnumerator UnlockAchievementRequest(string achievementName, Action<bool> callback)
+    {
+        // Create JSON data with username and achievement name
+        string json = "{" +
+            "\"username\":\"" + loggedInUser.username + "\"," +
+            "\"achievement_name\":\"" + achievementName + "\"" +
+        "}";
+        
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/complete-achievement", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Achievement unlocked successfully: " + responseText);
+                
+                try
+                {
+                    // Parse response to update user data if needed
+                    JObject response = JObject.Parse(responseText);
+                    
+                    // Update user data if gems or score were updated
+                    if (response.ContainsKey("numGems"))
+                    {
+                        loggedInUser.numGems = response["numGems"].ToObject<int>();
+                    }
+                    
+                    if (response.ContainsKey("score"))
+                    {
+                        loggedInUser.score = response["score"].ToObject<int>();
+                    }
+                    
+                    callback?.Invoke(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error parsing achievement unlock response: " + ex.Message);
+                    callback?.Invoke(true); // Achievement likely unlocked even if parsing failed
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to unlock achievement: " + request.error);
                 callback?.Invoke(false);
             }
         }
@@ -898,6 +992,78 @@ public class DatabaseManager : MonoBehaviour
             {
                 Debug.LogError("Failed to complete objective: " + request.error);
                 callback?.Invoke(false);
+            }
+        }
+    }
+
+   
+    // Start the level timer on the server
+    public void StartLevelTime()
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogError("Cannot start level timer: No user is logged in");
+          
+            return;
+        }
+
+        // Get the current level name and chapter name from the course structure
+        string levelName = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
+        string chapterName = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].chapter_name;
+
+        StartCoroutine(StartLevelTimeRequest(loggedInUser.username, levelName, chapterName));
+    }
+
+    private IEnumerator StartLevelTimeRequest(string username, string levelName, string chapterName)
+    {
+        string json = "{" +
+            "\"username\":\"" + username + "\"," +
+            "\"level_name\":\"" + levelName + "\"," +
+            "\"chapter_name\":\"" + chapterName + "\"" +
+        "}";
+        
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/start-level-time", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Level timer started successfully: " + responseText);
+                
+                try
+                {
+                    // Parse the response to get the start time
+                    JObject response = JObject.Parse(responseText);
+                    
+                    if (response.ContainsKey("start_level_time"))
+                    {
+                        string startTime = response["start_level_time"].ToString();
+
+                        Debug.Log($"Level start time: {startTime}");
+                        loggedInUser.currentLevelStartTime = startTime;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Response doesn't contain start_time field");
+                        
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error parsing start time response: {ex.Message}");
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to start level timer: " + request.error);
+              
             }
         }
     }

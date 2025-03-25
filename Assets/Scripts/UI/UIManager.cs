@@ -44,6 +44,8 @@ public class UIManager : MonoBehaviour
     public GameObject lockedLevelPrefab;
     private int currentChapterIndex = 0;
     public TextMeshProUGUI chapterNameText;
+    public GameObject levelsGameContentPanel;
+    public TextMeshProUGUI chapterGameNameText;
 
     [Header("Loading Screen")]
     public GameObject loadingPanel;
@@ -73,7 +75,7 @@ public class UIManager : MonoBehaviour
     public Transform achivementContentPanel;
     public GameObject achievementPrefab;
     public List<Achievement> achievements_list;
-
+    public GameObject achievementCompletedPanel;
 
     private ShopItemsResponse shop;
     public GameObject inGameUiPanel;
@@ -96,6 +98,7 @@ public class UIManager : MonoBehaviour
     public TMP_Text playerNameText;
     public TMP_Text playerLevelText;
     public Transform playerHealthBar;
+    
 
     //npc hud variables
     public TMP_Text npcNameText;
@@ -124,6 +127,7 @@ public class UIManager : MonoBehaviour
     public GameObject objectiveCompletionPanel;
 
     public static UIManager Instance { get; private set; } // Singleton instance
+    public bool isMenuOpen { get; private set; } = false;
     private string currentMenu = "settings";
         private void Awake()
         {
@@ -144,6 +148,14 @@ public class UIManager : MonoBehaviour
             return;
         }
 
+        if(EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating){
+            return;
+        }
+
+        if(NPCManager.Instance!=null && NPCManager.Instance.isInstructing){
+            return;
+        }
+
         // Check if M key was pressed (not held down)
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -151,30 +163,33 @@ public class UIManager : MonoBehaviour
             if (inGameUiPanel != null)
             {
                 inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
-                
-                if(currentMenu=="settings"){
-                    ShowSettings();
-                }
-                else if(currentMenu=="objectives"){
-                    ShowObjectives();
-                }
-                else if(currentMenu=="chat"){
-                    ShowChat();
-                }
-                else if(currentMenu=="achievements"){
-                    ShowAchievements();
-                }
-                else if(currentMenu=="leaderboard"){
-                    ShowLeaderboard();
-                }
-                else if(currentMenu=="character"){
-                    ShowCharacterSelection();
-                }
-                else if(currentMenu=="shop"){
-                    ShowShop();
-                }
-                else if(currentMenu=="levels"){
-                    ShowGameLevels();
+                isMenuOpen = !isMenuOpen;
+
+                if(isMenuOpen){
+                    if(currentMenu=="settings"){
+                        ShowSettings();
+                    }
+                    else if(currentMenu=="objectives"){
+                        ShowObjectives();
+                    }
+                    else if(currentMenu=="chat"){
+                        ShowChat();
+                    }
+                    else if(currentMenu=="achievements"){
+                        ShowAchievements();
+                    }
+                    else if(currentMenu=="leaderboard"){
+                        ShowLeaderboard();
+                    }
+                    else if(currentMenu=="character"){
+                        ShowCharacterSelection();
+                    }
+                    else if(currentMenu=="shop"){
+                        ShowShop();
+                    }
+                    else if(currentMenu=="levels"){
+                        ShowGameLevels();
+                    }
                 }
             }
             else
@@ -184,22 +199,20 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public IEnumerator showCompletedLevel(){
+    public void showCompletedLevel(){
+        Player.Instance.stopInteraction();
         levelCompletePanel.SetActive(true);
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Level current_level = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1];
         levelCompletePanel.GetComponent<LevelMessage>().SetLevelUpdateUI(loggedInUser.getLevelScore(), current_level.score, current_level.points, false);
-        yield return new WaitForSeconds(2);
-        levelCompletePanel.SetActive(false);
     }
 
-    public IEnumerator showFailedLevel(){
+    public void showFailedLevel(){
+        Player.Instance.stopInteraction();
         levelFailedPanel.SetActive(true);
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Level current_level = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1];
         levelCompletePanel.GetComponent<LevelMessage>().SetLevelUpdateUI(loggedInUser.getLevelScore(), current_level.score, current_level.points, true);
-        yield return new WaitForSeconds(2);
-        levelFailedPanel.SetActive(false);
     }
 
     public void setGameUIPanelsInactive(){
@@ -211,7 +224,30 @@ public class UIManager : MonoBehaviour
         leaderboardPanel.SetActive(false);
         levelsGamePanel.SetActive(false);
         shopPanel.SetActive(false);
+        levelCompletePanel.SetActive(false);
+        levelFailedPanel.SetActive(false);
     }
+
+    public void StartNextLevel(){
+        setGameUIPanelsInactive();
+        Player.Instance.resumeInteraction();
+        User loggedInUser = DatabaseManager.Instance.loggedInUser;
+        if(loggedInUser.currentLevel<loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels.Count){
+            startLevel(loggedInUser.currentLevel+1);
+        }  
+    }
+
+    public void restartEvaluation(){
+        setGameUIPanelsInactive();
+        Player.Instance.resumeInteraction();
+        EvaluationManager.Instance.StartEvaluation();
+    }
+
+    public void ShowHome(){
+        Player.Instance.resumeInteraction();
+        setGameUIPanelsInactive();
+    }
+
     public void ShowCharacterSelection()
     {
         currentMenu = "character";
@@ -224,41 +260,37 @@ public class UIManager : MonoBehaviour
         currentMenu = "levels";
         setGameUIPanelsInactive();
         levelsGamePanel.SetActive(true);
+        currentChapterIndex = 0; // Reset to first chapter
+        DisplayChapterLevels(DatabaseManager.Instance.loggedInUser.courseStructure, levelsGameContentPanel, chapterGameNameText);
     }
 
-    public IEnumerator ShowObjectiveComplete(string objective_name){
-        int points=0;
+    public IEnumerator ShowObjectiveComplete(string objective_name) {
+        int points = 0;
         objectiveCompletionPanel.SetActive(true);
-        foreach(Objective objective in objectives_list){
-            if(objective.objective_name==objective_name){
-               points=objective.points;
-               break;
+        
+        // Find the objective in our local list
+        foreach (Objective objective in objectives_list) {
+            if (objective.objective_name == objective_name) {
+                points = objective.points;
+                
+                // Update the objective status in our local list
+                objective.status = "completed";
+                break;
             }
         }
+        
         objectiveCompletionPanel.GetComponent<ObjectiveCompleteUI>().SetObjectiveCompleteData(objective_name, points);
         yield return new WaitForSeconds(2);
         objectiveCompletionPanel.SetActive(false);
     }
+
     public void ShowShop() {
         currentMenu = "shop";
         setGameUIPanelsInactive();
         shopPanel.SetActive(true);
+   
+        ShopManager.Instance.getBoughtItems(shop);
         
-        // Show loading while fetching shop items
-        ShowLoading();
-        
-        if(shop!=null){
-            ShopManager.Instance.getBoughtItems(shop);
-            return;
-        }
-        // Get shop items from the database
-        DatabaseManager.Instance.GetShopItems((shopItemsResponse) => {
-            // Hide loading indicator when data is retrieved
-            HideLoading();
-            
-            shop=shopItemsResponse;
-            ShopManager.Instance.getBoughtItems(shop);
-        });
     }
 
     public void ShowShopByCharacters(){
@@ -279,42 +311,44 @@ public class UIManager : MonoBehaviour
         chatPanel.SetActive(true);
     }
 
-    public void ShowObjectives(){
+    public void ShowObjectives() {
         currentMenu = "objectives";
         setGameUIPanelsInactive();
         objectivesPanel.SetActive(true);
         
-        // Show loading indicator while fetching objectives
-        ShowLoading();
+        // Clear existing objectives first
+        foreach (Transform child in objectivesContentPanel) {
+            Destroy(child.gameObject);
+        }
         
-        // Get objectives from DatabaseManager
-        DatabaseManager.Instance.GetObjectives((objectives) => {
-            objectives_list = objectives;
-            // Hide loading indicator when data is retrieved
-            HideLoading();
-            
-            // Clear existing objectives first
-            foreach (Transform child in objectivesContentPanel) {
-                Destroy(child.gameObject);
-            }
-            
-            if (objectives != null && objectives.Count > 0) {
-                // Populate the panel with objective prefabs
-                foreach (Objective objective in objectives) {
-                    GameObject objectiveObject = Instantiate(objectivePrefab, objectivesContentPanel);
-                    ObjectiveUI objectiveUI = objectiveObject.GetComponent<ObjectiveUI>();
+        if (objectives_list != null && objectives_list.Count > 0) {
+            // Populate the panel with objective prefabs from cached data
+            foreach (Objective objective in objectives_list) {
+                GameObject objectiveObject = Instantiate(objectivePrefab, objectivesContentPanel);
+                ObjectiveUI objectiveUI = objectiveObject.GetComponent<ObjectiveUI>();
+                
+                if (objectiveUI != null) {
+                    // Determine if objective is completed
+                    bool isCompleted = objective.status.ToLower() == "completed";
                     
-                    if (objectiveUI != null) {
-                        // Determine if objective is completed
-                        bool isCompleted = objective.status.ToLower() == "completed";
-                        
-                        // Set the objective data in the UI component
-                        objectiveUI.SetObjective(objective.objective_name, isCompleted, objective.description, objective.difficulty, objective.points);
-                    }
-
+                    // Set the objective data in the UI component
+                    objectiveUI.SetObjective(
+                        objective.objective_name, 
+                        isCompleted, 
+                        objective.description, 
+                        objective.difficulty, 
+                        objective.points
+                    );
                 }
             }
-        });
+        } else {
+            Debug.Log("No objectives available to display");
+            
+            // If objectives weren't loaded yet for some reason, load them now
+            if (isInGame && (objectives_list == null || objectives_list.Count == 0)) {
+                LoadLevelObjectives();
+            }
+        }
     }
 
     public void ShowSettings(){
@@ -323,55 +357,15 @@ public class UIManager : MonoBehaviour
         settingsPanel.SetActive(true);
     }
 
-    public void ShowAchievements()
-    {
+    public void ShowAchievements() {
         currentMenu = "achievements";
         setGameUIPanelsInactive();
         achievementsPanel.SetActive(true);
         
-        // Show loading while fetching achievements
-        ShowLoading();
-        
-        // Get achievements from the database
-        DatabaseManager.Instance.GetUserAchievements((achievements) => {
-            // Hide loading indicator when data is retrieved
-            HideLoading();
-            
-            achievements_list = achievements;
-            // Clear existing achievements first
-            foreach (Transform child in achivementContentPanel) {
-                Destroy(child.gameObject);
-            }
-            
-            if (achievements != null && achievements.Count > 0)
-            {
-                achievements.Sort((a, b) => b.gems.CompareTo(a.gems));
-                // Populate the panel with achievement prefabs
-                foreach (Achievement achievement in achievements)
-                {
-                    GameObject achievementObject = Instantiate(achievementPrefab, achivementContentPanel);
-                    AchievementUI achievementUI = achievementObject.GetComponent<AchievementUI>();
-                    
-                    if (achievementUI != null)
-                    {
-                        // Determine if achievement is completed
-                        bool isCompleted = achievement.status.ToLower() == "completed";
-                        
-                        // Set the achievement data in the UI component
-                        achievementUI.SetAchievement(
-                            achievement.achievement_name,
-                            isCompleted,
-                            achievement.description,
-                            achievement.gems
-                        );
-                    }
-                }
-            }
-            else
-            {
-                Debug.Log("No achievements found or failed to load achievements");
-            }
-        });
+        if (achievements_list != null && achievements_list.Count > 0) {
+            // Use cached achievement data
+            ShowAllAchievements();
+        } 
     }
 
 
@@ -609,20 +603,78 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void startLevel(int level){
+    public void startLevel(int level) {
         Debug.Log("Starting level " + level);
         setPanelsInactive();
+        setGameUIPanelsInactive();
         DatabaseManager.Instance.loggedInUser.currentLevel = level;
-        DatabaseManager.Instance.loggedInUser.startLevelTimer();
+        DatabaseManager.Instance.StartLevelTime();
+        
+        // Load game data at the start of the level
+        LoadLevelObjectives();
+        LoadShopItems();
+        LoadAchievements();
+        
         DatabaseManager.Instance.StartLevel();
         StartCoroutine(TransitionManager.Instance.transition(level));
         landingPanel.SetActive(false);
-        isInGame=true;
+        isInGame = true;
         EvaluationManager.Instance.LoadQuestionsForLevel();
+    }
+
+    // New method to preload achievements
+    private void LoadAchievements() {
+        // Only load if we don't already have achievements data cached
+        if (achievements_list != null && achievements_list.Count > 0) return;
+        
+        DatabaseManager.Instance.GetUserAchievements((achievements) => {
+            if (achievements != null) {
+                achievements_list = achievements;
+                Debug.Log($"Preloaded {achievements.Count} achievements");
+            } else {
+                Debug.LogWarning("Failed to preload achievements");
+                achievements_list = new List<Achievement>();
+            }
+        });
+    }
+
+    // New method to preload shop items
+    private void LoadShopItems() {
+        // Only load if we don't already have shop data cached
+        if (shop != null) return;
+        
+        DatabaseManager.Instance.GetShopItems((shopItemsResponse) => {
+            if (shopItemsResponse != null) {
+                shop = shopItemsResponse;
+                Debug.Log("Preloaded shop items");
+            } else {
+                Debug.LogWarning("Failed to preload shop items");
+            }
+        });
+    }
+
+    // New method to load objectives for the current level
+    private void LoadLevelObjectives() {
+        // Show loading indicator
+        ShowLoading();
+        
+        DatabaseManager.Instance.GetObjectives((objectives) => {
+            // Hide loading indicator when data is retrieved
+            HideLoading();
+            
+            if (objectives != null) {
+                objectives_list = objectives;
+                Debug.Log($"Loaded {objectives.Count} objectives for the current level");
+            } else {
+                Debug.LogWarning("Failed to load objectives or no objectives available");
+                objectives_list = new List<Objective>();
+            }
+        });
     }
 
     public void ShowLogin()
     {
+        setLogInRegisterMessagesInactive();
         setPanelsInactive();
         loginPanel.SetActive(true);
     }
@@ -652,8 +704,7 @@ public class UIManager : MonoBehaviour
     public void ShowRegister()
     {
         setPanelsInactive();
-        registrationSuccessMessage.SetActive(false);
-        registrationFailedMessage.SetActive(false);
+        setLogInRegisterMessagesInactive();
         registerPanel.SetActive(true);
     }
 
@@ -669,6 +720,20 @@ public class UIManager : MonoBehaviour
         courseSelectionPanel.SetActive(true);
     }
     
+    public IEnumerator ShowAchievementUnlocked(string achievementName){
+        achievementCompletedPanel.SetActive(true);
+
+        foreach(Achievement achievement in achievements_list){
+            if(achievementName==achievement.achievement_name){
+                achievementCompletedPanel.GetComponent<AchievementUnlocked>().SetAchievementUnlocked(achievementName, achievement.gems, achievement.description);
+                break;
+            }
+        }
+
+        yield return new WaitForSeconds(2);
+        achievementCompletedPanel.SetActive(false);
+       
+    }
     public void showLevels() {
         setPanelsInactive();
         ShowLoading();
@@ -680,7 +745,7 @@ public class UIManager : MonoBehaviour
             if (courseStructure != null) {
                 Debug.Log("Course structure retrieved successfully");
                 currentChapterIndex = 0; // Reset to first chapter
-                DisplayChapterLevels(courseStructure);
+                DisplayChapterLevels(courseStructure, levelsContentPanel, chapterNameText);
             } else {
                 Debug.LogError("Failed to retrieve course structure");
                 // Consider showing an error message to the user
@@ -689,11 +754,11 @@ public class UIManager : MonoBehaviour
     }
 
     // Display the levels for the current chapter
-    private void DisplayChapterLevels(CourseStructure courseStructure) {
+    private void DisplayChapterLevels(CourseStructure courseStructure, GameObject contentPanel, TextMeshProUGUI chapterText) {
 
         DatabaseManager.Instance.loggedInUser.currentChapter = currentChapterIndex;
         // Clear existing level prefabs
-        foreach (Transform child in levelsContentPanel.transform) {
+        foreach (Transform child in contentPanel.transform) {
             Destroy(child.gameObject);
         }
         
@@ -705,7 +770,7 @@ public class UIManager : MonoBehaviour
         // Get current chapter
         Chapter currentChapter = courseStructure.chapters[currentChapterIndex];
         
-        chapterNameText.text = currentChapter.chapter_name;
+        chapterText.text = currentChapter.chapter_name;
         // Create level prefabs for each level in the chapter
         foreach (Level level in currentChapter.levels) {
             GameObject levelObject;
@@ -715,10 +780,10 @@ public class UIManager : MonoBehaviour
             
             // Instantiate appropriate prefab
             if (isLocked) {
-                levelObject = Instantiate(lockedLevelPrefab, levelsContentPanel.transform);
+                levelObject = Instantiate(lockedLevelPrefab, contentPanel.transform);
                 
             } else {
-                levelObject = Instantiate(levelPrefab, levelsContentPanel.transform);
+                levelObject = Instantiate(levelPrefab, contentPanel.transform);
                 levelObject.GetComponent<LevelPrefab>().setLevelData(level);
             }
             
@@ -731,7 +796,16 @@ public class UIManager : MonoBehaviour
         if (courseStructure != null && courseStructure.chapters.Count > 0) {
             // Using modulo to wrap around to first chapter when reaching the end
             currentChapterIndex = (currentChapterIndex + 1) % courseStructure.chapters.Count;
-            DisplayChapterLevels(courseStructure);
+
+            if(isInGame){
+                DisplayChapterLevels(courseStructure, levelsGameContentPanel, chapterGameNameText);
+            }
+            else{
+                DisplayChapterLevels(courseStructure, levelsContentPanel, chapterNameText);
+            }
+
+
+            Canvas.ForceUpdateCanvases();
         }
     }
 
@@ -741,7 +815,14 @@ public class UIManager : MonoBehaviour
         if (courseStructure != null && courseStructure.chapters.Count > 0) {
             // Using modulo with addition to wrap around to last chapter when at first chapter
             currentChapterIndex = (currentChapterIndex - 1 + courseStructure.chapters.Count) % courseStructure.chapters.Count;
-            DisplayChapterLevels(courseStructure);
+            if(isInGame){
+                DisplayChapterLevels(courseStructure, levelsGameContentPanel, chapterGameNameText);
+            }
+            else{
+                DisplayChapterLevels(courseStructure, levelsContentPanel, chapterNameText);
+            }
+
+            Canvas.ForceUpdateCanvases();
         }
     }
 
@@ -831,13 +912,19 @@ public class UIManager : MonoBehaviour
 
         });
     }
+    
+    public void setLogInRegisterMessagesInactive(){
+        loginFailedMessage.SetActive(false);
+        registrationFailedMessage.SetActive(false);
+        registrationSuccessMessage.SetActive(false);
+    }
 
     public void registerUser()
     {
+        setLogInRegisterMessagesInactive();
         string email = registerEmailField.text;
         string username = registerUsernameField.text;
         string password = registerPasswordField.text;
-
         DatabaseManager.Instance.Register(email, username, password, (bool success) =>
         {
             if (success)

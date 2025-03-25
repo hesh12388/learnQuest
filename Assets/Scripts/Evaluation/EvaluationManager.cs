@@ -223,6 +223,7 @@ public class EvaluationManager : MonoBehaviour{
     public void StartEvaluation(){
         numCorrectAnswers=0;
         isEvaluating = true;
+        Player.Instance.pausePlayer();
         // Load the questions for the level
 
         if (currentQuestions == null || currentQuestions.Count == 0)
@@ -609,7 +610,7 @@ public class EvaluationManager : MonoBehaviour{
             enemyHealth -= healthDecreaseAmount;
             enemyHealth= Mathf.Clamp(enemyHealth, 0f, 1f);
             npcHealthBar.localScale = new Vector3(enemyHealth, 1f, 1f);
-
+            AchievementManager.Instance.TrackAnswer(true);
             if (isEnemyTurn)
             {
                 yield return StartCoroutine(TypeText(dialogueText, "Correct! You blocked the enemy's attack and countered to deal damage!", typingSpeed));
@@ -624,6 +625,7 @@ public class EvaluationManager : MonoBehaviour{
             playerHealth -= (healthDecreaseAmount*2);
             playerHealth= Mathf.Clamp(playerHealth, 0f, 1f);
             playerHealthBar.localScale = new Vector3(playerHealth, 1f, 1f);
+            AchievementManager.Instance.TrackAnswer(false);
             // Player answered incorrectly
             if (isEnemyTurn)
             {
@@ -648,7 +650,7 @@ public class EvaluationManager : MonoBehaviour{
         else
         {
             if(enemyHealth <= 0 || playerHealth <= 0){
-                EndBattle();
+                StartCoroutine(EndBattle());
             }
             else
             {
@@ -659,15 +661,14 @@ public class EvaluationManager : MonoBehaviour{
 
     private IEnumerator EnemyTurn()
     {
-        yield return new WaitForSeconds(2f); // Wait before the enemy's turn
-
-
         if(enemyHealth <= 0 || playerHealth <= 0){
-            EndBattle();
+            yield return StartCoroutine(EndBattle());
+            yield break;
         }
-        
+
         else
         {
+             yield return new WaitForSeconds(2f); // Wait before the enemy's turn
             EvaluationQuestion question = currentQuestions[currentQuestionIndex];
 
             
@@ -683,7 +684,7 @@ public class EvaluationManager : MonoBehaviour{
     {
         optionPanel.SetActive(false);
         power_up_panel.SetActive(false);
-        DatabaseManager.Instance.loggedInUser.setLevelScore((numCorrectAnswers/numQuestions) * 100);
+        DatabaseManager.Instance.loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
         bool hasFailed= playerHealth <= 0;
         if (enemyHealth <= 0)
         {
@@ -711,16 +712,39 @@ public class EvaluationManager : MonoBehaviour{
         evaluationPanel.SetActive(false);
         isEvaluating = false;
         
+
+        Player.Instance.resumePlayer();
+
+        AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
+
+         // Wait until achievement processing is complete
+        yield return StartCoroutine(WaitForAchievementProcessing());
+        
+        // Now show the completion/failure UI
         if(hasFailed){
-            StartCoroutine(UIManager.Instance.showFailedLevel());
+            UIManager.Instance.showFailedLevel();
         }
         else{
-            StartCoroutine(UIManager.Instance.showCompletedLevel());
+            UIManager.Instance.showCompletedLevel();
         }
-
     }
 
-
+    // Helper coroutine to wait for achievement processing
+    private IEnumerator WaitForAchievementProcessing()
+    {
+        // Add a small delay to ensure achievement check has started
+        yield return new WaitForSeconds(0.5f);
+        
+        // Wait until achievement manager is no longer processing
+        while (AchievementManager.Instance != null && 
+            AchievementManager.Instance.isProcessingAchievements)
+        {
+            yield return null; // Wait one frame
+        }
+        
+        // Add a small buffer after processing completes
+        yield return new WaitForSeconds(0.5f);
+    }
 
     // Function to Add Hover Listeners
     private void AddHoverListeners(Button button, int i)

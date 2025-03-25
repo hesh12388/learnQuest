@@ -8,7 +8,7 @@ public class Level
     public int points;
     public bool isCompleted;
 
-    public Level(string name, int score, string status, int levelNumbe, int points, bool isCompeleted)
+    public Level(string name, int score, string status, int levelNumber, int points, bool isCompleted)
     {
         this.level_name = name;
         this.score = score;

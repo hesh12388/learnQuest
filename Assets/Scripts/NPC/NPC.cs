@@ -24,6 +24,7 @@ public class NPC : MonoBehaviour, IInteractable
     private bool isTyping, isDialogueActive;
 
     private bool isOnQuestion;
+    private bool isOnPreRequisite;
 
     private string currentMenu;
     private void Start(){
@@ -47,7 +48,7 @@ public class NPC : MonoBehaviour, IInteractable
     public void Interact()
     {
 
-        if(isOnQuestion || EvaluationManager.Instance.isEvaluating)
+        if(isOnQuestion || EvaluationManager.Instance.isEvaluating || isOnPreRequisite)
         {
             return;
         }
@@ -59,6 +60,7 @@ public class NPC : MonoBehaviour, IInteractable
         }
 
         isInstructing=true;
+        NPCManager.Instance.isInstructing=true;
         Player.Instance.pausePlayer();
         // Start the interaction coroutine instead of doing everything immediately
         StartCoroutine(InteractSequence());
@@ -70,12 +72,15 @@ public class NPC : MonoBehaviour, IInteractable
         {
             if(NPCManager.Instance.AreAllNPCsCompleted()){
                 EvaluationManager.Instance.StartEvaluation();
+                isInstructing=false;
+                NPCManager.Instance.isInstructing=false;
                 yield break;
             }
             else{
                 yield return StartCoroutine(EvaluationManager.Instance.NotReady());
                 Player.Instance.resumePlayer();
                 isInstructing=false;
+                NPCManager.Instance.isInstructing=false;
                 yield break;
             }
         }
@@ -90,7 +95,8 @@ public class NPC : MonoBehaviour, IInteractable
         {
             if(!NPCManager.Instance.HasCompletedNPC(dialogueData.requiredPreviousDialogues[i]))
             {
-               DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to learn " + dialogueData.requiredPreviousDialogues[i] + " first.", dialogueData.requiredPreviousDialogues[i]);
+                isOnPreRequisite = true;
+                DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to " + dialogueData.requiredPreviousDialogues[i] + " first.", dialogueData.requiredPreviousDialogues[i]);
                 yield break;
             }
         }
@@ -264,7 +270,9 @@ public class NPC : MonoBehaviour, IInteractable
         dialogueText.SetText("");
         dialoguePanel.SetActive(false);
         isInstructing = false;
+        NPCManager.Instance.isInstructing=false;
         Player.Instance.resumePlayer();
+        isOnPreRequisite = false;
     }
 
     IEnumerator TypeDialogue(){
@@ -310,6 +318,7 @@ public class NPC : MonoBehaviour, IInteractable
         dialoguePanel.SetActive(false);
         NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
         isInstructing=false;
+        NPCManager.Instance.isInstructing=false;
         Player.Instance.resumePlayer();
     }
 

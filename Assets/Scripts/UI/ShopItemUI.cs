@@ -52,12 +52,14 @@ public class ShopItemUI: MonoBehaviour
         item_cost_text.text = cost.ToString();
         imagePanel.GetComponent<Image>().sprite = image;
 
-        if(itemCategory=="Move"){
+        
+        if(itemCategory=="Boost"){
             item_cost_image.sprite = gem_sprite;
         }
         else{
             item_cost_image.sprite = coin_sprite;
         }
+
 
         if(ShopManager.Instance.isEquipped(item_name, itemCategory)){
             SetButtonInteractable(false);
@@ -76,7 +78,11 @@ public class ShopItemUI: MonoBehaviour
             }
         }
 
-        else if(cost>DatabaseManager.Instance.loggedInUser.score)
+        else if(itemCategory!="Boost" && item.cost>DatabaseManager.Instance.loggedInUser.score)
+        {
+            SetButtonInteractable(false);
+        }
+        else if(itemCategory=="Boost" && item.cost>DatabaseManager.Instance.loggedInUser.numGems)
         {
             SetButtonInteractable(false);
         }
@@ -107,7 +113,11 @@ public class ShopItemUI: MonoBehaviour
             }
         }
        
-        else if(item.cost>DatabaseManager.Instance.loggedInUser.score)
+        else if(itemCategory!="Boost" && item.cost>DatabaseManager.Instance.loggedInUser.score)
+        {
+            SetButtonInteractable(false);
+        }
+        else if(itemCategory=="Boost" && item.cost>DatabaseManager.Instance.loggedInUser.numGems)
         {
             SetButtonInteractable(false);
         }

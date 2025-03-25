@@ -102,8 +102,9 @@ public class ShopManager : MonoBehaviour
             Debug.Log("Item name: " + item.item_name);
             GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
             shopItemObject.GetComponent<ShopItemUI>().itemCategory = "character";
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
             shopItemObject.GetComponent<ShopItemUI>().item = item;
+            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
+            
             
         }
     }
@@ -210,9 +211,8 @@ public class ShopManager : MonoBehaviour
         {
             GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
             shopItemObject.GetComponent<ShopItemUI>().itemCategory = "Move";
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
             shopItemObject.GetComponent<ShopItemUI>().item = item;
-            
+            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
         }
     }
     
@@ -261,8 +261,8 @@ public class ShopManager : MonoBehaviour
         {
             GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
             shopItemObject.GetComponent<ShopItemUI>().itemCategory = "Boost";
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
             shopItemObject.GetComponent<ShopItemUI>().item = item;
+            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
         }
     }
     
