@@ -17,6 +17,9 @@ public class NPC : MonoBehaviour, IInteractable
     private GameObject questionsPanel;
     private Button[] answerButtons;
     private GameObject npcImagePanel;
+    private Button closeDialogue;
+    private Button continueDialogue;
+    private Button exitDialogue;
 
     public bool isInstructing;
     public bool isEvaluation;
@@ -27,6 +30,7 @@ public class NPC : MonoBehaviour, IInteractable
     private bool isOnPreRequisite;
 
     private string currentMenu;
+    private bool isPaused;
     private void Start(){
         npcImage=UIManager.Instance.demonstration_npcImage;
         dialoguePanel= UIManager.Instance.dialoguePanel;
@@ -38,6 +42,12 @@ public class NPC : MonoBehaviour, IInteractable
         questionsPanel= UIManager.Instance.questionsPanel;
         answerButtons= UIManager.Instance.demonstration_answerButtons;
         npcImagePanel= UIManager.Instance.npcImagePanel;
+        closeDialogue= UIManager.Instance.closeDialogue;
+        closeDialogue.onClick.AddListener(pauseDemonstration);
+        continueDialogue= UIManager.Instance.continueDialogue;
+        continueDialogue.onClick.AddListener(resumeDemonstration);
+        exitDialogue= UIManager.Instance.exitDialogue;
+        exitDialogue.onClick.AddListener(EndDialogue);
     }
 
     public bool CanInteract()
@@ -48,7 +58,7 @@ public class NPC : MonoBehaviour, IInteractable
     public void Interact()
     {
 
-        if(isOnQuestion || EvaluationManager.Instance.isEvaluating || isOnPreRequisite)
+        if(isOnQuestion || EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused)
         {
             return;
         }
@@ -89,8 +99,10 @@ public class NPC : MonoBehaviour, IInteractable
             dialogueData.LoadDialogue();
             // Wait for the transition to complete
             yield return StartCoroutine(TransitionManager.Instance.contentTransition());
+            AudioController.Instance.PlayMenuOpen();
         }
 
+        
         for(int i=0; i<dialogueData.requiredPreviousDialogues.Length; i++)
         {
             if(!NPCManager.Instance.HasCompletedNPC(dialogueData.requiredPreviousDialogues[i]))
@@ -113,6 +125,7 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     void StartDialogue(){
+        AudioController.Instance.PlayDemonstrationMusic();
         isDialogueActive=true;
         dialogueIndex=0;
 
@@ -124,6 +137,7 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     void NextLine(){
+        AudioController.Instance.PlayButtonClick();
         if(isTyping)
         {
             StopAllCoroutines();
@@ -196,16 +210,19 @@ public class NPC : MonoBehaviour, IInteractable
     {
 
         Debug.Log("Selected answer: " + index);
+        
         // Stop all typing coroutines first
         StopAllCoroutines();
         if (index == questionData.correctAnswerIndex)
         {
            
             dialogueText.text = questionData.correctResponse;
+            AudioController.Instance.PlayAnswerCorrect();
         }
         else
         {
             dialogueText.text = questionData.incorrectResponse;
+            AudioController.Instance.PlayAnswerIncorrect();
         }
 
         StartCoroutine(ContinueAfterResponse());
@@ -230,8 +247,9 @@ public class NPC : MonoBehaviour, IInteractable
     {
         // Stop any ongoing dialogue
         StopAllCoroutines();
-        
+        AudioController.Instance.PlayDemonstrationMusic();
         // Show the dialogue panel
+        AudioController.Instance.PlayMenuOpen();
         dialoguePanel.SetActive(true);
         npcImage.sprite=dialogueData.npcSprite;
         // Display only the NPC image, not graphics
@@ -268,11 +286,13 @@ public class NPC : MonoBehaviour, IInteractable
         StopAllCoroutines();
         isDialogueActive = false;
         dialogueText.SetText("");
+        AudioController.Instance.PlayMenuOpen();
         dialoguePanel.SetActive(false);
         isInstructing = false;
         NPCManager.Instance.isInstructing=false;
         Player.Instance.resumePlayer();
         isOnPreRequisite = false;
+        AudioController.Instance.PlayBackgroundMusic();
     }
 
     IEnumerator TypeDialogue(){
@@ -311,12 +331,23 @@ public class NPC : MonoBehaviour, IInteractable
        
     }
 
+    public void pauseDemonstration(){
+        isPaused=true;
+    }
+    
+    public void resumeDemonstration(){
+        isPaused=false;
+    }
     public void EndDialogue(){
         StopAllCoroutines();
         isDialogueActive=false;
         dialogueText.SetText("");
+        AudioController.Instance.PlayMenuOpen();
+        AudioController.Instance.PlayBackgroundMusic();
         dialoguePanel.SetActive(false);
-        NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
+        if(dialogueIndex >=dialogueData.dialogue.Length){
+             NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
+        }
         isInstructing=false;
         NPCManager.Instance.isInstructing=false;
         Player.Instance.resumePlayer();

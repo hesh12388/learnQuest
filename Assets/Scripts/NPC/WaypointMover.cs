@@ -66,6 +66,11 @@ public class WaypointMover : MonoBehaviour
         // Optional: React when player is first detected
         if (shouldStop)
         {
+            if(!interactionObject.activeSelf){
+                // Play detection sound
+                AudioController.Instance.PlayNpcInteract();
+            }
+            
             interactionObject.SetActive(true);
             // Player just entered detection range
             OnPlayerDetected(playerCollider.transform);

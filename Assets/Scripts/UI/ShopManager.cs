@@ -126,7 +126,22 @@ public class ShopManager : MonoBehaviour
             DatabaseManager.Instance.loggedInUser.purchasedItems.Count > 0)
         {
             items_purchased = DatabaseManager.Instance.loggedInUser.purchasedItems;
-            PopulateMoveItems(shop);
+            if(UIManager.Instance.current_shop_category == "Move")
+            {
+                PopulateMoveItems(shop);
+            }
+            else if(UIManager.Instance.current_shop_category == "Boost")
+            {
+                PopulateBoostItems(shop);
+            }
+            else if(UIManager.Instance.current_shop_category == "character")
+            {
+                PopulateCharacterItems(shop);
+            }
+            else
+            {
+                PopulateMoveItems(shop);
+            }
         }
         else
         {
@@ -141,7 +156,22 @@ public class ShopManager : MonoBehaviour
                     DatabaseManager.Instance.loggedInUser.purchasedItems = purchasedItems;
                 }
                 
-                PopulateMoveItems(shop);
+                if(UIManager.Instance.current_shop_category == "Move")
+                {
+                    PopulateMoveItems(shop);
+                }
+                else if(UIManager.Instance.current_shop_category == "Boost")
+                {
+                    PopulateBoostItems(shop);
+                }
+                else if(UIManager.Instance.current_shop_category == "character")
+                {
+                    PopulateCharacterItems(shop);
+                }
+                else
+                {
+                    PopulateMoveItems(shop);
+                }
             });
         }
     }
@@ -231,7 +261,7 @@ public class ShopManager : MonoBehaviour
 
             return;
         }
-
+        AudioController.Instance.PlayBuyItem();
         DatabaseManager.Instance.BuyItem(item_name, item_type, (bool success) =>
         {
             if (success)

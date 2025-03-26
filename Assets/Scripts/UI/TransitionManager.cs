@@ -34,6 +34,13 @@ public class TransitionManager : MonoBehaviour
         transitionAnimator.SetTrigger("Start");
     }
 
+    public IEnumerator transitionLanding(){
+        transitionAnimator.SetTrigger("End");
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene("LandingPage");
+        transitionAnimator.SetTrigger("Start");
+    }
+
     public IEnumerator contentTransition(){
         transitionAnimator.SetTrigger("End");
         yield return new WaitForSeconds(1f);

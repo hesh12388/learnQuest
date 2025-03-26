@@ -62,6 +62,7 @@ public class SavedGame : MonoBehaviour
     }
 
     public void selectCourse(){
+        AudioController.Instance.PlayButtonClick();
         string courseName = this.courseName.text;
         DatabaseManager.Instance.setUserCourse(courseName);
         UIManager.Instance.showLevels();

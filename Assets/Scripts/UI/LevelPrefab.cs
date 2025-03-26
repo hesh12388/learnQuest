@@ -31,6 +31,7 @@ public class LevelPrefab : MonoBehaviour
     }
 
     public void startLevel(){
+        AudioController.Instance.PlayButtonClick();
         if(levelIndex ==DatabaseManager.Instance.loggedInUser.currentLevel){
             return;
         }

@@ -114,6 +114,9 @@ public class EvaluationManager : MonoBehaviour{
 
     private int numCorrectAnswers;
     private int numQuestions=5;
+
+    private bool isPaused = false;
+
      private void Awake()
     {
          if (Instance == null)
@@ -303,6 +306,7 @@ public class EvaluationManager : MonoBehaviour{
     }
 
     public IEnumerator NotReady(){
+        AudioController.Instance.PlayBattleMusic();
         isEvaluating = true;
         evaluationPanel.SetActive(true);
         battlePanel.SetActive(false);
@@ -313,12 +317,13 @@ public class EvaluationManager : MonoBehaviour{
         evaluationPanel.SetActive(false);
         npcIntroPanel.SetActive(false);
         isEvaluating=false;
+        AudioController.Instance.PlayBackgroundMusic();
     }
 
     private IEnumerator evaluationSequence(){
 
         yield return StartCoroutine(TransitionManager.Instance.contentTransition());
-
+        AudioController.Instance.PlayBattleMusic();
         // show the npc intro panel
         evaluationPanel.SetActive(true);
         npcIntroPanel.SetActive(true);
@@ -456,26 +461,64 @@ public class EvaluationManager : MonoBehaviour{
         });
     }
 
+    // Modify the QuestionTimerCoroutine to check for paused state
     private IEnumerator QuestionTimerCoroutine()
     {
         currentQuestionTime = questionTimeLimit;
         
         while (currentQuestionTime > 0)
         {
-            // Update the timer display
-            eval_time.text = Mathf.CeilToInt(currentQuestionTime).ToString();
+            // Only decrease time if not paused
+            if (!isPaused)
+            {
+                // Update the timer display
+                eval_time.text = Mathf.CeilToInt(currentQuestionTime).ToString();
+                
+                // Decrease time
+                currentQuestionTime -= 0.1f;
+            }
             
             // Wait for a small interval
             yield return new WaitForSeconds(0.1f);
-            
-            // Decrease time
-            currentQuestionTime -= 0.1f;
         }
         
         // Time's up - handle as incorrect answer
         TimeUp();
         
         yield break;
+    }
+
+    // Implement the pauseBattle method
+    public void pauseBattle()
+    {
+        // Toggle the pause state
+        isPaused = !isPaused;
+        
+        // You might want to add visual indicators for the paused state
+        if (isPaused)
+        {
+            // Show pause indicator (could be a UI element you add)
+            Debug.Log("Battle paused");
+            
+            // Optionally show a pause menu
+            // pauseMenuPanel.SetActive(true);
+        }
+        else
+        {
+            // Hide pause indicator
+            Debug.Log("Battle resumed");
+            
+            // Optionally hide pause menu
+            // pauseMenuPanel.SetActive(false);
+        }
+    }
+
+    // Optional: Add a method to explicitly resume the battle
+    public void resumeBattle()
+    {
+        isPaused = false;
+        // Hide any pause indicators
+        Debug.Log("Battle resumed");
     }
 
     private void TimeUp()
@@ -556,7 +599,7 @@ public class EvaluationManager : MonoBehaviour{
         optionPanel.SetActive(true);
         power_up_panel.SetActive(true);
         // Start typing the question
-        StartCoroutine(TypeText(dialogueText, question.question + "\n\n What will " + playerName + " do?", typingSpeed));
+        yield return StartCoroutine(TypeText(dialogueText, question.question + "\n\n What will " + playerName + " do?", typingSpeed));
 
         for (int i = 0; i < answerButtons.Length; i++)
         {
@@ -638,6 +681,7 @@ public class EvaluationManager : MonoBehaviour{
             }
         }
 
+        AudioController.Instance.PlayHit();
         yield return new WaitForSeconds(1f); // Add a small delay before the next turn
         // Toggle the turn
         isEnemyTurn = !isEnemyTurn;
@@ -680,19 +724,35 @@ public class EvaluationManager : MonoBehaviour{
         }
     }
 
+    public void closeBattle(){
+        // Stop all coroutines to prevent any lingering processes
+        StopAllCoroutines();
+        battlePanel.SetActive(false);
+        evaluationPanel.SetActive(false);
+        isEvaluating = false;
+        Player.Instance.resumePlayer();
+        AudioController.Instance.PlayBackgroundMusic();
+    }
+
+    
     IEnumerator EndBattle()
     {
+        
+        // Reset pause state
+        isPaused = false;
         optionPanel.SetActive(false);
         power_up_panel.SetActive(false);
         DatabaseManager.Instance.loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
         bool hasFailed= playerHealth <= 0;
         if (enemyHealth <= 0)
         {
+            AudioController.Instance.PlayBattleVictory();
             yield return StartCoroutine(TypeText(dialogueText, "You defeated the enemy! Well done!", typingSpeed));
             
         }
         else if (playerHealth <= 0)
         {
+            AudioController.Instance.PlayBattleLoss();
             yield return StartCoroutine(TypeText(dialogueText, "You were defeated. Better luck next time!", typingSpeed));
         }
 
@@ -712,7 +772,7 @@ public class EvaluationManager : MonoBehaviour{
         evaluationPanel.SetActive(false);
         isEvaluating = false;
         
-
+        AudioController.Instance.PlayBackgroundMusic();
         Player.Instance.resumePlayer();
 
         AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);

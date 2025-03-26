@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class AudioController : MonoBehaviour
 {
     // Singleton instance
@@ -14,6 +14,7 @@ public class AudioController : MonoBehaviour
     [Header("Music")]
     [SerializeField] private AudioClip backgroundMusic;
     [SerializeField] private AudioClip battleMusic;
+    [SerializeField] private AudioClip demonstrationMusic;
     
     [Header("UI Sounds")]
     [SerializeField] private AudioClip buttonClick;
@@ -37,6 +38,7 @@ public class AudioController : MonoBehaviour
     [Header("Demonstration Sounds")]
     [SerializeField] private AudioClip answerCorrect;
     [SerializeField] private AudioClip answerIncorrect;
+    [SerializeField] private AudioClip npcInteract;
 
     [Header("Menu Sounds")]
     [SerializeField] private AudioClip menuOpen;
@@ -46,7 +48,12 @@ public class AudioController : MonoBehaviour
     [SerializeField] private float musicVolume = 0.5f;
     [Range(0f, 1f)]
     [SerializeField] private float sfxVolume = 0.7f;
+
+    [Header("Sliders")]
+    [SerializeField] private Slider musicVolumeSlider; // Slider for music volume
+    [SerializeField] private Slider sfxVolumeSlider;   // Slider for SFX volume
     
+    private bool isDemonstrationMusicPlaying;
     private void Awake()
     {
         // Singleton pattern
@@ -68,9 +75,19 @@ public class AudioController : MonoBehaviour
                 sfxSource = gameObject.AddComponent<AudioSource>();
                 sfxSource.playOnAwake = false;
             }
-            
-            // Load saved volume settings
-            LoadVolumeSettings();
+
+            // Initialize sliders if assigned
+            if (musicVolumeSlider != null)
+            {
+                musicVolumeSlider.value = musicVolume;
+                musicVolumeSlider.onValueChanged.AddListener(SetMusicVolumeFromSlider);
+            }
+
+            if (sfxVolumeSlider != null)
+            {
+                sfxVolumeSlider.value = sfxVolume;
+                sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolumeFromSlider);
+            }
         }
         else
         {
@@ -81,14 +98,24 @@ public class AudioController : MonoBehaviour
     // Play background music
     public void PlayBackgroundMusic()
     {
+        isDemonstrationMusicPlaying = false;
         PlayMusic(backgroundMusic);
+    }
+
+    // Play demonstration music
+    public void PlayDemonstrationMusic()
+    {
+        isDemonstrationMusicPlaying = true;
+        PlayMusic(demonstrationMusic);
     }
     
     // Play battle music
     public void PlayBattleMusic()
     {
+        isDemonstrationMusicPlaying = false;
         PlayMusic(battleMusic);
     }
+
     
     // Generic music player with optional crossfade
     public void PlayMusic(AudioClip music, bool fade = true, float fadeTime = 1.0f)
@@ -102,7 +129,14 @@ public class AudioController : MonoBehaviour
         else
         {
             musicSource.clip = music;
-            musicSource.volume = musicVolume;
+            if(isDemonstrationMusicPlaying)
+            {
+                musicSource.volume = musicVolume * 0.5f;
+            }
+            else
+            {
+                musicSource.volume = musicVolume;
+            }
             musicSource.Play();
         }
     }
@@ -140,12 +174,25 @@ public class AudioController : MonoBehaviour
         // Ensure final volume is correct
         musicSource.volume = musicVolume;
     }
+
+    public void musicOff()
+    {
+        ToggleMusic(false);
+        ToggleSFX(false);
+        
+    }
+
+    public void musicOn()
+    {
+        ToggleMusic(true);
+        ToggleSFX(true);
+    }
     
     // Play a sound effect
     public void PlaySFX(AudioClip clip)
     {
         if (clip == null) return;
-        
+  
         sfxSource.PlayOneShot(clip, sfxVolume);
     }
     
@@ -154,6 +201,11 @@ public class AudioController : MonoBehaviour
     public void PlayButtonClick()
     {
         PlaySFX(buttonClick);
+    }
+
+    public void PlayNpcInteract()
+    {
+        PlaySFX(npcInteract);
     }
 
     public void PlayPowerUp()
@@ -169,6 +221,11 @@ public class AudioController : MonoBehaviour
     public void PlayLevelComplete()
     {
         PlaySFX(levelComplete);
+    }
+
+    public void PlayLevelFailed()
+    {
+        PlaySFX(battleLoss);
     }
 
     public void PlayAnswerCorrect()
@@ -216,19 +273,28 @@ public class AudioController : MonoBehaviour
     
     #region Volume Controls
     
+    // Method to set music volume from slider
+    public void SetMusicVolumeFromSlider(float value)
+    {
+        SetMusicVolume(value);
+    }
+
+    // Method to set SFX volume from slider
+    public void SetSFXVolumeFromSlider(float value)
+    {
+        SetSFXVolume(value);
+    }
+
+    // Existing methods for setting volume
     public void SetMusicVolume(float volume)
     {
         musicVolume = Mathf.Clamp01(volume);
         musicSource.volume = musicVolume;
-        PlayerPrefs.SetFloat("MusicVolume", musicVolume);
-        PlayerPrefs.Save();
     }
     
     public void SetSFXVolume(float volume)
     {
         sfxVolume = Mathf.Clamp01(volume);
-        PlayerPrefs.SetFloat("SFXVolume", sfxVolume);
-        PlayerPrefs.Save();
     }
     
     public float GetMusicVolume()
@@ -241,32 +307,14 @@ public class AudioController : MonoBehaviour
         return sfxVolume;
     }
     
-    private void LoadVolumeSettings()
-    {
-        if (PlayerPrefs.HasKey("MusicVolume"))
-        {
-            musicVolume = PlayerPrefs.GetFloat("MusicVolume");
-            musicSource.volume = musicVolume;
-        }
-            
-        if (PlayerPrefs.HasKey("SFXVolume"))
-        {
-            sfxVolume = PlayerPrefs.GetFloat("SFXVolume");
-        }
-    }
-    
     public void ToggleMusic(bool isOn)
     {
         musicSource.mute = !isOn;
-        PlayerPrefs.SetInt("MusicMuted", isOn ? 0 : 1);
-        PlayerPrefs.Save();
     }
     
     public void ToggleSFX(bool isOn)
     {
         sfxSource.mute = !isOn;
-        PlayerPrefs.SetInt("SFXMuted", isOn ? 0 : 1);
-        PlayerPrefs.Save();
     }
     
     #endregion

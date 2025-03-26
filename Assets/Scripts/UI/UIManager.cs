@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Panels")]
@@ -98,7 +99,13 @@ public class UIManager : MonoBehaviour
     public TMP_Text playerNameText;
     public TMP_Text playerLevelText;
     public Transform playerHealthBar;
-    
+    public Button closeDialogue;
+    public Button continueDialogue;
+    public Button exitDialogue;
+
+    [Header("UI Checkmarks")]
+    public Toggle [] checkmarks;
+    public GameObject [] checkmarkPanels;
 
     //npc hud variables
     public TMP_Text npcNameText;
@@ -128,7 +135,12 @@ public class UIManager : MonoBehaviour
 
     public static UIManager Instance { get; private set; } // Singleton instance
     public bool isMenuOpen { get; private set; } = false;
+    
+
     private string currentMenu = "settings";
+    public string current_shop_category = "Move";
+    private string current_achievement_category="All";
+    private string current_leaderboard_category="Score";
         private void Awake()
         {
             if (Instance == null)
@@ -140,9 +152,30 @@ public class UIManager : MonoBehaviour
             {
                 Destroy(gameObject);
             }
+
         }
 
-    private void Update()
+
+    public void setCheckMarkActive(int index){
+
+        for(int i = 0; i < checkmarks.Length; i++){
+            if(i != index){
+                // Only turn off toggles that are currently on
+                checkmarks[i].SetIsOnWithoutNotify(false);
+                checkmarkPanels[i].SetActive(false);
+            }
+        }
+
+
+        if(index >= 0 && index < checkmarks.Length){
+            // Check if already set to avoid infinite recursion
+            checkmarks[index].SetIsOnWithoutNotify(true);
+            checkmarkPanels[index].SetActive(true);
+            
+        }
+    }
+
+    public void OnToggleMenu()
     {
         if(!isInGame){
             return;
@@ -156,55 +189,63 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        // Check if M key was pressed (not held down)
-        if (Input.GetKeyDown(KeyCode.M))
+        // Toggle the inGameUiPanel active state
+        if (inGameUiPanel != null)
         {
-            // Toggle the inGameUiPanel active state
-            if (inGameUiPanel != null)
-            {
-                inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
-                isMenuOpen = !isMenuOpen;
+            inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
+            isMenuOpen = !isMenuOpen;
 
-                if(isMenuOpen){
-                    if(currentMenu=="settings"){
-                        ShowSettings();
-                    }
-                    else if(currentMenu=="objectives"){
-                        ShowObjectives();
-                    }
-                    else if(currentMenu=="chat"){
-                        ShowChat();
-                    }
-                    else if(currentMenu=="achievements"){
-                        ShowAchievements();
-                    }
-                    else if(currentMenu=="leaderboard"){
-                        ShowLeaderboard();
-                    }
-                    else if(currentMenu=="character"){
-                        ShowCharacterSelection();
-                    }
-                    else if(currentMenu=="shop"){
-                        ShowShop();
-                    }
-                    else if(currentMenu=="levels"){
-                        ShowGameLevels();
-                    }
-                }
-            }
-            else
+            if (isMenuOpen)
             {
-                Debug.LogWarning("inGameUiPanel reference not set in UIManager");
+                if (currentMenu == "settings")
+                {
+                    ShowSettings();
+                }
+                else if (currentMenu == "objectives")
+                {
+                    ShowObjectives();
+                }
+                else if (currentMenu == "chat")
+                {
+                    ShowChat();
+                }
+                else if (currentMenu == "achievements")
+                {
+                    ShowAchievements();
+                }
+                else if (currentMenu == "leaderboard")
+                {
+                    ShowLeaderboard();
+                }
+                else if (currentMenu == "character")
+                {
+                    ShowCharacterSelection();
+                }
+                else if (currentMenu == "shop")
+                {
+                    ShowShop();
+                }
+                else if (currentMenu == "levels")
+                {
+                    ShowGameLevels();
+                }
+
+                AudioController.Instance.PlayMenuOpen();
             }
         }
+        else
+        {
+            Debug.LogWarning("inGameUiPanel reference not set in UIManager");
+        }
     }
-
+   
     public void showCompletedLevel(){
         Player.Instance.stopInteraction();
         levelCompletePanel.SetActive(true);
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Level current_level = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1];
         levelCompletePanel.GetComponent<LevelMessage>().SetLevelUpdateUI(loggedInUser.getLevelScore(), current_level.score, current_level.points, false);
+        AudioController.Instance.PlayLevelComplete();
     }
 
     public void showFailedLevel(){
@@ -213,6 +254,7 @@ public class UIManager : MonoBehaviour
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Level current_level = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1];
         levelCompletePanel.GetComponent<LevelMessage>().SetLevelUpdateUI(loggedInUser.getLevelScore(), current_level.score, current_level.points, true);
+        AudioController.Instance.PlayLevelFailed();
     }
 
     public void setGameUIPanelsInactive(){
@@ -250,6 +292,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowCharacterSelection()
     {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(4);
         currentMenu = "character";
         setGameUIPanelsInactive();
         characterSelectionPanel.SetActive(true);
@@ -257,6 +307,14 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowGameLevels(){
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(2);
         currentMenu = "levels";
         setGameUIPanelsInactive();
         levelsGamePanel.SetActive(true);
@@ -280,11 +338,21 @@ public class UIManager : MonoBehaviour
         }
         
         objectiveCompletionPanel.GetComponent<ObjectiveCompleteUI>().SetObjectiveCompleteData(objective_name, points);
+        AudioController.Instance.PlayObjectiveComplete();
         yield return new WaitForSeconds(2);
         objectiveCompletionPanel.SetActive(false);
     }
 
     public void ShowShop() {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+
+        setCheckMarkActive(7);
         currentMenu = "shop";
         setGameUIPanelsInactive();
         shopPanel.SetActive(true);
@@ -294,14 +362,17 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowShopByCharacters(){
+        current_shop_category = "character";
          ShopManager.Instance.PopulateCharacterItems(shop);
     }
 
     public void ShowShopByMove(){
+        current_shop_category = "Move";
          ShopManager.Instance.PopulateMoveItems(shop);
     }
 
     public void ShowShopByBoosts(){
+        current_shop_category = "Boost";
          ShopManager.Instance.PopulateBoostItems(shop);
     }
     
@@ -312,6 +383,14 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowObjectives() {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(6);
         currentMenu = "objectives";
         setGameUIPanelsInactive();
         objectivesPanel.SetActive(true);
@@ -352,24 +431,49 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowSettings(){
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(0);
         currentMenu = "settings";
         setGameUIPanelsInactive();
         settingsPanel.SetActive(true);
     }
 
     public void ShowAchievements() {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(5);
         currentMenu = "achievements";
         setGameUIPanelsInactive();
         achievementsPanel.SetActive(true);
         
         if (achievements_list != null && achievements_list.Count > 0) {
             // Use cached achievement data
-            ShowAllAchievements();
+            if(current_achievement_category=="All"){
+                ShowAllAchievements();
+            }
+            else if(current_achievement_category=="Completed"){
+                ShowCompletedAchievements();
+            }
+            else if(current_achievement_category=="InProgress"){
+                ShowInProgressAchievements();
+            }
         } 
     }
 
 
     public void ShowAllAchievements(){
+        current_achievement_category = "All";
         // Clear any existing entries first
             foreach (Transform child in achivementContentPanel)
             {
@@ -399,6 +503,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowCompletedAchievements(){
+        current_achievement_category = "Completed";
         // Clear any existing entries first
             foreach (Transform child in achivementContentPanel)
             {
@@ -430,6 +535,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowInProgressAchievements(){
+        current_achievement_category = "InProgress";
         // Clear any existing entries first
             foreach (Transform child in achivementContentPanel)
             {
@@ -462,6 +568,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowLeaderboard()
     {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+        setCheckMarkActive(1);
         currentMenu = "leaderboard";
         setGameUIPanelsInactive();
         leaderboardPanel.SetActive(true);
@@ -474,34 +588,26 @@ public class UIManager : MonoBehaviour
             // Hide loading indicator when data is retrieved
             HideLoading();
             
-            // Clear any existing entries first
-            foreach (Transform child in leaderboardContentPanel)
-            {
-                Destroy(child.gameObject);
-            }
-            
+           
             if (leaderboardEntries != null && leaderboardEntries.Count > 0)
             {
-                leaderboardEntries.Sort((a, b) => b.score.CompareTo(a.score));
+                
                 leaderboard = leaderboardEntries;
-                int i=0;
-                // Populate the leaderboard with entries
-                foreach (LeaderboardEntry entry in leaderboardEntries)
-                {
-                    GameObject entryObject = Instantiate(leaderboardEntryPrefab, leaderboardContentPanel);
-                    LeaderboardEntryUI entryUI = entryObject.GetComponent<LeaderboardEntryUI>();
-                    
-                    if (entryUI != null)
-                    {
-                        entryUI.SetEntryData(entry.username, entry.score, i);
-                        i+=1;
-                    }
+                if(current_leaderboard_category=="Score"){
+                    ShowLeaderboardbyScore();
+                }
+                else if(current_leaderboard_category=="Achievements"){
+                    ShowLeaderboardbyAchievements();
+                }
+                else if(current_leaderboard_category=="Gems"){
+                    ShowLeaderboardbyNumGems();
                 }
             }
         });
     }
 
     public void ShowLeaderboardbyNumGems(){
+        current_leaderboard_category="Gems";
         // Clear any existing entries first
             foreach (Transform child in leaderboardContentPanel)
             {
@@ -528,6 +634,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowLeaderboardbyAchievements(){
+        current_leaderboard_category="Achievements";
         // Clear any existing entries first
             foreach (Transform child in leaderboardContentPanel)
             {
@@ -554,6 +661,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowLeaderboardbyScore(){
+        current_leaderboard_category="Score";
         // Clear any existing entries first
             foreach (Transform child in leaderboardContentPanel)
             {
@@ -581,18 +689,22 @@ public class UIManager : MonoBehaviour
 
     public void activate_hint(){
         EvaluationManager.Instance.GiveHint();
+        AudioController.Instance.PlayPowerUp();
     }
 
     public void activate_extra_time(){
         EvaluationManager.Instance.AddExtraTime();
+        AudioController.Instance.PlayPowerUp();
     }
 
     public void activate_power_reveal(){
         EvaluationManager.Instance.RevealAnswer();
+        AudioController.Instance.PlayPowerUp();
     }
    
     private void Start(){
         StartCoroutine(showLanding());
+        AudioController.Instance.PlayBackgroundMusic();
     }
 
     IEnumerator showLanding(){
@@ -674,6 +786,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowLogin()
     {
+        AudioController.Instance.PlayMenuOpen();
         setLogInRegisterMessagesInactive();
         setPanelsInactive();
         loginPanel.SetActive(true);
@@ -703,6 +816,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowRegister()
     {
+        AudioController.Instance.PlayMenuOpen();
         setPanelsInactive();
         setLogInRegisterMessagesInactive();
         registerPanel.SetActive(true);
@@ -716,6 +830,7 @@ public class UIManager : MonoBehaviour
 
     public void showCourseSelection()
     {
+        AudioController.Instance.PlayMenuOpen();
         setPanelsInactive();
         courseSelectionPanel.SetActive(true);
     }
@@ -730,11 +845,13 @@ public class UIManager : MonoBehaviour
             }
         }
 
+        AudioController.Instance.PlayAchievementComplete();
         yield return new WaitForSeconds(2);
         achievementCompletedPanel.SetActive(false);
        
     }
     public void showLevels() {
+        AudioController.Instance.PlayMenuOpen();
         setPanelsInactive();
         ShowLoading();
         levelsPanel.SetActive(true);
@@ -746,6 +863,7 @@ public class UIManager : MonoBehaviour
                 Debug.Log("Course structure retrieved successfully");
                 currentChapterIndex = 0; // Reset to first chapter
                 DisplayChapterLevels(courseStructure, levelsContentPanel, chapterNameText);
+                
             } else {
                 Debug.LogError("Failed to retrieve course structure");
                 // Consider showing an error message to the user
@@ -885,12 +1003,23 @@ public class UIManager : MonoBehaviour
         });
     }
 
+    public void SignOut(){
+        setGameUIPanelsInactive();
+        setPanelsInactive();
+        StartCoroutine(signOutSequence());
+    }
+
+    IEnumerator signOutSequence(){
+        yield return StartCoroutine(TransitionManager.Instance.transitionLanding());
+        ShowLogin();
+    }
+
     public void ShowSavedGames()
     {
         setPanelsInactive();
         ShowLoading();
         savedGamesPanel.SetActive(true); // Show Saved Games UI
-
+        AudioController.Instance.PlayMenuOpen();
 
         DatabaseManager.Instance.GetUserCourses((Course[] courses) =>
         {

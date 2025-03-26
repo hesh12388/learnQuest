@@ -31,7 +31,7 @@
               "strong_element.png",
               null
             ],
-            "autoProgressLines": [true, true, true, false, false, false, true, true, true, true, true, true, false],
+            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
             "requiredPreviousDialogues": [],
             "questions": [
               {
@@ -82,7 +82,7 @@
               null,
               null
             ],
-            "autoProgressLines": [true, true, true, true, true, false, false, false, true, true, true, true, false],
+            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
             "requiredPreviousDialogues": ["Learn about tags and elements"],
             "questions": [
               {
@@ -126,7 +126,7 @@
               null,
               null
             ],
-            "autoProgressLines": [true, false, false, true, false, false, true, true, true, true, false],
+            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false],
             "requiredPreviousDialogues": ["Nest HTML Elements"],
             "questions": [
               {
@@ -183,9 +183,9 @@
               "head_tag.jpeg",
               "title_tag.jpeg",
               "title_tag.jpeg",
-              "html_structure_step1.png",
-              "html_structure_step1.png",
-              "html_structure_step1.png",
+              "html_structure_step1.jpeg",
+              "html_structure_step1.jpeg",
+              "html_structure_step1.jpeg",
               "h1_output.png",
               null,
               "p_output.png",
@@ -198,11 +198,11 @@
               "img_output.png",
               null
             ],
-            "autoProgressLines": [true, true, true, false, false, false, false, false, false, true, false, true, true, false, true, true, true, false, true, true],
+            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
             "requiredPreviousDialogues": [],
             "questions": [
               {
-                "index": 10,
+                "index": 11,
                 "question": "What does the <h1> element do?",
                 "answers": [
                   "Makes text bold",

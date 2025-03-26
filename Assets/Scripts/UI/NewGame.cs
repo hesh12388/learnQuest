@@ -20,6 +20,7 @@ public class NewGame : MonoBehaviour
 
     private void OnNewGameButtonClicked()
     {
+        AudioController.Instance.PlayButtonClick();
         // Call the showCourseSelection method on the UIManager instance
         UIManager.Instance.showCourseSelection();
     }
