@@ -52,6 +52,9 @@ public class AudioController : MonoBehaviour
     [Header("Sliders")]
     [SerializeField] private Slider musicVolumeSlider; // Slider for music volume
     [SerializeField] private Slider sfxVolumeSlider;   // Slider for SFX volume
+     [SerializeField] private Slider landingmusicVolumeSlider; // Slider for music volume
+    [SerializeField] private Slider landingsfxVolumeSlider;   // Slider for SFX volume
+
     
     private bool isDemonstrationMusicPlaying;
     private void Awake()
@@ -87,6 +90,15 @@ public class AudioController : MonoBehaviour
             {
                 sfxVolumeSlider.value = sfxVolume;
                 sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolumeFromSlider);
+            }
+
+            if(landingmusicVolumeSlider !=null){
+                landingmusicVolumeSlider.value = musicVolume;
+                landingmusicVolumeSlider.onValueChanged.AddListener(SetMusicVolumeFromSlider);
+            }
+            if(landingsfxVolumeSlider !=null){
+                landingsfxVolumeSlider.value = sfxVolume;
+                landingsfxVolumeSlider.onValueChanged.AddListener(SetSFXVolumeFromSlider);
             }
         }
         else

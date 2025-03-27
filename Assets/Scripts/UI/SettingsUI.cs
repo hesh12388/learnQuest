@@ -47,6 +47,7 @@ public class SettingsUI : MonoBehaviour
     {
         var moveBindings = playerInputActions.Player.Move.bindings;
 
+        Debug.Log(moveBindings);
         // Update movement keybinds
         upKeyText.text = GetBindingDisplayName(moveBindings, "Up");
         downKeyText.text = GetBindingDisplayName(moveBindings, "Down");

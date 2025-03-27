@@ -27,6 +27,8 @@ public class Player : MonoBehaviour
     public static Player Instance;
     public Transform PlayerTransform { get; private set; } // Reference to the player's Transform
     public PlayerInputActions playerControls;
+    private float lastInteractTime = 0f;
+    private const float interactCooldown = 0.5f; // Half-second cooldown
     
     private InputAction movement;
     private InputAction interactAction;
@@ -127,7 +129,7 @@ public class Player : MonoBehaviour
         openLeaderboardAction.performed += OnOpenLeaderboard;
 
         // Subscribe to the performed event for interaction
-        interactAction.performed += ctx => OnInteract();
+        interactAction.performed += OnInteractPerformed;
     }
 
     private void OnDisable()
@@ -156,7 +158,7 @@ public class Player : MonoBehaviour
         openLeaderboardAction.performed -= OnOpenLeaderboard;
 
         // Unsubscribe from the performed event
-        interactAction.performed -= ctx => OnInteract();
+        interactAction.performed -= OnInteractPerformed;
     }
 
     private void OnDestroy()
@@ -172,6 +174,13 @@ public class Player : MonoBehaviour
             UIManager.Instance.ShowShop();
     }
     
+    // Named method for the event handler
+    private void OnInteractPerformed(InputAction.CallbackContext context) {
+        if (context.started){
+            OnInteract();
+        }
+    }
+
     private void OnOpenLevels(InputAction.CallbackContext context)
     {
         if (UIManager.Instance != null)
@@ -214,8 +223,6 @@ public class Player : MonoBehaviour
 
     public void SetPosition(Vector3 position)
     {
-        // Stop any ongoing movement
-        StopAllCoroutines();
         isMoving = false;
         
         // Set the position directly
@@ -285,6 +292,7 @@ public class Player : MonoBehaviour
         if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen){
             return;
         }
+
 
         // Calculate the position in front of the player
         Vector2 facingDir = new Vector2(animator.GetFloat("moveX"), animator.GetFloat("moveY"));

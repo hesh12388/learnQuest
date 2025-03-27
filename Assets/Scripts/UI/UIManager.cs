@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Panels")]
@@ -119,6 +120,10 @@ public class UIManager : MonoBehaviour
     public bool isInGame { get; private set; } 
     public GameObject levelCompletePanel;
     public GameObject levelFailedPanel;
+    public GameObject levelUnlockPanel;
+    public TMP_Text levelUnlockText;
+    public GameObject chapterCompletedPanel;
+    public GameObject chapterCompletedText;
 
     [Header("Demonstration UI")]
     public Image demonstration_npcImage;
@@ -133,9 +138,14 @@ public class UIManager : MonoBehaviour
     public GameObject npcImagePanel;
     public GameObject objectiveCompletionPanel;
 
+    [Header("Landing Settings & Help")]
+    public GameObject settingsHelpPanel;
+    public GameObject landingSettingsPanel;
+    public GameObject helpPanel;
+
     public static UIManager Instance { get; private set; } // Singleton instance
     public bool isMenuOpen { get; private set; } = false;
-    
+
 
     private string currentMenu = "settings";
     public string current_shop_category = "Move";
@@ -189,12 +199,16 @@ public class UIManager : MonoBehaviour
             return;
         }
 
+        if(IsPointerOverInputField()){
+            return;
+        }
+
+
         // Toggle the inGameUiPanel active state
         if (inGameUiPanel != null)
         {
             inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
             isMenuOpen = !isMenuOpen;
-
             if (isMenuOpen)
             {
                 if (currentMenu == "settings")
@@ -232,11 +246,55 @@ public class UIManager : MonoBehaviour
 
                 AudioController.Instance.PlayMenuOpen();
             }
+            else{
+                if(currentMenu=="chat"){
+                    // Disconnect from the chat server when this UI is disabled
+                    StartCoroutine(DisconnectFromServer());
+                }
+            }
         }
         else
         {
             Debug.LogWarning("inGameUiPanel reference not set in UIManager");
         }
+    }
+
+    // Check if the current selected object is an input field
+    private bool IsPointerOverInputField() 
+    {
+        // Check if there's a selected object and if it's an input field
+        if (EventSystem.current != null && 
+            EventSystem.current.currentSelectedGameObject != null) 
+        {
+            TMP_InputField inputField = EventSystem.current.currentSelectedGameObject
+                .GetComponent<TMP_InputField>();
+                
+            return inputField != null && inputField.isFocused;
+        }
+        
+        return false;
+    }
+    
+    public void showHelp(){
+        helpPanel.SetActive(!helpPanel.activeSelf);
+        if(helpPanel.activeSelf){
+            settingsHelpPanel.SetActive(true);
+        }
+        else{
+            settingsHelpPanel.SetActive(false);
+        }
+        landingSettingsPanel.SetActive(false);
+    }
+
+    public void showLandingSettings(){
+        landingSettingsPanel.SetActive(!landingSettingsPanel.activeSelf);
+        if(landingSettingsPanel.activeSelf){
+            settingsHelpPanel.SetActive(true);
+        }
+        else{
+            settingsHelpPanel.SetActive(false);
+        }
+        helpPanel.SetActive(false);
     }
    
     public void showCompletedLevel(){
@@ -257,17 +315,35 @@ public class UIManager : MonoBehaviour
         AudioController.Instance.PlayLevelFailed();
     }
 
+    public void LevelCompletedNext(){
+        setGameUIPanelsInactive();
+
+        if(DatabaseManager.Instance.loggedInUser.currentLevel<DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].levels.Count){
+            levelUnlockPanel.SetActive(true);
+            levelUnlockText.GetComponent<TMP_Text>().text = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].levels[DatabaseManager.Instance.loggedInUser.currentLevel].level_name;
+            AudioController.Instance.PlayLevelComplete();
+        }
+        else{
+            chapterCompletedPanel.SetActive(true);
+            chapterCompletedText.GetComponent<TMP_Text>().text = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].chapter_name;
+            AudioController.Instance.PlayLevelComplete();
+        }
+    }
+
     public void setGameUIPanelsInactive(){
         characterSelectionPanel.SetActive(false);
         chatPanel.SetActive(false);
         objectivesPanel.SetActive(false);
         settingsPanel.SetActive(false);
         achievementsPanel.SetActive(false);
+        chatPanel.SetActive(false);
         leaderboardPanel.SetActive(false);
         levelsGamePanel.SetActive(false);
         shopPanel.SetActive(false);
         levelCompletePanel.SetActive(false);
         levelFailedPanel.SetActive(false);
+        levelUnlockPanel.SetActive(false);
+        chapterCompletedPanel.SetActive(false);
     }
 
     public void StartNextLevel(){
@@ -376,10 +452,35 @@ public class UIManager : MonoBehaviour
          ShopManager.Instance.PopulateBoostItems(shop);
     }
     
-    public void ShowChat(){
+    private IEnumerator DisconnectFromServer()
+    {
+        if (ChatManager.Instance != null && ChatManager.Instance.IsConnected())
+        {
+            var task = ChatManager.Instance.Disconnect();
+            while (!task.IsCompleted)
+                yield return null;
+                
+            if (task.Exception != null)
+                Debug.LogError($"Error disconnecting: {task.Exception.Message}");
+        }
+    }
+
+    // Add this to your existing UIManager.cs
+    public void ShowChat()
+    {
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+            isMenuOpen=true;
+        }
+
+        setCheckMarkActive(3); // Assuming chat is index 1
         currentMenu = "chat";
         setGameUIPanelsInactive();
         chatPanel.SetActive(true);
+        
     }
 
     public void ShowObjectives() {

@@ -26,11 +26,11 @@ public class NPC : MonoBehaviour, IInteractable
     private int dialogueIndex ;
     private bool isTyping, isDialogueActive;
 
-    private bool isOnQuestion;
-    private bool isOnPreRequisite;
+    private bool isOnQuestion = false;
+    private bool isOnPreRequisite = false;
 
     private string currentMenu;
-    private bool isPaused;
+    private bool isPaused = false;
     private void Start(){
         npcImage=UIManager.Instance.demonstration_npcImage;
         dialoguePanel= UIManager.Instance.dialoguePanel;
@@ -43,11 +43,11 @@ public class NPC : MonoBehaviour, IInteractable
         answerButtons= UIManager.Instance.demonstration_answerButtons;
         npcImagePanel= UIManager.Instance.npcImagePanel;
         closeDialogue= UIManager.Instance.closeDialogue;
-        closeDialogue.onClick.AddListener(pauseDemonstration);
+        
         continueDialogue= UIManager.Instance.continueDialogue;
-        continueDialogue.onClick.AddListener(resumeDemonstration);
+        
         exitDialogue= UIManager.Instance.exitDialogue;
-        exitDialogue.onClick.AddListener(EndDialogue);
+    
     }
 
     public bool CanInteract()
@@ -99,6 +99,9 @@ public class NPC : MonoBehaviour, IInteractable
             dialogueData.LoadDialogue();
             // Wait for the transition to complete
             yield return StartCoroutine(TransitionManager.Instance.contentTransition());
+            closeDialogue.onClick.AddListener(pauseDemonstration);
+            continueDialogue.onClick.AddListener(resumeDemonstration);
+            exitDialogue.onClick.AddListener(EndDialogue);
             AudioController.Instance.PlayMenuOpen();
         }
 
@@ -209,8 +212,7 @@ public class NPC : MonoBehaviour, IInteractable
     void OnAnswerSelected(int index, NPCDialogue.QuestionData questionData)
     {
 
-        Debug.Log("Selected answer: " + index);
-        
+    
         // Stop all typing coroutines first
         StopAllCoroutines();
         if (index == questionData.correctAnswerIndex)
@@ -297,6 +299,7 @@ public class NPC : MonoBehaviour, IInteractable
 
     IEnumerator TypeDialogue(){
 
+        
         if(dialogueData.dialogueImages!=null && dialogueData.dialogueImages.Length>dialogueIndex && dialogueData.dialogueImages[dialogueIndex]!=null)
         {
             graphicsInstructorImage.sprite=dialogueData.npcSprite;
@@ -315,8 +318,11 @@ public class NPC : MonoBehaviour, IInteractable
         isTyping=true;
         dialogueText.SetText("");
 
+        string fullText = dialogueData.dialogue[dialogueIndex];
+        
         foreach(char letter in dialogueData.dialogue[dialogueIndex].ToCharArray())
         {
+            
             dialogueText.text+=letter;
             yield return new WaitForSeconds(dialogueData.typingSpeed);
         }
@@ -325,6 +331,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         if(dialogueData.autoProgressLines.Length>dialogueIndex && dialogueData.autoProgressLines[dialogueIndex] && !isOnQuestion)
         {
+            
             yield return new WaitForSeconds(dialogueData.autoProgressDelay);
             NextLine();
         }
@@ -338,6 +345,7 @@ public class NPC : MonoBehaviour, IInteractable
     public void resumeDemonstration(){
         isPaused=false;
     }
+
     public void EndDialogue(){
         StopAllCoroutines();
         isDialogueActive=false;
@@ -345,9 +353,20 @@ public class NPC : MonoBehaviour, IInteractable
         AudioController.Instance.PlayMenuOpen();
         AudioController.Instance.PlayBackgroundMusic();
         dialoguePanel.SetActive(false);
+
         if(dialogueIndex >=dialogueData.dialogue.Length){
              NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
         }
+         // Remove button listeners
+        if (closeDialogue != null)
+            closeDialogue.onClick.RemoveListener(pauseDemonstration);
+        
+        if (continueDialogue != null)
+            continueDialogue.onClick.RemoveListener(resumeDemonstration);
+        
+        if (exitDialogue != null)
+            exitDialogue.onClick.RemoveListener(EndDialogue);
+
         isInstructing=false;
         NPCManager.Instance.isInstructing=false;
         Player.Instance.resumePlayer();
