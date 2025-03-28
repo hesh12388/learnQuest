@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ae78a9e51b50426196cbd2d24ca575b, type: 3}
   m_Name: New NPC Dialogue 2
   m_EditorClassIdentifier: 
-  npcName: Understand the anatomy of an HTML Page
+  npcName: Understand the anatomy of an HTML page
   npcSprite: {fileID: -2007674368, guid: ffedb822953e849e786613e637719045, type: 3}
   typingSpeed: 0.05
   voiceSound: {fileID: 8300000, guid: 7aeb24895395d4165a340591b05972bf, type: 3}

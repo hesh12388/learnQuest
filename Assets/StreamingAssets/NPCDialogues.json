@@ -51,7 +51,7 @@
           }
           ,
           {
-            "npcName": "Nest HTML Elements",
+            "npcName": "Nest HTML elements",
             "dialogue": [
               "Hey again! Let’s try something together. Imagine you’re packing a suitcase for a trip.",
               "You could toss everything into one big compartment—your socks, shoes, and shampoo all mixed together.",
@@ -101,7 +101,7 @@
             ]
           },
           {
-            "npcName": "Understand the anatomy of an HTML Page",
+            "npcName": "Understand the anatomy of an HTML page",
             "dialogue": [
               "Hey! Let’s build the foundation of a real HTML page together. We'll walk through each part step by step.",
               "First up, we start with a declaration that tells the browser what kind of document it’s reading. Go ahead and write this: `<!DOCTYPE html>`",
@@ -127,7 +127,7 @@
               null
             ],
             "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": ["Nest HTML Elements"],
+            "requiredPreviousDialogues": ["Nest HTML elements"],
             "questions": [
               {
                 "index": 8,
@@ -145,7 +145,7 @@
             ]
           },          
           {
-            "npcName": "Identify the Most Common HTML Elements",
+            "npcName": "Identify the most common HTML elements",
             "dialogue": [
               "Hey! Let’s build a basic HTML page together using some of the most common HTML elements.",
               "Think of HTML elements like spices in cooking. Some are used in nearly every dish—others only occasionally.",
@@ -199,7 +199,7 @@
               null
             ],
             "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": [],
+            "requiredPreviousDialogues": ["Understand the anatomy of an HTML page"],
             "questions": [
               {
                 "index": 11,

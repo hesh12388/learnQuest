@@ -27,8 +27,7 @@ public class Player : MonoBehaviour
     public static Player Instance;
     public Transform PlayerTransform { get; private set; } // Reference to the player's Transform
     public PlayerInputActions playerControls;
-    private float lastInteractTime = 0f;
-    private const float interactCooldown = 0.5f; // Half-second cooldown
+    
     
     private InputAction movement;
     private InputAction interactAction;

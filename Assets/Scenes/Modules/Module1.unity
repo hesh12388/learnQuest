@@ -217,7 +217,7 @@ Transform:
   m_GameObject: {fileID: 26000167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.76, y: -8.89, z: -10}
+  m_LocalPosition: {x: -11.66, y: -10.13, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3785,7 +3785,7 @@ Transform:
   m_GameObject: {fileID: 76497869}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.83937, y: 4.9250298, z: -10}
+  m_LocalPosition: {x: -11.66, y: -10.13, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4009,11 +4009,16 @@ MonoBehaviour:
   wideCamera: {fileID: 26000170}
   npcIndicatorsList:
   - npcName: Learn about tags and elements
-    indicator: {fileID: 941975857}
+    indicator: {fileID: 967166256}
   - npcName: Nest HTML elements
-    indicator: {fileID: 1183731261}
-  - npcName: Understand the anatomy of an HTML page
     indicator: {fileID: 1251114650}
+  - npcName: Understand the anatomy of an HTML page
+    indicator: {fileID: 1183731261}
+  - npcName: Identify the most common HTML elements
+    indicator: {fileID: 941975857}
+  - npcName: Raven
+    indicator: {fileID: 1668669735}
+  npcImageSprite: {fileID: -1951644071, guid: e4c27ff02ed884c5787019a7f3c95783, type: 3}
 --- !u!4 &177763407
 Transform:
   m_ObjectHideFlags: 0
@@ -4131,7 +4136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: a407e3ca6962b44ff8950b6f456e34d1, type: 3}
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 3ccb987c0642a46558e8dab2bc6d6369, type: 3}
 --- !u!95 &343278837
 Animator:
   serializedVersion: 5
@@ -4187,7 +4192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c0c520c8bcf4e80b8e98d4aa99a4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueData: {fileID: 11400000, guid: e2af70ee253f34a66913f959cf61cea5, type: 2}
+  dialogueData: {fileID: 11400000, guid: 9744b3293910e4d42a2ba03c1af03aee, type: 2}
   isInstructing: 0
   isEvaluation: 0
 --- !u!50 &343278840
@@ -4253,7 +4258,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.5, y: 5.1875}
+    oldSize: {x: 3.75, y: 5.4375}
     newSize: {x: 3.6875, y: 5.375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -4303,7 +4308,7 @@ SpriteRenderer:
   m_SortingLayerID: -1605840261
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 733794214, guid: 8c686e156c95444eeaae5b3460861313, type: 3}
+  m_Sprite: {fileID: -1760451057, guid: ffedb822953e849e786613e637719045, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -4371,7 +4376,7 @@ Transform:
   m_GameObject: {fileID: 416895933}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.54, y: -17.05, z: 0}
+  m_LocalPosition: {x: -11.54, y: -12.48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4547,7 +4552,7 @@ GameObject:
   m_Component:
   - component: {fileID: 599882952}
   m_Layer: 0
-  m_Name: Objective_4
+  m_Name: Objective1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4588,7 +4593,7 @@ GameObject:
   - component: {fileID: 622648693}
   - component: {fileID: 622648692}
   m_Layer: 8
-  m_Name: NPC_Objective_4
+  m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4924,7 +4929,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 3ccb987c0642a46558e8dab2bc6d6369, type: 3}
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: a407e3ca6962b44ff8950b6f456e34d1, type: 3}
 --- !u!95 &784804958
 Animator:
   serializedVersion: 5
@@ -4980,7 +4985,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c0c520c8bcf4e80b8e98d4aa99a4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueData: {fileID: 11400000, guid: 9744b3293910e4d42a2ba03c1af03aee, type: 2}
+  dialogueData: {fileID: 11400000, guid: e2af70ee253f34a66913f959cf61cea5, type: 2}
   isInstructing: 0
   isEvaluation: 0
 --- !u!50 &784804961
@@ -5046,7 +5051,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.75, y: 5.4375}
+    oldSize: {x: 3.5, y: 5.1875}
     newSize: {x: 3.6875, y: 5.375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -5096,7 +5101,7 @@ SpriteRenderer:
   m_SortingLayerID: -1605840261
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1760451057, guid: ffedb822953e849e786613e637719045, type: 3}
+  m_Sprite: {fileID: 733794214, guid: 8c686e156c95444eeaae5b3460861313, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5201,7 +5206,7 @@ GameObject:
   m_Component:
   - component: {fileID: 822760203}
   m_Layer: 0
-  m_Name: Objective_1
+  m_Name: Objective4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5516,7 +5521,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: cd87ed3842d8d441da5fd687632e91a6, type: 3}
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: e4c8708796e2a4469b844b5237606db2, type: 3}
 --- !u!95 &1097004976
 Animator:
   serializedVersion: 5
@@ -5572,7 +5577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c0c520c8bcf4e80b8e98d4aa99a4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueData: {fileID: 11400000, guid: 7734da8e7d9bc45eea77b4807467f498, type: 2}
+  dialogueData: {fileID: 11400000, guid: 25c3b7945bd6345d488c628d7a87047b, type: 2}
   isInstructing: 0
   isEvaluation: 0
 --- !u!50 &1097004979
@@ -5638,7 +5643,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.6875, y: 5.375}
+    oldSize: {x: 3.625, y: 5.625}
     newSize: {x: 3.6875, y: 5.375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -5688,7 +5693,7 @@ SpriteRenderer:
   m_SortingLayerID: -1605840261
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1741618819, guid: e4c27ff02ed884c5787019a7f3c95783, type: 3}
+  m_Sprite: {fileID: -1891404016, guid: 5cc604c257e0845deae28ec625fc0af9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5832,7 +5837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: e4c8708796e2a4469b844b5237606db2, type: 3}
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: cd87ed3842d8d441da5fd687632e91a6, type: 3}
 --- !u!95 &1195817434
 Animator:
   serializedVersion: 5
@@ -5888,7 +5893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14c0c520c8bcf4e80b8e98d4aa99a4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueData: {fileID: 11400000, guid: 25c3b7945bd6345d488c628d7a87047b, type: 2}
+  dialogueData: {fileID: 11400000, guid: 7734da8e7d9bc45eea77b4807467f498, type: 2}
   isInstructing: 0
   isEvaluation: 0
 --- !u!50 &1195817437
@@ -5954,7 +5959,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.625, y: 5.625}
+    oldSize: {x: 3.6875, y: 5.375}
     newSize: {x: 3.6875, y: 5.375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -6004,7 +6009,7 @@ SpriteRenderer:
   m_SortingLayerID: -1605840261
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1891404016, guid: 5cc604c257e0845deae28ec625fc0af9, type: 3}
+  m_Sprite: {fileID: 1741618819, guid: e4c27ff02ed884c5787019a7f3c95783, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6119,7 +6124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1269849619}
   m_Layer: 0
-  m_Name: Objective_3
+  m_Name: Objective2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33314,7 +33319,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1441648284}
   m_Layer: 0
-  m_Name: Objective_2
+  m_Name: Objective3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43584,7 +43589,7 @@ MonoBehaviour:
   m_Priority: 25
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
-  m_Follow: {fileID: 622648691}
+  m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 60
     OrthographicSize: 10
@@ -43613,7 +43618,7 @@ Transform:
   m_GameObject: {fileID: 2065740742}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.74, y: 9.77, z: -10}
+  m_LocalPosition: {x: -11.66, y: -10.13, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

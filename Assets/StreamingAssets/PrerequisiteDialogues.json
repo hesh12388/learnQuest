@@ -1,0 +1,31 @@
+{
+    "objectives": [
+      {
+        "objective_name": "Learn about tags and elements",
+        "dialogue": "Welcome! Let's start by learning about tags and elements. Head over to the NPC to begin!"
+      },
+      {
+        "objective_name": "Nest HTML elements",
+        "dialogue": "Great job! Now let's learn about nesting HTML elements. Go to the next NPC to continue."
+      },
+      {
+        "objective_name": "Understand the anatomy of an HTML page",
+        "dialogue": "You're doing amazing! Next, let's understand the anatomy of an HTML page. Visit the next NPC."
+      },
+      {
+        "objective_name": "Identify the most common HTML elements",
+        "dialogue": "Almost there! Let's identify the most common HTML elements. Head to the next NPC."
+      }
+    ],
+    "evaluation": {
+      "npcName": "Enemy",
+      "dialogue": "You've completed all objectives! Now it's time for the evaluation. Head to the enemy to begin."
+    },
+    "post_evaluation": [
+      {
+        "npcName": "Raven",
+        "pass": "Congratulations! You've passed the evaluation. Well done!",
+        "fail": "Unfortunately, you didn't pass the evaluation. Try again!"
+      }
+    ]
+  }

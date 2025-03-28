@@ -737,23 +737,25 @@ public class EvaluationManager : MonoBehaviour{
     
     IEnumerator EndBattle()
     {
-        
         // Reset pause state
         isPaused = false;
         optionPanel.SetActive(false);
         power_up_panel.SetActive(false);
         DatabaseManager.Instance.loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
-        bool hasFailed= playerHealth <= 0;
+        bool hasFailed = playerHealth <= 0;
+        
         if (enemyHealth <= 0)
         {
             AudioController.Instance.PlayBattleVictory();
             yield return StartCoroutine(TypeText(dialogueText, "You defeated the enemy! Well done!", typingSpeed));
             
+
         }
         else if (playerHealth <= 0)
         {
             AudioController.Instance.PlayBattleLoss();
             yield return StartCoroutine(TypeText(dialogueText, "You were defeated. Better luck next time!", typingSpeed));
+            
         }
 
         DatabaseManager.Instance.CompleteLevel(hasFailed, (success) => {
@@ -771,13 +773,15 @@ public class EvaluationManager : MonoBehaviour{
         battlePanel.SetActive(false);
         evaluationPanel.SetActive(false);
         isEvaluating = false;
+        // Show post-evaluation success dialogue
+        yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
         
         AudioController.Instance.PlayBackgroundMusic();
         Player.Instance.resumePlayer();
 
         AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
 
-         // Wait until achievement processing is complete
+        // Wait until achievement processing is complete
         yield return StartCoroutine(WaitForAchievementProcessing());
         
         // Now show the completion/failure UI

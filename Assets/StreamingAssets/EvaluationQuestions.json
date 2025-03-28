@@ -1,119 +1,118 @@
 {
-    "levels": [
-      {
-        "level_name": "CSS Box Model",
-        "enemy_name": "Shadow",
-        "enemy_moves": ["Shadow Punch", "Shadow Ball", "Shadow Claw", "Shadow Sneak"],
-        "questions": [
-          {
-            "question": "Why is using the CSS box model preferred over using tables for layout?",
-            "options": [
-              "Tables are more responsive to screen sizes",
-              "The box model allows for more flexible and accessible layouts",
-              "The box model removes the need for any styling",
-              "Tables automatically adjust margins and padding"
-            ],
-            "correctIndex": 1
-          },
-          {
-            "question": "What are the four main components of the CSS box model?",
-            "options": [
-              "Content, Padding, Border, Margin",
-              "Header, Body, Footer, Sidebar",
-              "Div, Span, Table, Image",
-              "Top, Right, Bottom, Left"
-            ],
-            "correctIndex": 0
-          },
-          {
-            "question": "What does padding do in the CSS box model?",
-            "options": [
-              "Adds space between the box and other elements",
-              "Removes the border",
-              "Adds space inside the box between the content and the border",
-              "Defines how wide the border is"
-            ],
-            "correctIndex": 2
-          },
-          {
-            "question": "Which CSS property would you use to make a box always span the full width of its container?",
-            "options": [
-              "width: full;",
-              "max-width: 100px;",
-              "width: 100%;",
-              "display: block;"
-            ],
-            "correctIndex": 2
-          },
-          {
-            "question": "Why is using tables for layout problematic for accessibility?",
-            "options": [
-              "They load slower",
-              "They don’t support images",
-              "They confuse assistive technologies like screen readers",
-              "They can't be styled with CSS"
-            ],
-            "correctIndex": 2
-          }
-        ]
-      },
-      {
-        "level_name": "Set Up a Web Page with HTML",
-        "enemy_name": "Raven",
-        "enemy_moves": ["Code Slash", "Tag Trap", "Syntax Shuriken", "Markup Storm"],
-        "questions": [
-          {
-            "question": "In a standard HTML document, the body element stands in what relationship to the HTML element?",
-            "options": [
-              "Peer",
-              "Head",
-              "Parent",
-              "Child"
-            ],
-            "correctIndex": 3
-          },
-          {
-            "question": "Jay is creating a web page that contains a lot of information and data that might be difficult for visitors to his web page to read. He wants to break up the text into smaller sentences on new lines, so the text is easier to read.\n\nWhich of the following elements should Jay use to separate lines of text in his web page?",
-            "options": [
-              "<br>",
-              "<h1></h1>",
-              "<span></span>",
-              "<a></a>"
-            ],
-            "correctIndex": 0
-          },
-          {
-            "question": "Arnold is creating a website and would like to add paragraphs.\n\nWhat code should Arnold use?",
-            "options": [
-              "<div>\n  <p>paragraph 1</p>\n  <p>paragraph 2</p>\n  <p>paragraph 3</p>\n</div>",
-              "<div>\n  <paragraph>1</paragraph>\n  <paragraph>2</paragraph>\n  <paragraph>3</paragraph>\n</div>",
-              "<div>\n  <p>p1\n  <p>p2\n  <p>p3\n</div>",
-              "<div>\n  <paragraph>1\n  <paragraph>2\n  <paragraph>3\n</div>"
-            ],
-            "correctIndex": 0
-          },
-          {
-            "question": "Shema would like to add a quote with a link to the quote’s author to her resume web page.\n\nWhat two elements would she need to use?",
-            "options": [
-              "blockquote <blockquote></blockquote> and anchor <a></a>",
-              "blockquote <blockquote></blockquote> and link <link></link>",
-              "quote <quote></quote> and anchor <a></a>",
-              "anchor <a></a> and link </link>"
-            ],
-            "correctIndex": 0
-          },
-          {
-            "question": "Which part of an HTML document should include metadata, links to stylesheets, and scripts that don’t directly display on the page?",
-            "options": [
-              "<meta>",
-              "<head>",
-              "<body>",
-              "<html>"
-            ],
-            "correctIndex": 1
-          }
-        ]
-      }
-    ]
-  }
-  
+  "levels": [
+    {
+      "level_name": "CSS Box Model",
+      "enemy_name": "Shadow",
+      "enemy_moves": ["Shadow Punch", "Shadow Ball", "Shadow Claw", "Shadow Sneak"],
+      "questions": [
+        {
+          "question": "Why use the box model over tables for layout?",
+          "options": [
+            "Tables are more responsive",
+            "Box model offers flexible, accessible layouts",
+            "Box model removes styling",
+            "Tables auto-adjust spacing"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "question": "What are the main parts of the box model?",
+          "options": [
+            "Content, Padding, Border, Margin",
+            "Header, Body, Footer, Sidebar",
+            "Div, Span, Table, Image",
+            "Top, Right, Bottom, Left"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "question": "What does padding do?",
+          "options": [
+            "Adds space outside the box",
+            "Removes the border",
+            "Adds space inside the box",
+            "Sets border width"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "How to make a box fill its container?",
+          "options": [
+            "width: full;",
+            "max-width: 100px;",
+            "width: 100%;",
+            "display: block;"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "question": "Why are tables bad for accessibility?",
+          "options": [
+            "They load slower",
+            "No image support",
+            "Confuse screen readers",
+            "Can’t be styled with CSS"
+          ],
+          "correctIndex": 2
+        }
+      ]
+    },
+    {
+      "level_name": "Set Up a Web Page with HTML",
+      "enemy_name": "Raven",
+      "enemy_moves": ["Code Slash", "Tag Trap", "Syntax Shuriken", "Markup Storm"],
+      "questions": [
+        {
+          "question": "What is the body element in relation to HTML?",
+          "options": [
+            "Peer",
+            "Head",
+            "Parent",
+            "Child"
+          ],
+          "correctIndex": 3
+        },
+        {
+          "question": "Jay wants line breaks in text. Which tag?",
+          "options": [
+            "<br>",
+            "<h1>",
+            "<span>",
+            "<a>"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "question": "Which code adds paragraphs correctly?",
+          "options": [
+            "<div><p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p></div>",
+            "<div><paragraph>1</paragraph><paragraph>2</paragraph><paragraph>3</paragraph></div>",
+            "<div><p>p1<p>p2<p>p3</div>",
+            "<div><paragraph>1<paragraph>2<paragraph>3</div>"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "question": "Shema wants a quote + author link. Which tags?",
+          "options": [
+            "<blockquote> and <a>",
+            "<blockquote> and <link>",
+            "<quote> and <a>",
+            "<a> and <link>"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "question": "Where do metadata and stylesheets go?",
+          "options": [
+            "<meta>",
+            "<head>",
+            "<body>",
+            "<html>"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ]
+}

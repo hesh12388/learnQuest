@@ -412,11 +412,17 @@ public class UIManager : MonoBehaviour
                 break;
             }
         }
+
+        DatabaseManager.Instance.loggedInUser.score+=points;
         
         objectiveCompletionPanel.GetComponent<ObjectiveCompleteUI>().SetObjectiveCompleteData(objective_name, points);
         AudioController.Instance.PlayObjectiveComplete();
         yield return new WaitForSeconds(2);
         objectiveCompletionPanel.SetActive(false);
+        yield return new WaitForSeconds(2);
+        // Show guidance for the next objective
+        NPCManager.Instance.DetermineNextObjective();
+        StartCoroutine(NPCManager.Instance.ShowNextObjective());
     }
 
     public void ShowShop() {
@@ -833,6 +839,20 @@ public class UIManager : MonoBehaviour
         landingPanel.SetActive(false);
         isInGame = true;
         EvaluationManager.Instance.LoadQuestionsForLevel();
+        
+        // After loading the level, determine and show the first objective guidance
+        StartCoroutine(ShowNextObjective());
+    }
+
+    IEnumerator ShowNextObjective(){
+        while(NPCManager.Instance == null) {
+            yield return null; // Wait until the next frame
+        }
+
+        yield return new WaitForSeconds(2);
+        // Show the next objective
+        NPCManager.Instance.DetermineNextObjective();
+        StartCoroutine(NPCManager.Instance.ShowNextObjective());
     }
 
     // New method to preload achievements
@@ -942,6 +962,7 @@ public class UIManager : MonoBehaviour
         foreach(Achievement achievement in achievements_list){
             if(achievementName==achievement.achievement_name){
                 achievementCompletedPanel.GetComponent<AchievementUnlocked>().SetAchievementUnlocked(achievementName, achievement.gems, achievement.description);
+                DatabaseManager.Instance.loggedInUser.numGems+=achievement.gems;
                 break;
             }
         }

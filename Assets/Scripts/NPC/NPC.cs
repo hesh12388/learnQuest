@@ -281,9 +281,7 @@ public class NPC : MonoBehaviour, IInteractable
         // Auto-close the message after a delay
         yield return new WaitForSeconds(3f);
 
-        // Call NPCManager method here
-        NPCManager.Instance.showIndicator(requiredNPC);
-        
+    
         // Close dialogue and resume player
         StopAllCoroutines();
         isDialogueActive = false;
