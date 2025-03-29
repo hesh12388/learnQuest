@@ -295,7 +295,7 @@ public class DatabaseManager : MonoBehaviour
 
     private IEnumerator GetUserAchievementsRequest(Action<List<Achievement>> callback)
     {
-        string url = $"{serverUrl}/get-achievements/{loggedInUser.username}";
+        string url = $"{serverUrl}/get-achievements/{loggedInUser.username}/{loggedInUser.selectecCourse}";
         
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
@@ -395,7 +395,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public void restartCourse(string courseName, Action<bool> callback)
+    public void deleteSavedGame(string courseName, Action<bool> callback)
     {
         if (loggedInUser == null)
         {
@@ -404,15 +404,15 @@ public class DatabaseManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(RestartCourseRequest(courseName, callback));
+        StartCoroutine(deleteSavedGameRequest(courseName, callback));
     }
 
-    private IEnumerator RestartCourseRequest(string courseName, Action<bool> callback)
+    private IEnumerator deleteSavedGameRequest(string courseName, Action<bool> callback)
     {
         string json = "{\"course_name\":\"" + courseName + "\", \"username\":\"" + loggedInUser.username + "\"}";
         byte[] jsonData = Encoding.UTF8.GetBytes(json);
 
-        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/restart-course", "POST"))
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/delete-course", "POST"))
         {
             request.uploadHandler = new UploadHandlerRaw(jsonData);
             request.downloadHandler = new DownloadHandlerBuffer();

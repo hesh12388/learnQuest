@@ -33,6 +33,9 @@ public class UIManager : MonoBehaviour
     public GameObject savedGamePrefab; // Prefab for saved game entry
     public GameObject newGamePrefab; // Prefab for new game entry
     public GameObject savedGamesPanel; // Panel for saved games
+    public GameObject deleteSavedGamePanel; // Panel for delete confirmation
+    public GameObject deleteSavedGameBlurPanel; // Button to delete saved game
+    private string deleteSavedGameId; // ID of the saved game to delete
 
     [Header("Course Selection")]
     public TMP_Text courseNameText;
@@ -142,6 +145,12 @@ public class UIManager : MonoBehaviour
     public GameObject settingsHelpPanel;
     public GameObject landingSettingsPanel;
     public GameObject helpPanel;
+    public GameObject settingsButton;
+    public GameObject helpButton;
+    [Header("Player HUD")]
+    public GameObject playerHUD;
+    public TextMeshProUGUI playerCoins;
+    public TextMeshProUGUI playerGems;
 
     public static UIManager Instance { get; private set; } // Singleton instance
     public bool isMenuOpen { get; private set; } = false;
@@ -187,15 +196,11 @@ public class UIManager : MonoBehaviour
 
     public void OnToggleMenu()
     {
-        if(!isInGame){
-            return;
-        }
-
-        if(EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating){
-            return;
-        }
-
-        if(NPCManager.Instance!=null && NPCManager.Instance.isInstructing){
+        if(!isInGame || (EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating) || (NPCManager.Instance!=null && NPCManager.Instance.isInstructing)){
+            if(inGameUiPanel.activeSelf){
+                inGameUiPanel.SetActive(false);
+                isMenuOpen = false;
+            }
             return;
         }
 
@@ -355,6 +360,16 @@ public class UIManager : MonoBehaviour
         }  
     }
 
+    public void disablePlayerHUD(){
+        playerHUD.SetActive(false);
+        helpButton.SetActive(false);
+    }
+    
+    public void enablePlayerHUD(){
+        playerHUD.SetActive(true);
+        helpButton.SetActive(true);
+    }
+
     public void restartEvaluation(){
         setGameUIPanelsInactive();
         Player.Instance.resumeInteraction();
@@ -414,7 +429,7 @@ public class UIManager : MonoBehaviour
         }
 
         DatabaseManager.Instance.loggedInUser.score+=points;
-        
+        updatePlayerCoins();
         objectiveCompletionPanel.GetComponent<ObjectiveCompleteUI>().SetObjectiveCompleteData(objective_name, points);
         AudioController.Instance.PlayObjectiveComplete();
         yield return new WaitForSeconds(2);
@@ -826,6 +841,7 @@ public class UIManager : MonoBehaviour
         Debug.Log("Starting level " + level);
         setPanelsInactive();
         setGameUIPanelsInactive();
+        settingsButton.SetActive(false);
         DatabaseManager.Instance.loggedInUser.currentLevel = level;
         DatabaseManager.Instance.StartLevelTime();
         
@@ -840,8 +856,18 @@ public class UIManager : MonoBehaviour
         isInGame = true;
         EvaluationManager.Instance.LoadQuestionsForLevel();
         
+        playerHUD.SetActive(true);
+        updatePlayerCoins();
+        updatePlayerGems();
         // After loading the level, determine and show the first objective guidance
         StartCoroutine(ShowNextObjective());
+    }
+
+    public void updatePlayerCoins(){
+        playerCoins.text = DatabaseManager.Instance.loggedInUser.score.ToString();
+    }
+    public void updatePlayerGems(){
+        playerGems.text = DatabaseManager.Instance.loggedInUser.numGems.ToString();
     }
 
     IEnumerator ShowNextObjective(){
@@ -963,6 +989,7 @@ public class UIManager : MonoBehaviour
             if(achievementName==achievement.achievement_name){
                 achievementCompletedPanel.GetComponent<AchievementUnlocked>().SetAchievementUnlocked(achievementName, achievement.gems, achievement.description);
                 DatabaseManager.Instance.loggedInUser.numGems+=achievement.gems;
+                updatePlayerGems();
                 break;
             }
         }
@@ -1105,29 +1132,36 @@ public class UIManager : MonoBehaviour
             });
     }
 
+    public void deleteGame(string coursename){
 
-    public void restartCourse(){
-        string courseName = courseNameText.text;
-        ShowLoading();
-        DatabaseManager.Instance.restartCourse(courseName, (bool success) =>
-        {
-            HideLoading();
-            if (success)
+            deleteSavedGameId = coursename;
+            blurPanel.SetActive(true);
+            deleteSavedGamePanel.SetActive(true);
+    }
+
+    public void confirmedDeleteGame(){
+            blurPanel.SetActive(false);
+            deleteSavedGamePanel.SetActive(false);
+            ShowLoading();
+            DatabaseManager.Instance.deleteSavedGame(deleteSavedGameId, (bool success) =>
             {
-                setPanelsInactive();
-                
-                ShowSavedGames();
-            }
-            else
-            {
-               Debug.Log("Failed to restart course");
-            }
-        });
+                HideLoading();
+                if (success)
+                {
+                    setPanelsInactive();
+                    ShowSavedGames();
+                }
+                else
+                {
+                Debug.Log("Failed to delete course");
+                }
+            });
     }
 
     public void SignOut(){
         setGameUIPanelsInactive();
         setPanelsInactive();
+        playerHUD.SetActive(false);
         StartCoroutine(signOutSequence());
     }
 

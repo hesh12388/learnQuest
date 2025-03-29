@@ -12,6 +12,7 @@ public class ChatManager : MonoBehaviour
 
     [SerializeField] private string websocketUrl = "ws://localhost:5001"; // Update with your server URL
     
+    
     private WebSocket websocket;
     private bool isConnected = false;
     private bool isJoiningCourse = false;
@@ -19,7 +20,16 @@ public class ChatManager : MonoBehaviour
     
     // Chat history
     private List<ChatMessage> chatMessages = new List<ChatMessage>();
-    
+    [Serializable]
+    public class DeleteMessageRequest
+    {
+        public string type = "delete";
+        public string message_id;
+    }
+
+    // Add these new event types to the ChatManager class
+    public event Action<string> OnMessageDeleted; // Fires when a message is deleted
+    public event Action<string> OnDeleteConfirmed; // Fires when your delete request is confirmed
     // Events
     public event Action<ChatMessage> OnMessageReceived;
     public event Action<List<ChatMessage>> OnHistoryReceived;
@@ -249,7 +259,45 @@ public class ChatManager : MonoBehaviour
             OnConnectionError?.Invoke("Failed to send message: " + e.Message);
         }
     }
-    
+
+    // Add a new method to delete messages
+    public async System.Threading.Tasks.Task DeleteMessage(string messageId)
+    {
+        if (!isConnected)
+        {
+            Debug.LogWarning("Cannot delete message: WebSocket not connected");
+            OnConnectionError?.Invoke("Not connected to chat server");
+            return;
+        }
+        
+        if (string.IsNullOrEmpty(currentCourseId))
+        {
+            Debug.LogWarning("Cannot delete message: Not joined to any course");
+            OnConnectionError?.Invoke("Join a course first before deleting messages");
+            return;
+        }
+        
+        try
+        {
+            // Create delete message request
+            DeleteMessageRequest deleteMsg = new DeleteMessageRequest
+            {
+                type = "delete",
+                message_id = messageId
+            };
+            
+            string jsonMessage = JsonConvert.SerializeObject(deleteMsg);
+            
+            // Send delete request
+            await websocket.SendText(jsonMessage);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error deleting chat message: {e.Message}");
+            OnConnectionError?.Invoke("Failed to delete message: " + e.Message);
+        }
+    }
+
     /// <summary>
     /// Process incoming WebSocket messages
     /// </summary>
@@ -262,6 +310,25 @@ public class ChatManager : MonoBehaviour
             
             switch (messageType)
             {
+                // Add these new cases
+                case "delete-confirmed":
+                    // Our message was deleted successfully
+                    string confirmedId = messageObj["message_id"].ToString();
+                    Debug.Log($"Delete confirmed for message: {confirmedId}");
+                    OnDeleteConfirmed?.Invoke(confirmedId);
+                    break;
+                    
+                case "message-deleted":
+                    // Someone deleted a message
+                    string deletedId = messageObj["message_id"].ToString();
+                    Debug.Log($"Message deleted: {deletedId}");
+                    
+                    // Remove the message from our local collection
+                    chatMessages.RemoveAll(m => m.id == deletedId);
+                    
+                    // Notify listeners
+                    OnMessageDeleted?.Invoke(deletedId);
+                    break;
                 case "joined":
                     // Successfully joined a course
                     currentCourseId = messageObj["course_id"].ToString();

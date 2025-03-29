@@ -270,6 +270,8 @@ public class ShopManager : MonoBehaviour
                 setCoinsText();
                 items_purchased.Add(new UserItem(item_name, item_type));
                 refreshShopItems();
+                UIManager.Instance.updatePlayerCoins();
+                UIManager.Instance.updatePlayerGems();
             }
             else
             {

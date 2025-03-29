@@ -162,6 +162,7 @@ public class PlayerSelector : MonoBehaviour
 
         // Set the selected character in the loggedInUser
         DatabaseManager.Instance.loggedInUser.equippedCharacter = characterNames[currentIndex];
+        playerNameText.text = "Equipped";
 
         PlayerManager.Instance.SetActivePlayerAppearance(characterNames[currentIndex]);
         Debug.Log($"Selected character: {characterNames[currentIndex]}");

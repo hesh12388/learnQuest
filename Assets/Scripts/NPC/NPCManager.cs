@@ -195,6 +195,7 @@ public class NPCManager : MonoBehaviour
     private IEnumerator ShowDialogueAndGuide(string dialogue, string npcName)
     {
         Player.Instance.stopInteraction();
+        UIManager.Instance.disablePlayerHUD();
         // Show the dialogue panel
         yield return StartCoroutine(ShowDialoguePanel(dialogue));
 
@@ -209,6 +210,7 @@ public class NPCManager : MonoBehaviour
         }
 
         Player.Instance.resumeInteraction();
+        UIManager.Instance.enablePlayerHUD();
         isInstructing = false;
     }
 

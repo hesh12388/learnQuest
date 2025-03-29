@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class ChatMessageUI : MonoBehaviour
@@ -7,10 +8,12 @@ public class ChatMessageUI : MonoBehaviour
     [SerializeField] private TMP_Text usernameText;
     [SerializeField] private TMP_Text messageText;
     [SerializeField] private TMP_Text timestampText;
+    [SerializeField] private Button deleteButton; // Add this field
     
     private ChatMessage chatMessage;
+    private Action<string> onDeleteRequested; // Callback for delete requests
     
-    public void SetMessage(ChatMessage message)
+    public void SetMessage(ChatMessage message, Action<string> deleteCallback = null)
     {
         chatMessage = message;
         
@@ -38,6 +41,32 @@ public class ChatMessageUI : MonoBehaviour
                 timestampText.text = messageTime.ToString("MMM d, HH:mm");
             }
         }
+        
+        // Setup delete button if it exists and a callback was provided
+        if (deleteButton != null && deleteCallback != null)
+        {
+            onDeleteRequested = deleteCallback;
+            
+            // Remove any existing listeners
+            deleteButton.onClick.RemoveAllListeners();
+            
+            // Add new listener
+            deleteButton.onClick.AddListener(OnDeleteClicked);
+            
+            // Only show the delete button in sent messages (user's own messages)
+            deleteButton.gameObject.SetActive(true);
+        }
+        else if (deleteButton != null)
+        {
+            // Hide delete button for received messages
+            deleteButton.gameObject.SetActive(false);
+        }
+    }
+    
+    private void OnDeleteClicked()
+    {
+        // Call the delete callback with this message's ID
+        onDeleteRequested?.Invoke(chatMessage.id);
     }
     
     public ChatMessage GetMessage()
@@ -48,5 +77,10 @@ public class ChatMessageUI : MonoBehaviour
     public DateTime GetMessageTimestamp()
     {
         return chatMessage.timestamp;
+    }
+    
+    public string GetMessageId()
+    {
+        return chatMessage.id;
     }
 }

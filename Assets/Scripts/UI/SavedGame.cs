@@ -61,6 +61,12 @@ public class SavedGame : MonoBehaviour
         }
     }
 
+    public void deleteSavedGame(){
+        AudioController.Instance.PlayButtonClick();
+        string courseName = this.courseName.text;
+        UIManager.Instance.deleteGame(courseName);
+    }
+
     public void selectCourse(){
         AudioController.Instance.PlayButtonClick();
         string courseName = this.courseName.text;

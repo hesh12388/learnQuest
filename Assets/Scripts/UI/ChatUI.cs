@@ -44,6 +44,8 @@ public class ChatUI : MonoBehaviour
             ChatManager.Instance.OnMessageReceived += HandleMessageReceived;
             ChatManager.Instance.OnHistoryReceived += HandleHistoryReceived;
             ChatManager.Instance.OnModerationResult += HandleModerationResult;
+            ChatManager.Instance.OnMessageDeleted += HandleMessageDeleted;
+            ChatManager.Instance.OnDeleteConfirmed += HandleDeleteConfirmed;
             
             // Setup UI events
             sendButton.onClick.AddListener(SendMessage);
@@ -74,6 +76,8 @@ public class ChatUI : MonoBehaviour
             ChatManager.Instance.OnMessageReceived -= HandleMessageReceived;
             ChatManager.Instance.OnHistoryReceived -= HandleHistoryReceived;
             ChatManager.Instance.OnModerationResult -= HandleModerationResult;
+            ChatManager.Instance.OnMessageDeleted -= HandleMessageDeleted;
+            ChatManager.Instance.OnDeleteConfirmed -= HandleDeleteConfirmed;
     
         }
         
@@ -149,6 +153,31 @@ public class ChatUI : MonoBehaviour
         {
             Debug.LogWarning("No course selected or user not logged in");
         }
+    }
+
+    // Add these new handler methods
+    private void HandleMessageDeleted(string messageId)
+    {
+        // Check if this object is still alive
+        if (this == null || !this.gameObject || !this.isActiveAndEnabled)
+            return;
+            
+        // Check if the message exists in our UI
+        if (messageUIComponents.TryGetValue(messageId, out ChatMessageUI messageUI))
+        {
+            // Destroy the message GameObject
+            Destroy(messageUI.gameObject);
+            
+            // Remove from our dictionary
+            messageUIComponents.Remove(messageId);
+            
+            Debug.Log($"Message removed from UI: {messageId}");
+        }
+    }
+
+    private void HandleDeleteConfirmed(string messageId)
+    {
+        Debug.Log($"Your message was successfully deleted: {messageId}");
     }
     
     private void HandleDisconnected()
@@ -299,8 +328,15 @@ public class ChatUI : MonoBehaviour
             return;
         }
         
-        // Set message content - no need to pass color since we're using different prefabs
-        messageUI.SetMessage(message);
+        // Only pass the delete callback for the user's own messages
+        Action<string> deleteCallback = null;
+        if (message.username == currentUsername)
+        {
+            deleteCallback = RequestMessageDeletion;
+        }
+        
+        // Set message content with the delete callback
+        messageUI.SetMessage(message, deleteCallback);
         
         // Store reference to the UI component
         messageUIComponents[message.id] = messageUI;
@@ -329,7 +365,23 @@ public class ChatUI : MonoBehaviour
             }
         }
     }
-    
+
+    private void RequestMessageDeletion(string messageId)
+    {
+        Debug.Log($"Requesting deletion of message: {messageId}");
+        StartCoroutine(DeleteMessageAsync(messageId));
+    }
+
+    private IEnumerator DeleteMessageAsync(string messageId)
+    {
+        var task = ChatManager.Instance.DeleteMessage(messageId);
+        while (!task.IsCompleted)
+            yield return null;
+        
+        if (task.Exception != null)
+            Debug.LogError($"Error deleting message: {task.Exception.Message}");
+    }
+        
     private void ClearMessages()
     {
         // Destroy all message GameObjects

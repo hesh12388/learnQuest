@@ -128,6 +128,7 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     void StartDialogue(){
+        UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayDemonstrationMusic();
         isDialogueActive=true;
         dialogueIndex=0;
@@ -367,6 +368,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         isInstructing=false;
         NPCManager.Instance.isInstructing=false;
+        UIManager.Instance.enablePlayerHUD();
         Player.Instance.resumePlayer();
     }
 

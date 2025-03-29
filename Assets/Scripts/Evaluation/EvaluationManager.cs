@@ -224,6 +224,7 @@ public class EvaluationManager : MonoBehaviour{
 
 
     public void StartEvaluation(){
+        UIManager.Instance.disablePlayerHUD();
         numCorrectAnswers=0;
         isEvaluating = true;
         Player.Instance.pausePlayer();
@@ -772,6 +773,7 @@ public class EvaluationManager : MonoBehaviour{
         yield return new WaitForSeconds(2f);
         battlePanel.SetActive(false);
         evaluationPanel.SetActive(false);
+        UIManager.Instance.enablePlayerHUD();
         isEvaluating = false;
         // Show post-evaluation success dialogue
         yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
