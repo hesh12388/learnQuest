@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class Player : MonoBehaviour
 {
@@ -23,6 +24,18 @@ public class Player : MonoBehaviour
     public bool isPaused;
 
     public bool stop_interaction;
+    [Header("Player Stats")]
+    public int maxHealth = 6;
+    public int currentHealth;
+    public float invulnerabilityTime = 1.0f;
+    private bool isInvulnerable = false;
+
+    [Header("Combat")]
+    public int attackDamage = 1;
+    public float attackRange = 2f;
+    public float attackCooldown = 0.5f;
+    private bool canAttack = true;
+    private Camera mainCamera;
 
     public static Player Instance;
     public Transform PlayerTransform { get; private set; } // Reference to the player's Transform
@@ -41,6 +54,8 @@ public class Player : MonoBehaviour
     private InputAction openLeaderboardAction;
     
     
+    public event Action<int> OnHealthChanged;
+
     private void Awake()
     {
          if (Instance == null)
@@ -63,6 +78,7 @@ public class Player : MonoBehaviour
     {
         // Load saved bindings if they exist
         LoadBindings();
+        currentHealth = maxHealth;
      
     }
 
@@ -129,6 +145,8 @@ public class Player : MonoBehaviour
 
         // Subscribe to the performed event for interaction
         interactAction.performed += OnInteractPerformed;
+        playerControls.Player.Attack.performed += OnAttackPerformed;
+        playerControls.Player.Attack.Enable();
     }
 
     private void OnDisable()
@@ -158,7 +176,89 @@ public class Player : MonoBehaviour
 
         // Unsubscribe from the performed event
         interactAction.performed -= OnInteractPerformed;
+        playerControls.Player.Attack.performed -= OnAttackPerformed;
+        playerControls.Player.Attack.Disable();
     }
+
+
+    // Handle attack input
+    private void OnAttackPerformed(InputAction.CallbackContext context)
+    {
+        if (!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen || isPaused)
+        {
+            return;
+        }
+        
+        if (canAttack)
+        {
+            PerformAttack();
+        }
+    }
+
+
+    // Main attack method
+    private void PerformAttack()
+    {
+        mainCamera = Camera.main;
+        
+        // Get the mouse position in world space
+        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        
+        // Set facing direction toward mouse click
+        Vector2 direction = (mousePosition - (Vector2)transform.position).normalized;
+        animator.SetFloat("moveX", direction.x);
+        animator.SetFloat("moveY", direction.y);
+
+        // First, find all creatures within a larger radius around the player
+        Collider2D[] nearbyCreatures = Physics2D.OverlapCircleAll(transform.position, attackRange * 1.5f);
+        bool hitEnemy = false;
+        
+        foreach (Collider2D hit in nearbyCreatures)
+        {
+            Creature creature = hit.GetComponent<Creature>();
+            if (creature != null)
+            {
+                // Get the direction to the creature
+                Vector2 directionToCreature = ((Vector2)creature.transform.position - (Vector2)transform.position).normalized;
+                
+                // Calculate dot product to determine if creature is in the attack direction
+                // Dot product > 0.5 means creature is roughly in the forward direction (within ~60 degree cone)
+                float dotProduct = Vector2.Dot(direction, directionToCreature);
+                
+                // Check if creature is within attack range from player
+                float distanceToCreature = Vector2.Distance(transform.position, creature.transform.position);
+                
+                // Attack if creature is within range AND in roughly the same direction as the click
+                if (distanceToCreature <= attackRange && dotProduct > 0.5f)
+                {
+                    // Damage the creature
+                    creature.TakeDamage(attackDamage);
+                    hitEnemy = true;
+                    
+                    // Visual feedback
+                    Debug.Log($"Attacked creature at {hit.transform.position}, distance: {distanceToCreature}, dot: {dotProduct}");
+                }
+            }
+        }
+        
+        // Start attack cooldown
+        StartCoroutine(AttackCooldown());
+        
+        // If we didn't hit anything, could play a "miss" animation or sound
+        if (!hitEnemy)
+        {
+            Debug.Log("Attack missed");
+        }
+
+    }
+
+    private IEnumerator AttackCooldown()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
+    }
+
 
     private void OnDestroy()
     {
@@ -324,8 +424,6 @@ public class Player : MonoBehaviour
     }
 
   
-
-
     // Coroutine to smoothly move the player to the target position
     IEnumerator Move(Vector3 pos)
     {
@@ -347,5 +445,68 @@ public class Player : MonoBehaviour
 
         // Mark the player as not moving
         isMoving = false;
+    }
+
+
+    // Method for creatures to damage the player
+    public void TakeDamage(int damage)
+    {
+        // Check if player is invulnerable
+        if (isInvulnerable)
+            return;
+            
+        // Apply damage
+        currentHealth -= damage;
+        
+        // Clamp health to prevent negative values
+        currentHealth = Mathf.Max(0, currentHealth);
+
+        // Trigger the event
+        OnHealthChanged?.Invoke(currentHealth);
+        
+        Debug.Log($"Player took {damage} damage. Health: {currentHealth}/{maxHealth}");
+        
+        
+        // Temporary invulnerability
+        StartCoroutine(InvulnerabilityPeriod());
+        
+        // Check for death
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private IEnumerator InvulnerabilityPeriod()
+    {
+        isInvulnerable = true;
+        
+        // Optional: Visual feedback for invulnerability
+        float endTime = Time.time + invulnerabilityTime;
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        // Flash the player sprite
+        while (Time.time < endTime)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = !spriteRenderer.enabled;
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // Ensure sprite is visible when done
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+        }
+        
+        isInvulnerable = false;
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player died!");
+
     }
 }

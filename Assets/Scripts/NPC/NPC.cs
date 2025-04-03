@@ -250,6 +250,7 @@ public class NPC : MonoBehaviour, IInteractable
     {
         // Stop any ongoing dialogue
         StopAllCoroutines();
+        UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayDemonstrationMusic();
         // Show the dialogue panel
         AudioController.Instance.PlayMenuOpen();
@@ -294,6 +295,7 @@ public class NPC : MonoBehaviour, IInteractable
         Player.Instance.resumePlayer();
         isOnPreRequisite = false;
         AudioController.Instance.PlayBackgroundMusic();
+        UIManager.Instance.enablePlayerHUD();
     }
 
     IEnumerator TypeDialogue(){

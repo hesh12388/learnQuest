@@ -216,7 +216,7 @@ public class NPCManager : MonoBehaviour
 
     IEnumerator ShowDialoguePanel(string dialogue)
     {
-        closeDialogue.onClick.RemoveAllListeners(); // Clear previous listeners
+        closeDialogue.gameObject.SetActive(false);
         AudioController.Instance.PlayDemonstrationMusic();
         isInstructing = true;
         // Show the dialogue panel
@@ -229,6 +229,7 @@ public class NPCManager : MonoBehaviour
         dialoguePanel.SetActive(false);
         npcImage.sprite = null; // Reset the NPC image
         AudioController.Instance.PlayBackgroundMusic();
+        closeDialogue.gameObject.SetActive(true);
     }
 
     private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)

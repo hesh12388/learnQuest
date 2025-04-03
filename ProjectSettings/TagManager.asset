@@ -14,7 +14,7 @@ TagManager:
   - Player
   - Unwalkable
   - NPC
-  - 
+  - Creature
   - 
   - 
   - 
@@ -49,6 +49,9 @@ TagManager:
     locked: 0
   - name: NPC
     uniqueID: 2689127035
+    locked: 0
+  - name: Creature
+    uniqueID: 1262116039
     locked: 0
   - name: Player
     uniqueID: 4076098191
