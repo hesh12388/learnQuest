@@ -34,7 +34,6 @@ public class Player : MonoBehaviour
     public int attackDamage = 1;
     public float attackRange = 2f;
     public float attackCooldown = 0.5f;
-    private bool canAttack = true;
     private Camera mainCamera;
 
     public static Player Instance;
@@ -143,6 +142,8 @@ public class Player : MonoBehaviour
         openAchievementsAction.performed += OnOpenAchievements;
         openLeaderboardAction.performed += OnOpenLeaderboard;
 
+
+
         // Subscribe to the performed event for interaction
         interactAction.performed += OnInteractPerformed;
         playerControls.Player.Attack.performed += OnAttackPerformed;
@@ -184,81 +185,30 @@ public class Player : MonoBehaviour
     // Handle attack input
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
+        Debug.Log("Attack input received!");
         if (!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen || isPaused)
         {
             return;
         }
         
-        if (canAttack)
-        {
-            PerformAttack();
-        }
-    }
+    
+        var rayHit = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()));
 
-
-    // Main attack method
-    private void PerformAttack()
-    {
-        mainCamera = Camera.main;
-        
-        // Get the mouse position in world space
-        Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        
-        // Set facing direction toward mouse click
-        Vector2 direction = (mousePosition - (Vector2)transform.position).normalized;
-        animator.SetFloat("moveX", direction.x);
-        animator.SetFloat("moveY", direction.y);
-
-        // First, find all creatures within a larger radius around the player
-        Collider2D[] nearbyCreatures = Physics2D.OverlapCircleAll(transform.position, attackRange * 1.5f);
-        bool hitEnemy = false;
-        
-        foreach (Collider2D hit in nearbyCreatures)
-        {
-            Creature creature = hit.GetComponent<Creature>();
-            if (creature != null)
-            {
-                // Get the direction to the creature
-                Vector2 directionToCreature = ((Vector2)creature.transform.position - (Vector2)transform.position).normalized;
-                
-                // Calculate dot product to determine if creature is in the attack direction
-                // Dot product > 0.5 means creature is roughly in the forward direction (within ~60 degree cone)
-                float dotProduct = Vector2.Dot(direction, directionToCreature);
-                
-                // Check if creature is within attack range from player
-                float distanceToCreature = Vector2.Distance(transform.position, creature.transform.position);
-                
-                // Attack if creature is within range AND in roughly the same direction as the click
-                if (distanceToCreature <= attackRange && dotProduct > 0.5f)
-                {
-                    // Damage the creature
-                    creature.TakeDamage(attackDamage);
-                    hitEnemy = true;
-                    
-                    // Visual feedback
-                    Debug.Log($"Attacked creature at {hit.transform.position}, distance: {distanceToCreature}, dot: {dotProduct}");
-                }
-            }
-        }
-        
-        // Start attack cooldown
-        StartCoroutine(AttackCooldown());
-        
-        // If we didn't hit anything, could play a "miss" animation or sound
-        if (!hitEnemy)
-        {
-            Debug.Log("Attack missed");
+        if(!rayHit.collider){
+            Debug.Log("No collider hit!");
+            return;
         }
 
-    }
+        Debug.Log("Attack performed!");
+        // Check if the ray hit a creature
+        var target = rayHit.collider.GetComponent<Creature>();
 
-    private IEnumerator AttackCooldown()
-    {
-        canAttack = false;
-        yield return new WaitForSeconds(attackCooldown);
-        canAttack = true;
+        if(target != null)
+        {
+            Debug.Log("Creature hit!");
+            QuestionManager.Instance.ShowQuestionForCreature(target);
+        }
     }
-
 
     private void OnDestroy()
     {
@@ -454,7 +404,8 @@ public class Player : MonoBehaviour
         // Check if player is invulnerable
         if (isInvulnerable)
             return;
-            
+        
+        
         // Apply damage
         currentHealth -= damage;
         
@@ -480,7 +431,7 @@ public class Player : MonoBehaviour
     private IEnumerator InvulnerabilityPeriod()
     {
         isInvulnerable = true;
-        
+         AudioController.Instance.PlayHit();
         // Optional: Visual feedback for invulnerability
         float endTime = Time.time + invulnerabilityTime;
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
@@ -508,5 +459,18 @@ public class Player : MonoBehaviour
     {
         Debug.Log("Player died!");
 
+        DatabaseManager.Instance.loggedInUser.score -= 10;
+        
+        DatabaseManager.Instance.loggedInUser.score = Mathf.Max(0, DatabaseManager.Instance.loggedInUser.score);
+
+        DatabaseManager.Instance.UpdateUserScore();
+
+        //respawn player
+        StartCoroutine(TransitionManager.Instance.contentTransition());
+        PlayerPositionManager.Instance.PositionPlayerAtEntryPoint();
+        UIManager.Instance.updatePlayerCoins();
+        CreatureManager.Instance.ClearAllCreatures();
+        currentHealth=maxHealth;
+        OnHealthChanged?.Invoke(currentHealth);
     }
 }

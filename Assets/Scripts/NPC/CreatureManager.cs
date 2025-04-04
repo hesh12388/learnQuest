@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-
+using System.Linq;
 public class CreatureManager : MonoBehaviour
 {
     public static CreatureManager Instance { get; private set; }
@@ -58,14 +58,46 @@ public class CreatureManager : MonoBehaviour
     {
         isSpawning = false;
     }
-    
+
+
     private IEnumerator SpawnCreatureRoutine()
     {
         while (isSpawning)
         {
-            if (activeCreatures.Count < maxCreatures && Player.Instance != null)
+            // Get number of incomplete objectives
+            int incompleteObjectivesCount = 0;
+            
+            if (ObjectiveManager.Instance != null)
+            {
+                incompleteObjectivesCount = ObjectiveManager.Instance.GetIncompleteObjectives().Count;
+            }
+            
+            // Calculate target creature count (up to maxCreatures, at least 1 if there are incomplete objectives)
+            int targetCreatureCount = incompleteObjectivesCount > 0 ? 
+                Mathf.Min(incompleteObjectivesCount, maxCreatures) : 0;
+            
+            Debug.Log($"Target creatures: {targetCreatureCount}, Current: {activeCreatures.Count}, Incomplete objectives: {incompleteObjectivesCount}");
+            
+            // Spawn if needed
+            if (activeCreatures.Count < targetCreatureCount && Player.Instance != null)
             {
                 SpawnCreatureAroundPlayer();
+            }
+            
+            // Remove excess creatures if we have too many
+            while (activeCreatures.Count > targetCreatureCount && activeCreatures.Count > 0)
+            {
+                int lastIndex = activeCreatures.Count - 1;
+                Creature creatureToRemove = activeCreatures[lastIndex];
+                
+                // Remove from list first to avoid double-removal in OnCreatureDefeated
+                activeCreatures.RemoveAt(lastIndex);
+                
+                if (creatureToRemove != null)
+                {
+                    creatureToRemove.OnCreatureDefeated -= HandleCreatureDefeated;
+                    Destroy(creatureToRemove.gameObject);
+                }
             }
             
             yield return new WaitForSeconds(spawnInterval);

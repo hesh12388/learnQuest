@@ -663,6 +663,9 @@ public class EvaluationManager : MonoBehaviour{
             {
                 yield return StartCoroutine(TypeText(dialogueText, "Correct! You dealt damage to the enemy!", typingSpeed));
             }
+
+            // Flash enemy sprite to indicate damage
+            StartCoroutine(FlashSpriteEffect(npcImage));
         }
         else
         {
@@ -680,9 +683,10 @@ public class EvaluationManager : MonoBehaviour{
             {
                 yield return StartCoroutine(TypeText(dialogueText, "Incorrect! You missed your attack and the enemy has countered to deal damage!", typingSpeed));
             }
+            // Flash player sprite to indicate damage
+            StartCoroutine(FlashSpriteEffect(playerImage));
         }
-
-        AudioController.Instance.PlayHit();
+        
         yield return new WaitForSeconds(1f); // Add a small delay before the next turn
         // Toggle the turn
         isEnemyTurn = !isEnemyTurn;
@@ -702,6 +706,38 @@ public class EvaluationManager : MonoBehaviour{
                 StartCoroutine(ShowQuestionCoroutine(currentQuestions[currentQuestionIndex]));
             }
         }
+    }
+
+    /// <summary>
+    /// Creates a flashing effect for a sprite to indicate damage
+    /// </summary>
+    private IEnumerator FlashSpriteEffect(Image targetImage, float duration = 0.5f)
+    {
+        // Store the original sprite
+        Sprite originalSprite = targetImage.sprite;
+        Color originalColor = targetImage.color;
+        
+        // Flash duration and interval
+        float endTime = Time.time + duration;
+        float flashInterval = 0.1f;
+        AudioController.Instance.PlayHit();
+        // Flash the sprite by toggling visibility
+        while (Time.time < endTime)
+        {
+            // Toggle visibility by changing alpha
+            targetImage.color = new Color(
+                originalColor.r, 
+                originalColor.g, 
+                originalColor.b, 
+                targetImage.color.a > 0.5f ? 0.0f : 1.0f
+            );
+            
+            yield return new WaitForSeconds(flashInterval);
+        }
+        
+        // Ensure sprite is fully visible when done
+        targetImage.sprite = originalSprite;
+        targetImage.color = originalColor;
     }
 
     private IEnumerator EnemyTurn()

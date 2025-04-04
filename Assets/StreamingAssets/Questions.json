@@ -1,0 +1,69 @@
+{
+    "questions": [
+      {
+        "objectiveName": "Learn about tags and elements",
+        "questionText": "What does the <em> element tell the browser?",
+        "answers": [
+          "That the text should be bold",
+          "That the text should be centered",
+          "That the text should be emphasized",
+          "That the text should be hidden"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! The <em> element tells the browser the text should be emphasized.",
+        "incorrectResponse": "Not quite. The <em> element is used to emphasize text, like making it stand out."
+      },
+      {
+        "objectiveName": "Nest HTML elements",
+        "questionText": "What happens when a style is applied to a parent element?",
+        "answers": [
+          "Nothing happens to the child elements",
+          "The parent element disappears",
+          "Child elements can inherit that style",
+          "Only the first child gets the style"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! Child elements can inherit styles from their parent.",
+        "incorrectResponse": "Not quite. Child elements can inherit styles that are applied to their parent element."
+      },
+      {
+        "objectiveName": "Understand the anatomy of an HTML page",
+        "questionText": "Which elements are nested inside the <html> element?",
+        "answers": [
+          "Only the <body> element",
+          "Only the <head> element",
+          "<head> and <body> elements",
+          "<meta> and <script> elements"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Correct! The <head> and <body> elements are both nested inside the <html> element.",
+        "incorrectResponse": "Not quite. Both the <head> and <body> elements are inside the <html> element."
+      },
+      {
+        "objectiveName": "Identify the most common HTML elements",
+        "questionText": "What does the <h1> element do?",
+        "answers": [
+          "Makes text bold",
+          "Creates a large top-level heading",
+          "Creates a link",
+          "Wraps a block of quoted text"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Correct! The <h1> element creates the largest heading and is used for top-level titles.",
+        "incorrectResponse": "Not quite. The <h1> element creates a large, top-level heading."
+      },
+      {
+        "objectiveName": "Identify the most common HTML elements",
+        "questionText": "What's the purpose of the <span> tag?",
+        "answers": [
+          "To break text onto a new line",
+          "To create a new paragraph",
+          "To apply styling to part of a line",
+          "To link to another page"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! The <span> tag is great for styling specific words or phrases inline.",
+        "incorrectResponse": "Not quite. The <span> tag is used to apply styling within a line of text."
+      }
+    ]
+  }

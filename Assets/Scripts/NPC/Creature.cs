@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class Creature : MonoBehaviour
 {
@@ -169,8 +170,22 @@ public class Creature : MonoBehaviour
         }
     }
 
+
     private void Update()
     {
+
+         if (agent == null || !agent.isActiveAndEnabled)
+        {
+            Debug.LogWarning($"Cannot set destination: Agent is null or disabled for {gameObject.name}");
+            return;
+        }
+        
+        if (!agent.isOnNavMesh)
+        {
+            Debug.LogWarning($"Cannot set destination: Agent is not on NavMesh for {gameObject.name}");
+            return;
+        }
+
         if (Player.Instance == null || agent == null)
             return;
             
@@ -180,6 +195,7 @@ public class Creature : MonoBehaviour
             StopMovement();
             return;
         }
+
         agent.isStopped = false;
         float distanceToPlayer = Vector2.Distance(transform.position, Player.Instance.transform.position);
         
@@ -247,6 +263,15 @@ public class Creature : MonoBehaviour
     
     private IEnumerator RetreatAfterAttack()
     {
+
+        // Safety check
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
+        {
+            Debug.LogWarning($"Cannot retreat: Agent is invalid for {gameObject.name}");
+            isRetreating = false;
+            yield break;
+        }
+    
         isRetreating = true;
         
         // Get direction away from player
@@ -295,8 +320,8 @@ public class Creature : MonoBehaviour
 
     private IEnumerator FlashOnHit()
     {
-       isInvulnerable = true;
-        
+        isInvulnerable = true;
+         AudioController.Instance.PlayHit();
         // Optional: Visual feedback for invulnerability
         float endTime = Time.time + invulnerabilityTime;
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();

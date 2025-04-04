@@ -136,10 +136,13 @@ public class UIManager : MonoBehaviour
     public Image graphicsImage;
     public GameObject graphicsImagePanel;
     public Image graphicsInstructorImage;
-    public GameObject questionsPanel;
-    public Button[] demonstration_answerButtons;
     public GameObject npcImagePanel;
     public GameObject objectiveCompletionPanel;
+
+    [Header("Questions UI")]
+    public GameObject questionsPanel;
+    public Button[] question_answerButtons;
+    public TMP_Text question_text;
 
     [Header("Landing Settings & Help")]
     public GameObject settingsHelpPanel;

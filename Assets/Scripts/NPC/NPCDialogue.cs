@@ -18,7 +18,6 @@ public class NPCDialogue : ScriptableObject
     [System.NonSerialized] public bool[] autoProgressLines;
     [System.NonSerialized] public Sprite[] dialogueImages;
     [System.NonSerialized] public string[] requiredPreviousDialogues;
-    [System.NonSerialized] public List<QuestionData> questions; // Add this field
 
     private static Dictionary<string, NPCDialogueData> dialogueDictionary;
 
@@ -45,7 +44,6 @@ public class NPCDialogue : ScriptableObject
 
         dialogue = data.dialogue;
         autoProgressLines = data.autoProgressLines;
-        questions = data.questions; // Load questions
         LoadDialogueImages(data.images);
         requiredPreviousDialogues = data.requiredPreviousDialogues;
     }
@@ -129,7 +127,6 @@ public class NPCDialogue : ScriptableObject
         public string[] images;
         public bool[] autoProgressLines;
         public string[] requiredPreviousDialogues;
-        public List<QuestionData> questions; // Add this field
     }
 
     [System.Serializable]
@@ -138,14 +135,4 @@ public class NPCDialogue : ScriptableObject
         public List<NPCDialogueData> dialogues;
     }
 
-    [System.Serializable]
-    public class QuestionData
-    {
-        public int index; // Position in the dialogue array where the question should appear
-        public string question;
-        public string[] answers;
-        public int correctAnswerIndex;
-        public string correctResponse;
-        public string incorrectResponse;
-    }
 }

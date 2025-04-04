@@ -26,7 +26,42 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    // Add this method to your DatabaseManager class
+    public void UpdateUserScore()
+    {
+        if (loggedInUser == null)
+        {
+            return;
+        }
 
+        StartCoroutine(UpdateUserScoreRequest());
+    }
+
+    // The coroutine to handle the API request
+    private IEnumerator UpdateUserScoreRequest()
+    {
+        string json = "{\"username\":\"" + loggedInUser.username + "\", \"score\":" + loggedInUser.score + "}";
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/update-score", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Score updated successfully: " + responseText);
+            }
+            else
+            {
+                Debug.LogError("Failed to update score: " + request.error);
+            }
+        }
+    }
 
     // 📌 Register a new user (returns success/failure via callback)
     public void Register(string email, string username, string password, Action<bool> callback)

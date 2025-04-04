@@ -36,7 +36,7 @@ public class PlayerPositionManager : MonoBehaviour
         Invoke("PositionPlayerAtEntryPoint", 0.1f);
     }
     
-    private void PositionPlayerAtEntryPoint()
+    public void PositionPlayerAtEntryPoint()
     {
         // Find the player
         Player player = FindObjectOfType<Player>();

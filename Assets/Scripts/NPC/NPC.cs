@@ -14,8 +14,6 @@ public class NPC : MonoBehaviour, IInteractable
     private Image graphicsImage;
     private GameObject graphicsImagePanel;
     private Image graphicsInstructorImage;
-    private GameObject questionsPanel;
-    private Button[] answerButtons;
     private GameObject npcImagePanel;
     private Button closeDialogue;
     private Button continueDialogue;
@@ -26,7 +24,6 @@ public class NPC : MonoBehaviour, IInteractable
     private int dialogueIndex ;
     private bool isTyping, isDialogueActive;
 
-    private bool isOnQuestion = false;
     private bool isOnPreRequisite = false;
 
     private string currentMenu;
@@ -39,8 +36,6 @@ public class NPC : MonoBehaviour, IInteractable
         graphicsImage= UIManager.Instance.graphicsImage;
         graphicsImagePanel= UIManager.Instance.graphicsImagePanel;
         graphicsInstructorImage= UIManager.Instance.graphicsInstructorImage;
-        questionsPanel= UIManager.Instance.questionsPanel;
-        answerButtons= UIManager.Instance.demonstration_answerButtons;
         npcImagePanel= UIManager.Instance.npcImagePanel;
         closeDialogue= UIManager.Instance.closeDialogue;
         
@@ -58,7 +53,7 @@ public class NPC : MonoBehaviour, IInteractable
     public void Interact()
     {
 
-        if(isOnQuestion || EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused)
+        if( EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused)
         {
             return;
         }
@@ -150,94 +145,9 @@ public class NPC : MonoBehaviour, IInteractable
         }
         else if(++dialogueIndex<dialogueData.dialogue.Length)
         {
-            // Check if there's a question at this index
-            var question = dialogueData.questions.Find(q => q.index == dialogueIndex);
-            if (question != null)
-            {
-                ShowQuestion(question);
-
-            }
-            else
-            {
-                StartCoroutine(TypeDialogue());
-            }
-        }
-        else
-        {
-            EndDialogue();
-        }
-    }
-
-     void ShowQuestion(NPCDialogue.QuestionData questionData)
-    {
-        isOnQuestion = true;
-        graphicsPanel.SetActive(true);
-        graphicsInstructorImage.sprite = dialogueData.npcSprite;
-        graphicsImagePanel.SetActive(false);
-        questionsPanel.SetActive(true);
-        npcImagePanel.SetActive(false);
-
-        // Start typing the question
-        StartCoroutine(TypeText(dialogueText, questionData.question, dialogueData.typingSpeed));
-
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (i < questionData.answers.Length)
-            {
-                TMP_Text answerText = answerButtons[i].GetComponentInChildren<TMP_Text>();
-                int capturedIndex = i;
-                answerButtons[i].onClick.RemoveAllListeners();
-                answerButtons[i].onClick.AddListener(() => OnAnswerSelected(capturedIndex, questionData));
-
-                // Start typing the answer text
-                StartCoroutine(TypeText(answerText, questionData.answers[i], dialogueData.typingSpeed));
-            }
-            else
-            {
-                answerButtons[i].gameObject.SetActive(false);
-            }
-        }
-    }
-
-
-    private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)
-    {
-        textObject.text = ""; // Clear the text before typing
-        foreach (char letter in message.ToCharArray())
-        {
-            textObject.text += letter; // Add one character at a time
-            yield return new WaitForSeconds(typingSpeed); // Wait before adding the next character
-        }
-    }
-
-    void OnAnswerSelected(int index, NPCDialogue.QuestionData questionData)
-    {
-
-    
-        // Stop all typing coroutines first
-        StopAllCoroutines();
-        if (index == questionData.correctAnswerIndex)
-        {
-           
-            dialogueText.text = questionData.correctResponse;
-            AudioController.Instance.PlayAnswerCorrect();
-        }
-        else
-        {
-            dialogueText.text = questionData.incorrectResponse;
-            AudioController.Instance.PlayAnswerIncorrect();
-        }
-
-        StartCoroutine(ContinueAfterResponse());
-    }
-
-    IEnumerator ContinueAfterResponse()
-    {
-        yield return new WaitForSeconds(2f);
-        isOnQuestion = false;
-        if (dialogueIndex < dialogueData.dialogue.Length)
-        {
-            yield return StartCoroutine(TypeDialogue());
+          
+            StartCoroutine(TypeDialogue());
+            
         }
         else
         {
@@ -306,7 +216,6 @@ public class NPC : MonoBehaviour, IInteractable
             graphicsInstructorImage.sprite=dialogueData.npcSprite;
             graphicsPanel.SetActive(true);
             graphicsImagePanel.SetActive(true);
-            questionsPanel.SetActive(false);
             graphicsImage.sprite=dialogueData.dialogueImages[dialogueIndex];
             npcImagePanel.SetActive(false);
         }
@@ -330,7 +239,7 @@ public class NPC : MonoBehaviour, IInteractable
 
         isTyping=false;
 
-        if(dialogueData.autoProgressLines.Length>dialogueIndex && dialogueData.autoProgressLines[dialogueIndex] && !isOnQuestion)
+        if(dialogueData.autoProgressLines.Length>dialogueIndex && dialogueData.autoProgressLines[dialogueIndex])
         {
             
             yield return new WaitForSeconds(dialogueData.autoProgressDelay);
