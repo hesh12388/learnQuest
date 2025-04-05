@@ -78,35 +78,6 @@ public class Creature : MonoBehaviour
                 transform.position = hit.position;
             }
         }
-
-        StartCoroutine(InitialPathValidation());
-    }
-    
-
-    private IEnumerator InitialPathValidation()
-    {
-        // Wait a moment for NavMesh to initialize
-        yield return new WaitForSeconds(0.5f);
-        
-        // Check if we can reach the player
-        if (Player.Instance != null && agent != null && agent.isOnNavMesh)
-        {
-            agent.SetDestination(Player.Instance.transform.position);
-            
-            // Wait a bit for path calculation
-            yield return new WaitForSeconds(0.5f);
-            
-            // Check if a valid path exists
-            if (agent.pathStatus == NavMeshPathStatus.PathPartial || 
-                agent.pathStatus == NavMeshPathStatus.PathInvalid)
-            {
-                Debug.Log($"Creature spawned with invalid path - destroying: {gameObject.name}");
-                
-                // Notify manager before self-destruction
-                OnCreatureDefeated?.Invoke(this);
-                Destroy(gameObject);
-            }
-        }
     }
     
     private IEnumerator ValidatePathRoutine()
@@ -120,6 +91,15 @@ public class Creature : MonoBehaviour
             if (Player.Instance == null || agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
                 continue;
                 
+            // Skip validation and reset timers if player is in menu/tutorial/paused
+            if (Player.Instance.isPaused || Player.Instance.stop_interaction || UIManager.Instance.isMenuOpen)
+            {
+                // Reset timers since we're legitimately waiting
+                stuckTimer = 0f;
+                pathInvalidTimer = 0f;
+                continue;
+            }
+
             // Check if the path to player is valid
             agent.SetDestination(Player.Instance.transform.position);
             
@@ -361,16 +341,5 @@ public class Creature : MonoBehaviour
             agent.isStopped = true;
         }
         animator.SetBool("isMoving", false);
-    }
-    
-    private void OnDrawGizmosSelected()
-    {
-        // Draw chase radius
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
-        
-        // Draw attack radius
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
     }
 }

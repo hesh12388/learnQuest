@@ -37,6 +37,11 @@ public class DatabaseManager : MonoBehaviour
         StartCoroutine(UpdateUserScoreRequest());
     }
 
+    public string GetServerUrl()
+    {
+        return serverUrl;
+    }
+
     // The coroutine to handle the API request
     private IEnumerator UpdateUserScoreRequest()
     {

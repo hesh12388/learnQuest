@@ -10,16 +10,16 @@ public class ChatManager : MonoBehaviour
 {
     public static ChatManager Instance { get; private set; }
 
-    [SerializeField] private string websocketUrl = "ws://localhost:5001"; // Update with your server URL
+    // Use websocket manager instance
+    private WebSocket websocket => WebSocketManager.Instance.GetWebSocket();
+    private bool isConnected => WebSocketManager.Instance != null && WebSocketManager.Instance.IsConnected();
     
-    
-    private WebSocket websocket;
-    private bool isConnected = false;
     private bool isJoiningCourse = false;
     private string currentCourseId = null;
     
     // Chat history
     private List<ChatMessage> chatMessages = new List<ChatMessage>();
+    
     [Serializable]
     public class DeleteMessageRequest
     {
@@ -27,17 +27,16 @@ public class ChatManager : MonoBehaviour
         public string message_id;
     }
 
-    // Add these new event types to the ChatManager class
-    public event Action<string> OnMessageDeleted; // Fires when a message is deleted
-    public event Action<string> OnDeleteConfirmed; // Fires when your delete request is confirmed
     // Events
+    public event Action<string> OnMessageDeleted;
+    public event Action<string> OnDeleteConfirmed;
     public event Action<ChatMessage> OnMessageReceived;
     public event Action<List<ChatMessage>> OnHistoryReceived;
     public event Action<string> OnConnectionError;
     public event Action<string> OnModerationResult;
     public event Action OnConnected;
     public event Action OnDisconnected;
-    
+        
     private void Awake()
     {
         // Singleton pattern
@@ -51,62 +50,77 @@ public class ChatManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-        
-    private async void OnApplicationQuit()
+
+    private void OnEnable()
     {
-        if (websocket != null && isConnected)
+        // Subscribe to WebSocketManager events
+        if (WebSocketManager.Instance != null)
         {
-            await Disconnect();
+            Debug.Log("ChatManager: Subscribing to WebSocketManager events");
+            WebSocketManager.Instance.OnMessage += HandleWebSocketMessage;
+            WebSocketManager.Instance.OnConnected += HandleWebSocketConnected;
+            WebSocketManager.Instance.OnDisconnected += HandleWebSocketDisconnected;
+            WebSocketManager.Instance.OnError += HandleWebSocketError;
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from WebSocketManager events
+        if (WebSocketManager.Instance != null)
+        {
+            WebSocketManager.Instance.OnMessage -= HandleWebSocketMessage;
+            WebSocketManager.Instance.OnConnected -= HandleWebSocketConnected;
+            WebSocketManager.Instance.OnDisconnected -= HandleWebSocketDisconnected;
+            WebSocketManager.Instance.OnError -= HandleWebSocketError;
         }
     }
     
-    private void Update()
+    private void HandleWebSocketConnected()
     {
-        #if !UNITY_WEBGL || UNITY_EDITOR
-        if (websocket != null)
-        {
-            websocket.DispatchMessageQueue();
-        }
-        #endif
+        OnConnected?.Invoke();
+    }
+    
+    private void HandleWebSocketDisconnected()
+    {
+        OnDisconnected?.Invoke();
+    }
+    
+    private void HandleWebSocketError(string errorMsg)
+    {
+        OnConnectionError?.Invoke($"WebSocket error: {errorMsg}");
+    }
+    
+    private void HandleWebSocketMessage(string jsonMessage)
+    {
+        ProcessIncomingMessage(jsonMessage);
     }
     
     /// <summary>
     /// Connect to the chat WebSocket server
     /// </summary>
-    public async System.Threading.Tasks.Task Connect()
+    public async System.Threading.Tasks.Task<bool> Connect()
     {
+        if (isConnected)
+            return true;
+            
+        if (WebSocketManager.Instance == null)
+        {
+            Debug.LogError("WebSocketManager.Instance is null");
+            OnConnectionError?.Invoke("WebSocket manager not available");
+            return false;
+        }
+        
         try
         {
-            websocket = new WebSocket(websocketUrl);
-            
-            websocket.OnOpen += () => {
-                Debug.Log("WebSocket connection opened");
-                isConnected = true;
-                OnConnected?.Invoke();
-            };
-            
-            websocket.OnMessage += (bytes) => {
-                string message = System.Text.Encoding.UTF8.GetString(bytes);
-                ProcessIncomingMessage(message);
-            };
-            
-            websocket.OnError += (errorMessage) => {
-                Debug.LogError($"WebSocket Error: {errorMessage}");
-                OnConnectionError?.Invoke(errorMessage);
-            };
-            
-            websocket.OnClose += (closeCode) => {
-                Debug.Log($"WebSocket closed with code {closeCode}");
-                isConnected = false;
-                OnDisconnected?.Invoke();
-            };
-            
-            await websocket.Connect();
+            bool success = await WebSocketManager.Instance.ConnectWebSocket();
+            return success;
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to connect to WebSocket: {e.Message}");
             OnConnectionError?.Invoke(e.Message);
+            return false;
         }
     }
     
@@ -115,28 +129,16 @@ public class ChatManager : MonoBehaviour
     /// </summary>
     public async System.Threading.Tasks.Task Disconnect()
     {
-        if (websocket != null && isConnected)
+        if (!isConnected)
+            return;
+        
+        if (currentCourseId != null)
         {
-            try
-            {
-                // If we're in a course, leave it first
-                if (currentCourseId != null)
-                {
-                    await LeaveCourse();
-                }
-                
-                await websocket.Close();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error during WebSocket disconnect: {e.Message}");
-            }
-            finally
-            {
-                isConnected = false;
-                websocket = null;
-            }
+            await LeaveCourse();
         }
+        
+        // WebSocketManager will handle the actual disconnection
+        await WebSocketManager.Instance.DisconnectWebSocket();
     }
     
     /// <summary>
@@ -228,8 +230,12 @@ public class ChatManager : MonoBehaviour
         if (!isConnected)
         {
             Debug.LogWarning("Cannot send message: WebSocket not connected");
-            OnConnectionError?.Invoke("Not connected to chat server");
-            return;
+            bool connected = await Connect();
+            if (!connected)
+            {
+                OnConnectionError?.Invoke("Not connected to chat server");
+                return;
+            }
         }
         
         if (string.IsNullOrEmpty(currentCourseId))
@@ -238,6 +244,7 @@ public class ChatManager : MonoBehaviour
             OnConnectionError?.Invoke("Join a course first before sending messages");
             return;
         }
+        
         
         try
         {

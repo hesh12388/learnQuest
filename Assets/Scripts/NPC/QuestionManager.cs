@@ -110,35 +110,36 @@ public class QuestionManager : MonoBehaviour
     /// <summary>
     /// Show a question when a creature is clicked
     /// </summary>
+  
     public void ShowQuestionForCreature(Creature creature)
     {
         // Store reference to current target
         currentTarget = creature;
         
-        // Get incomplete objectives through ObjectiveManager
-        string nextObjective = ObjectiveManager.Instance.GetNextIncompleteObjective();
+        // Get the current objective for questions
+        string currentObjective = ObjectiveManager.Instance.GetCurrentQuestionObjective();
         
-        if (string.IsNullOrEmpty(nextObjective))
+        if (string.IsNullOrEmpty(currentObjective))
         {
-            Debug.Log("No incomplete objectives - no questions to ask");
+            Debug.Log("No objective available for questions");
             return;
         }
         
-        Debug.Log($"Next objective: {nextObjective}");
-        // Find a random question for the next incomplete objective
-        if (questionsByObjective.ContainsKey(nextObjective) && 
-            questionsByObjective[nextObjective].Count > 0)
+        Debug.Log($"Showing question for objective: {currentObjective}");
+        
+        // Find a random question for the current objective
+        if (questionsByObjective.ContainsKey(currentObjective) && 
+            questionsByObjective[currentObjective].Count > 0)
         {
-            int randomIndex = Random.Range(0, questionsByObjective[nextObjective].Count);
-
-            Question question = questionsByObjective[nextObjective][randomIndex];
+            int randomIndex = Random.Range(0, questionsByObjective[currentObjective].Count);
+            Question question = questionsByObjective[currentObjective][randomIndex];
             
             // Show the question
             ShowQuestion(question);
         }
         else
         {
-            Debug.Log($"No questions available for objective: {nextObjective}");
+            Debug.Log($"No questions available for objective: {currentObjective}");
         }
     }
     
@@ -193,7 +194,7 @@ public class QuestionManager : MonoBehaviour
         // Show response based on correctness
         string responseText = isCorrect ? currentQuestion.correctResponse : currentQuestion.incorrectResponse;
         questionText.text = responseText;
-            
+        
         // Play sound based on result
         if (AudioController.Instance != null)
         {
@@ -203,15 +204,22 @@ public class QuestionManager : MonoBehaviour
                 AudioController.Instance.PlayAnswerIncorrect();
         }
         
+        // If answered correctly, advance to the next objective for questions
+        if (isCorrect)
+        {
+            // This ensures we move to the next objective for questions
+            ObjectiveManager.Instance.UpdateCurrentQuestionObjective();
+        }
+        
         // Disable all answer buttons
         foreach (Button button in answerButtons)
         {
             button.interactable = false;
         }
         
-       StartCoroutine(CloseQuestionPanel());
+        StartCoroutine(CloseQuestionPanel());
     }
-    
+        
     private IEnumerator CloseQuestionPanel()
     {
         // Wait for a short duration before closing the panel

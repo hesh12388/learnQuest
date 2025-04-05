@@ -150,6 +150,8 @@ public class UIManager : MonoBehaviour
     public GameObject helpPanel;
     public GameObject settingsButton;
     public GameObject helpButton;
+    public GameObject ragButton;
+    public GameObject ragPanel;
     [Header("Player HUD")]
     public GameObject playerHUD;
     public TextMeshProUGUI playerCoins;
@@ -287,10 +289,31 @@ public class UIManager : MonoBehaviour
         helpPanel.SetActive(!helpPanel.activeSelf);
         if(helpPanel.activeSelf){
             settingsHelpPanel.SetActive(true);
+            Player.Instance.stopInteraction();
+            Player.Instance.pausePlayer();
         }
         else{
             settingsHelpPanel.SetActive(false);
+            Player.Instance.resumeInteraction();
+            Player.Instance.resumePlayer();
         }
+        landingSettingsPanel.SetActive(false);
+        ragPanel.SetActive(false);
+    }
+
+    public void showRag(){
+        ragPanel.SetActive(!ragPanel.activeSelf);
+        if(ragPanel.activeSelf){
+            settingsHelpPanel.SetActive(true);
+            Player.Instance.stopInteraction();
+            Player.Instance.pausePlayer();
+        }
+        else{
+            settingsHelpPanel.SetActive(false);
+            Player.Instance.resumeInteraction();
+            Player.Instance.resumePlayer();
+        }
+        helpPanel.SetActive(false);
         landingSettingsPanel.SetActive(false);
     }
 
@@ -366,11 +389,14 @@ public class UIManager : MonoBehaviour
     public void disablePlayerHUD(){
         playerHUD.SetActive(false);
         helpButton.SetActive(false);
+        ragButton.SetActive(false);
+
     }
     
     public void enablePlayerHUD(){
         playerHUD.SetActive(true);
         helpButton.SetActive(true);
+        ragButton.SetActive(true);
     }
 
     public void restartEvaluation(){
@@ -438,6 +464,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(2);
         objectiveCompletionPanel.SetActive(false);
         yield return new WaitForSeconds(2);
+        ObjectiveManager.Instance.OnObjectiveCompleted();
         // Show guidance for the next objective
         NPCManager.Instance.DetermineNextObjective();
         StartCoroutine(NPCManager.Instance.ShowNextObjective());
@@ -845,6 +872,7 @@ public class UIManager : MonoBehaviour
         setPanelsInactive();
         setGameUIPanelsInactive();
         settingsButton.SetActive(false);
+        ragButton.SetActive(true);
         DatabaseManager.Instance.loggedInUser.currentLevel = level;
         DatabaseManager.Instance.StartLevelTime();
         
