@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: New NPC Dialogue 2
   m_EditorClassIdentifier: 
   npcName: Set the width and height of a CSS box
-  npcSprite: {fileID: -1951644071, guid: e4c27ff02ed884c5787019a7f3c95783, type: 3}
+  npcSprite: {fileID: -1121504294, guid: 480826fe785a24461b0137c30e43ddc9, type: 3}
   typingSpeed: 0.05
   voiceSound: {fileID: 8300000, guid: 7aeb24895395d4165a340591b05972bf, type: 3}
   voicePitch: 1

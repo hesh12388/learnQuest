@@ -79178,8 +79178,6 @@ MonoBehaviour:
     itemImage: {fileID: 21300000, guid: a3efbc29351aee74e89f960ba6ad2e33, type: 3}
   - itemId: Power Reveal
     itemImage: {fileID: 21300000, guid: 467f59efcd392ed4ab886d6be18ebf42, type: 3}
-  - itemId: Double XP (24 hours)
-    itemImage: {fileID: 21300000, guid: 679e6eb1d015cf74b89c0c43ff18d7b1, type: 3}
   - itemId: Solar Rift
     itemImage: {fileID: 21300000, guid: 85aca1169c2116b49ae56d598d0c8248, type: 3}
   - itemId: Thunder Bloom

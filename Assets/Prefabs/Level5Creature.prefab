@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 8834234171051614115}
   - component: {fileID: -3520125574667838893}
   m_Layer: 9
-  m_Name: Level2Creature
+  m_Name: Level5Creature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: -1605840261
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1717900936, guid: 831ef380cabd5447bba431ab9b9ee21b, type: 3}
+  m_Sprite: {fileID: -1066910088, guid: 3b7a19287fc5047c09db89c368e55deb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library: []
-  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 6a7862e9e3e7b4cfe9ebe73d2d62e109, type: 3}
+  m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 73e8d351e04b844879925a478be60c5b, type: 3}
 --- !u!114 &3229100986039064612
 MonoBehaviour:
   m_ObjectHideFlags: 0

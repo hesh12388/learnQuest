@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: New NPC Dialogue 1
   m_EditorClassIdentifier: 
   npcName: The components of boxes
-  npcSprite: {fileID: -1951644071, guid: e4c27ff02ed884c5787019a7f3c95783, type: 3}
+  npcSprite: {fileID: -2007674368, guid: ffedb822953e849e786613e637719045, type: 3}
   typingSpeed: 0.05
   voiceSound: {fileID: 8300000, guid: 7aeb24895395d4165a340591b05972bf, type: 3}
   voicePitch: 1
