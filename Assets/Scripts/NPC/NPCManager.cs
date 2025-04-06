@@ -28,8 +28,7 @@ public class NPCManager : MonoBehaviour
     [SerializeField] private List<NPCIndicatorMapping> npcIndicatorsList = new List<NPCIndicatorMapping>();
 
     private Dictionary<string, string> prerequisiteDialogues = new Dictionary<string, string>();
-    private string evaluationNpcName;
-    private string evaluationDialogue;
+    private Dictionary<string, string> evaluationDialogues = new Dictionary<string, string>();
     private Dictionary<string, PostEvaluationDialogue> postEvaluationDialogues = new Dictionary<string, PostEvaluationDialogue>();
     private string nextObjective;
     private Image npcImage;
@@ -96,14 +95,19 @@ public class NPCManager : MonoBehaviour
             string json = File.ReadAllText(filePath);
             var data = JsonConvert.DeserializeObject<PrerequisiteDialogues>(json);
 
+            // Load objectives
             foreach (var objective in data.objectives)
             {
                 prerequisiteDialogues[objective.objective_name] = objective.dialogue;
             }
 
-            evaluationNpcName = data.evaluation.npcName;
-            evaluationDialogue = data.evaluation.dialogue;
+            // Load evaluations (new)
+            foreach (var eval in data.evaluations)
+            {
+                evaluationDialogues[eval.npcName] = eval.dialogue;
+            }
 
+            // Load post-evaluations
             foreach (var postEval in data.post_evaluation)
             {
                 postEvaluationDialogues[postEval.npcName] = postEval;
@@ -176,13 +180,23 @@ public class NPCManager : MonoBehaviour
             int currentChapter = DatabaseManager.Instance.loggedInUser.currentChapter;
             int currentLevel = DatabaseManager.Instance.loggedInUser.currentLevel - 1; // 0-based index
             bool isLevelCompleted = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[currentChapter].levels[currentLevel].isCompleted;
+            
             if(isLevelCompleted)
             {
                 Debug.Log("Level already completed, no need to show evaluation dialogue");
                 yield break;
             }
-            else{
-                yield return StartCoroutine(ShowDialogueAndGuide(evaluationDialogue, evaluationNpcName));
+            else
+            {
+                // Get the appropriate enemy NPC name based on the current level/chapter
+                string enemyNpcName = GetCurrentEnemyNPC();
+                
+                // Get the dialogue for this enemy, or use a default if not found
+                string dialogue = evaluationDialogues.ContainsKey(enemyNpcName) 
+                    ? evaluationDialogues[enemyNpcName] 
+                    : "It's time for your evaluation!";
+                    
+                yield return StartCoroutine(ShowDialogueAndGuide(dialogue, enemyNpcName));
             }
         }
         else if (prerequisiteDialogues.ContainsKey(nextObjective))
@@ -191,6 +205,7 @@ public class NPCManager : MonoBehaviour
             yield return StartCoroutine(ShowDialogueAndGuide(dialogue, nextObjective));
         }
     }
+
 
     private IEnumerator ShowDialogueAndGuide(string dialogue, string npcName)
     {
@@ -265,6 +280,21 @@ public class NPCManager : MonoBehaviour
         }
     }
 
+    private string GetCurrentEnemyNPC()
+    {
+        int currentLevel = DatabaseManager.Instance.loggedInUser.currentLevel;
+        
+        // Map chapters/levels to enemy NPCs
+        if ( currentLevel == 1) return "Raven";  
+        if (currentLevel == 2) return "Pyron";
+        if (currentLevel == 3) return "Noir";
+        if (currentLevel == 4) return "Fangor";
+        if (currentLevel == 5) return "Shadow";
+        if (currentLevel == 6) return "Frost";
+        
+        return "Enemy";  
+    }
+
     public bool HasCompletedNPC(string npcName)
     {
         return completedNPCs.Contains(npcName);
@@ -307,9 +337,10 @@ public class NPCManager : MonoBehaviour
 public class PrerequisiteDialogues
 {
     public List<ObjectiveDialogue> objectives;
-    public EvaluationDialogue evaluation;
+    public List<EvaluationDialogue> evaluations;  
     public List<PostEvaluationDialogue> post_evaluation;
 }
+
 
 [System.Serializable]
 public class ObjectiveDialogue

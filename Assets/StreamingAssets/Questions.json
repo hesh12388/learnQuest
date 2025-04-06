@@ -64,6 +64,292 @@
         "correctAnswerIndex": 2,
         "correctResponse": "Exactly! The <span> tag is great for styling specific words or phrases inline.",
         "incorrectResponse": "Not quite. The <span> tag is used to apply styling within a line of text."
+      },
+      {
+        "objectiveName": "Learn about attributes",
+        "questionText": "Where do you typically place attributes in an HTML element?",
+        "answers": [
+          "After the content",
+          "In the closing tag",
+          "Inside the opening tag",
+          "Outside of any tags"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Correct! Attributes are placed inside the opening tag of an HTML element.",
+        "incorrectResponse": "Not quite. Attributes belong inside the opening tag to modify behavior or appearance."
+      },
+      {
+        "objectiveName": "Use attributes of attributes",
+        "questionText": "In the style attribute, what separates multiple style rules?",
+        "answers": [
+          "Commas",
+          "Periods",
+          "Semicolons",
+          "Slashes"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! Style properties are separated by semicolons within the style attribute.",
+        "incorrectResponse": "Not quite. You separate style rules with semicolons."
+      },
+      {
+        "objectiveName": "Identify the most common attributes",
+        "questionText": "Which attribute would you use to link to another webpage?",
+        "answers": [
+          "src",
+          "href",
+          "alt",
+          "id"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "That's right! The href attribute is used to specify the URL in links.",
+        "incorrectResponse": "Not quite. You use href to link to other pages."
+      },
+      {
+        "objectiveName": "Learn why organizing code matters",
+        "questionText": "Why is it important to organize your HTML code?",
+        "answers": [
+          "So it looks more colorful",
+          "To reduce file size",
+          "For better readability and maintenance",
+          "To avoid writing CSS"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Correct! Organized code is easier to read, maintain, and work on with a team.",
+        "incorrectResponse": "Not quite. The main reason is to improve readability and make maintenance easier."
+      },
+      {
+        "objectiveName": "Learn organization techniques for developers",
+        "questionText": "Which HTML tag is used for marking the head section of a page?",
+        "answers": [
+          "<meta>",
+          "<style>",
+          "<head>",
+          "<footer>"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! The <head> tag contains metadata, styles, and other crucial resources.",
+        "incorrectResponse": "Not quite. The <head> tag is the right one for metadata and linking resources."
+      },
+      {
+        "objectiveName": "Learn organization techniques for users",
+        "questionText": "What does the <ul> element represent in HTML?",
+        "answers": [
+          "An unordered list",
+          "A navigation menu",
+          "An image caption",
+          "A paragraph container"
+        ],
+        "correctAnswerIndex": 0,
+        "correctResponse": "Correct! <ul> stands for unordered list, typically using bullet points.",
+        "incorrectResponse": "Not quite. <ul> is used to create unordered lists."
+      },
+      {
+        "objectiveName": "Learn what CSS is",
+        "questionText": "What is the main purpose of CSS?",
+        "answers": [
+          "To store images",
+          "To create animations",
+          "To style HTML content",
+          "To link webpages"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! CSS is used to style HTML elements\u2014like colors, fonts, and layouts.",
+        "incorrectResponse": "Not quite. CSS is used to style HTML content visually."
+      },
+      {
+        "objectiveName": "Learn how styles cascade",
+        "questionText": "What does it mean when a style 'cascades' in CSS?",
+        "answers": [
+          "It moves up the page",
+          "It flows from parents to children",
+          "It removes the style",
+          "It makes elements bounce"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Correct! Cascading means styles can be inherited or overridden based on the structure.",
+        "incorrectResponse": "Not quite. Cascading refers to how styles are passed down and overridden."
+      },
+      {
+        "objectiveName": "Effectively use inline styles",
+        "questionText": "What is a downside of using inline styles too often?",
+        "answers": [
+          "They are faster",
+          "They increase readability",
+          "They make code harder to maintain",
+          "They help with layout"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Correct! Inline styles become messy and hard to update across a site.",
+        "incorrectResponse": "Not quite. Inline styles can be hard to maintain when overused."
+      },
+      {
+        "objectiveName": "Learn how to use stylesheets",
+        "questionText": "What tag is used to link an external stylesheet in HTML?",
+        "answers": [
+          "<style>",
+          "<script>",
+          "<link>",
+          "<css>"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "That's right! The <link> tag connects your HTML to an external CSS file.",
+        "incorrectResponse": "Not quite. You use the <link> tag to include a stylesheet."
+      },
+      {
+        "objectiveName": "Understand the anatomy of a style",
+        "questionText": "In `color: red;`, what is 'color'?",
+        "answers": [
+          "A value",
+          "A class",
+          "A selector",
+          "A property"
+        ],
+        "correctAnswerIndex": 3,
+        "correctResponse": "Exactly! 'color' is the property you're trying to change.",
+        "incorrectResponse": "Not quite. In this case, 'color' is the property name."
+      },
+      {
+        "objectiveName": "Identify types of stylesheet styles",
+        "questionText": "What does a class selector start with in CSS?",
+        "answers": [
+          "#",
+          ".",
+          "%",
+          "/"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Correct! Class selectors start with a dot (.) in CSS.",
+        "incorrectResponse": "Not quite. Class selectors use a dot, like `.highlight`."
+      },
+      {
+        "objectiveName": "Use CSS selectors",
+        "questionText": "Which selector would target an element with the ID 'header'?",
+        "answers": [
+          "header",
+          ".header",
+          "#header",
+          "/header"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! ID selectors start with a # symbol.",
+        "incorrectResponse": "Not quite. To target an ID, use # followed by the ID name."
+      },
+      {
+        "objectiveName": "Learn about the CSS box model",
+        "questionText": "What is the outermost part of the CSS box model?",
+        "answers": [
+          "Padding",
+          "Content",
+          "Border",
+          "Margin"
+        ],
+        "correctAnswerIndex": 3,
+        "correctResponse": "That's right! The margin is the outermost part that separates elements.",
+        "incorrectResponse": "Not quite. The margin is on the outside of all other box parts."
+      },
+      {
+        "objectiveName": "Identify the components of boxes",
+        "questionText": "Which part of the box adds space inside the border but outside the content?",
+        "answers": [
+          "Margin",
+          "Padding",
+          "Outline",
+          "Spacing"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Correct! Padding sits between the content and the border.",
+        "incorrectResponse": "Not quite. Padding is what adds space around the content inside the box."
+      },
+      {
+        "objectiveName": "Set the width and height of a CSS box",
+        "questionText": "Which CSS property sets how wide an element is?",
+        "answers": [
+          "font-size",
+          "margin",
+          "width",
+          "size"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! Use the width property to define how wide an element should be.",
+        "incorrectResponse": "Not quite. The width property sets the element\u2019s horizontal size."
+      },
+      {
+        "objectiveName": "Learn HTML and CSS best practices",
+        "questionText": "Why are best practices important in web development?",
+        "answers": [
+          "They make your code look colorful",
+          "They help your site load slower",
+          "They ensure your code is clean, readable, and consistent",
+          "They remove the need for testing"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! Best practices help keep code maintainable and understandable.",
+        "incorrectResponse": "Not quite. Best practices help make your code clear, clean, and collaborative."
+      },
+      {
+        "objectiveName": "Set a proper doctype declaration",
+        "questionText": "What do you put at the top of your HTML to tell the browser you're using HTML5?",
+        "answers": [
+          "<html version='5.0'>",
+          "<doctype html>",
+          "<HTML5>",
+          "<!DOCTYPE html>"
+        ],
+        "correctAnswerIndex": 3,
+        "correctResponse": "Correct! `<!DOCTYPE html>` is the declaration for HTML5.",
+        "incorrectResponse": "Not quite. You declare HTML5 with `<!DOCTYPE html>` at the top."
+      },
+      {
+        "objectiveName": "Use stylesheets over inline styles",
+        "questionText": "Why are external stylesheets preferred over inline styles?",
+        "answers": [
+          "They load faster and are easier to manage",
+          "They are more colorful",
+          "They make your site scroll faster",
+          "They work better with JavaScript"
+        ],
+        "correctAnswerIndex": 0,
+        "correctResponse": "Correct! Stylesheets keep code clean and can be reused across pages.",
+        "incorrectResponse": "Not quite. Stylesheets improve performance and organization."
+      },
+      {
+        "objectiveName": "Remember to close tags",
+        "questionText": "What can happen if you forget to close an HTML tag?",
+        "answers": [
+          "Your page loads faster",
+          "Your layout may break",
+          "Your text becomes bold",
+          "It turns your tag green"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Exactly! Unclosed tags can break layout and cause unpredictable issues.",
+        "incorrectResponse": "Not quite. Broken layout is a common issue when tags are left open."
+      },
+      {
+        "objectiveName": "Save and check your work often",
+        "questionText": "What\u2019s the benefit of checking your code frequently while working?",
+        "answers": [
+          "It wastes time",
+          "It helps catch mistakes early",
+          "It slows down the browser",
+          "It adds extra features"
+        ],
+        "correctAnswerIndex": 1,
+        "correctResponse": "Correct! Frequent checking helps you spot and fix errors before they grow.",
+        "incorrectResponse": "Not quite. Checking often prevents bigger problems later."
+      },
+      {
+        "objectiveName": "Use the power of IDEs",
+        "questionText": "What is one benefit of using an IDE like VS Code?",
+        "answers": [
+          "It makes your screen darker",
+          "It prevents you from typing",
+          "It helps with syntax highlighting and error detection",
+          "It deletes unused code automatically"
+        ],
+        "correctAnswerIndex": 2,
+        "correctResponse": "Exactly! IDEs provide highlighting, suggestions, and error checking.",
+        "incorrectResponse": "Not quite. IDEs help highlight code and catch mistakes as you type."
       }
     ]
   }

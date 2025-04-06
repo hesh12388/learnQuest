@@ -11,7 +11,6 @@ public class Creature : MonoBehaviour
     [SerializeField] private int damage = 1;
     
     [Header("Movement")]
-    [SerializeField] private float chaseDistance = 7f;
     [SerializeField] private float attackDistance = 1.2f;
     [SerializeField] private float retreatDistance = 3f;
     [SerializeField] private float retreatDuration = 1f;

@@ -1,161 +1,961 @@
 {
-    "dialogues": [
-        {
-            "npcName": "Learn about tags and elements",
-            "dialogue": [
-              "Hey there! Let's look at how HTML is built—I'll walk you through it step by step.",
-              "Imagine we're writing a sentence and we want part of it to stand out. Let's say: I'm emphasized.",
-              "To make that text emphasized in HTML, we’ll use something called an element. Follow along!",
-              "First, we start with an opening tag. Type this: <em>",
-              "Next, we put our content inside the element. Let’s add the text: I’m emphasized",
-              "Now we need to close the element with a closing tag. That looks like this: </em>",
-              "Great! Here’s the full element together: <em>I’m emphasized</em>",
-              "Take a look at this diagram—it breaks it down into the opening tag, content, and closing tag.",
-              "When a browser sees this element, it emphasizes the text. Usually, it shows up in italics like this.",
-              "But here’s the twist—HTML doesn’t *tell* the browser to use italics. It just says: 'This part is emphasized.'",
-              "It’s up to the browser, which is a type of parser, to decide how to show that emphasis.",
-              "Fun fact: if you're trying to show importance or a different tone, there are other tags like <strong> or <i> that might be more appropriate.",
-              "You're doing great! This is your first step into real HTML. Let’s keep going!"
-            ],
-            "images": [
-              null,
-              null,
-              null,
-              "em_opening.jpeg",
-              "em_content.jpeg",
-              "em_closing.jpeg",
-              "em_closing.jpeg",
-              "em_element_diagram.png",
-              null,
-              null,
-              "strong_element.png",
-              null
-            ],
-            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": []
-          }
-          ,
-          {
-            "npcName": "Nest HTML elements",
-            "dialogue": [
-              "Hey again! Let’s try something together. Imagine you’re packing a suitcase for a trip.",
-              "You could toss everything into one big compartment—your socks, shoes, and shampoo all mixed together.",
-              "But you know what happens then—it gets messy fast. Let me show you a better way.",
-              "Instead, let’s pack smarter. You put your socks in a small bag, your shampoo in another, and so on. Then all those bags go into the suitcase.",
-              "Now let’s bring that idea to HTML. You can actually *nest* HTML elements the same way.",
-              "Let’s build an example together. First, write a `<div>` element. This is like our suitcase.",
-              "Inside that `<div>`, we’ll add some `<p>` elements—like packing smaller bags. Let’s start with the first one: `<p>Paragraph 1</p>`",
-              "Now add two more: `<p>Paragraph 2</p>` and `<p>Paragraph 3</p>` inside the same `<div>`.",
-              "Here’s the full structure we built:",
-              "see how each paragraph is packed neatly inside the parent element?",
-              "When we nest elements like this, we give structure to our HTML. It’s like organizing a suitcase.",
-              "And here’s a bonus: if we apply a style to the parent, like `font-weight: bold`, the child elements can inherit it automatically.",
-              "That’s inheritance in action—and it all starts with nesting!"
-            ],
-            "images": [
-              null,
-              "suitcase_loose_items.png",
-              null,
-              "toiletries_in_bags.png",
-              null,
-              "nested_div.jpeg",
-              "nested_p.jpeg",
-              "nested_p2.jpeg",
-              "nested_p2.jpeg",
-              null,
-              null,
-              null,
-              null
-            ],
-            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": ["Learn about tags and elements"]
-          },
-          {
-            "npcName": "Understand the anatomy of an HTML page",
-            "dialogue": [
-              "Hey! Let’s build the foundation of a real HTML page together. We'll walk through each part step by step.",
-              "First up, we start with a declaration that tells the browser what kind of document it’s reading. Go ahead and write this: `<!DOCTYPE html>`",
-              "Nice! Now let’s create the main container of the page—the `<html>` element. It wraps everything else. Add `<html>` and don’t forget to close it later with `</html>`.",
-              "Inside the `<html>` element, we’ll add two major sections: `<head>` and `<body>`. Let’s tackle the head first.",
-              "Write your `<head>` element: `<head></head>`. This is where metadata, styles, and scripts go. It’s not visible to users, but it’s super important.",
-              "Now let’s add the `<body>` section right after the head: `<body></body>`. This is where the content of your web page lives—text, images, videos, you name it.",
-              "Great! Here’s how the full structure looks when we put it all together:",
-              "See how the `<head>` and `<body>` are both nested inside the `<html>` element? That nesting keeps everything structured properly.",
-              "Most users only see what’s in the body, but everything in this structure plays an important role.",
-              "You're building a strong foundation here. With this structure in place, you’re ready to start creating real web pages!"
-            ],
-            "images": [
-              null,
-              "doctype.jpeg",
-              "html_tag.jpeg",
-              null,
-              "head_tag.jpeg",
-              "body_tag.jpeg",
-              "body_tag.jpeg",
-              null,
-              null,
-              null
-            ],
-            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": ["Nest HTML elements"]
-          },          
-          {
-            "npcName": "Identify the most common HTML elements",
-            "dialogue": [
-              "Hey! Let’s build a basic HTML page together using some of the most common HTML elements.",
-              "Think of HTML elements like spices in cooking. Some are used in nearly every dish—others only occasionally.",
-              "First, let’s start with the base structure. Type this:",
-              "`<!DOCTYPE html>`",
-              "`<html>`",
-              "`  <head>`",
-              "`    <title>My First Page</title>`",
-              "`  </head>`",
-              "`  <body>`",
-              "`  </body>`",
-              "`</html>`",
-              "Now let’s add a heading to the body to give the page a title. Type this inside the `<body>`: `<h1>Welcome to My Page</h1>`",
-              "You’ll see this as the biggest text on the page. It helps organize sections.",
-              "Next, let’s add some text. Use a paragraph tag like this: `<p>This is my first HTML paragraph.</p>`",
-              "(Optional) Let’s break up the paragraph with a line break. Add `<br>` right after the word 'paragraph'.",
-              "Now let’s link to another site. Type this: `<a href='https://www.example.com'>Visit Example</a>`",
-              "Nice! That creates a clickable link.",
-              "Sometimes you want to emphasize just a few words. For that, we’ll use the `<span>` tag. Try this:",
-              "`<p>This is a <span style='color:red;'>red word</span> in a sentence.</p>`",
-              "Let’s add a quote from someone. Use this:",
-              "`<blockquote>This is a wise quote from a wise person.</blockquote>`",
-              "Now we’ll add a horizontal line to separate content. Add: `<hr>`",
-              "Let’s finish with an image. Add this line to the bottom of the body:",
-              "`<img src='https://www.example.com/image.jpg' alt='Example image'>`",
-              "Here’s what your complete HTML document looks like now:",
-              "That’s a complete page using the most common elements! You’ve just built a full HTML document from scratch."
-            ],
-            "images": [
-              null,
-              "spices_metaphor.png",
-              null,
-              "doctype.jpeg",
-              "html_tag.jpeg",
-              "head_tag.jpeg",
-              "title_tag.jpeg",
-              "title_tag.jpeg",
-              "html_structure_step1.jpeg",
-              "html_structure_step1.jpeg",
-              "html_structure_step1.jpeg",
-              "h1_output.png",
-              null,
-              "p_output.png",
-              null,
-              "a_tag_output.png",
-              null,
-              "span_output.png",
-              "blockquote_output.png",
-              "hr_output.png",
-              "img_output.png",
-              null
-            ],
-            "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
-            "requiredPreviousDialogues": ["Understand the anatomy of an HTML page"]
-          }
-          
-    ]
+  "dialogues": [
+    {
+      "npcName": "Learn about tags and elements",
+      "dialogue": [
+        "Hey there, new recruit! I'm Professor Elara. Before you face the wild snakes of Tagroot Forest, you need to understand how HTML is built—I'll walk you through it step by step.",
+        "In HTML, we use something called an element to make parts of text stand out.",
+        "Let’s say we want to emphasize this phrase: I'm emphasized.",
+        "To do that, we start with an opening tag. Type this: <em>",
+        "Now add the content inside the element: I’m emphasized",
+        "Next, close the element with a closing tag: </em>",
+        "Here’s how the full element looks together: <em>I’m emphasized</em>",
+        "Let me show you a diagram that breaks it down: opening tag, content, closing tag.",
+        "In the browser, this might appear in italics, but that’s up to the parser—it’s not hardcoded!",
+        "Remember: <em> means emphasis, not italics. If you want to show importance, you might want <strong> instead.",
+        "Or for a change in tone or voice, maybe <i> is better.",
+        "You're doing great! You've just built your first real HTML element. Keep going!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        "em_opening.png",
+        "em_content.png",
+        "em_closing.png",
+        "em_closing.png",
+        "em_element_diagram.png",
+        null,
+        "strong_element.png",
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Nest HTML elements",
+      "dialogue": [
+        "Welcome back! I'm Professor Brann. You’ve learned about elements—now let’s nest them together.",
+        "Imagine packing a suitcase. You could toss everything into it… but things would get messy.",
+        "Instead, what if you packed smaller bags—one for socks, one for shampoo—and put *those* into the suitcase?",
+        "HTML works the same way. Let’s try it together.",
+        "Start with a <div> element—this is your suitcase.",
+        "Now, nest three <p> elements inside it: <p>Paragraph 1</p>, <p>Paragraph 2</p>, and <p>Paragraph 3</p>",
+        "Here’s what the full structure looks like when everything’s packed nicely:",
+        "See how the paragraphs sit inside the parent <div> element? That’s nesting.",
+        "And guess what? If you apply a style to the parent, like bold text, the children will inherit it!",
+        "This is called inheritance—and it’s a powerful feature of HTML."
+      ],
+      "images": [
+        null,
+        "suitcase_loose_items.png",
+        "toiletries_in_bags.png",
+        null,
+        "nested_div.png",
+        "nested_p2.png",
+        "nested_p2.png",
+        null,
+        "inheritance_example.png",
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Learn about tags and elements"]
+    },
+    {
+      "npcName": "Understand the anatomy of an HTML page",
+      "dialogue": [
+        "Hey there! I'm Professor Vex, here to teach you how to build the skeleton of any HTML page.",
+        "We begin with the DOCTYPE declaration. It tells the browser: 'Hey! This is HTML!' Type this: <!DOCTYPE html>",
+        "Next comes the <html> element. This wraps everything on your page.",
+        "Inside <html>, we split things into two big parts: <head> and <body>.",
+        "Let’s write the <head> element: <head></head>. This part contains info like styles and scripts. It doesn’t show up on the page directly.",
+        "Then we add the <body> element: <body></body>. This is where your actual content goes.",
+        "Here’s the full structure when we put it all together:",
+        "See how everything nests properly? <head> and <body> both live inside <html>.",
+        "This structure helps browsers (parsers) understand your page correctly.",
+        "With this foundation in place, you’re ready to start building real websites!"
+      ],
+      "images": [
+        null,
+        "doctype.png",
+        "html_tag.png",
+        null,
+        "head_tag.png",
+        "body_tag.png",
+        "body_tag.png",
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Nest HTML elements"]
+    },
+    {
+      "npcName": "Identify the most common HTML elements",
+      "dialogue": [
+        "Hey again! Professor Tilda here. Let’s cook up a full HTML page using common elements—think of them like spices in a recipe.",
+        "Some spices (elements) go in every dish. Others are more specialized. Let’s start with the base structure:",
+        "<!DOCTYPE html>",
+        "<html>",
+        "  <head>",
+        "    <title>My First Page</title>",
+        "  </head>",
+        "  <body>",
+        "  </body>",
+        "</html>",
+        "Now, let’s add a heading to the body: <h1>Welcome to My Page</h1>",
+        "That’ll show as big text on the page.",
+        "Next, add a paragraph: <p>This is my first HTML paragraph.</p>",
+        "Now let’s link to another site using an anchor: <a href='https://example.com'>Visit Example</a>",
+        "Want to style a word? Try this: <span style='color:red;'>red word</span>",
+        "Let’s quote someone: <blockquote>This is a wise quote.</blockquote>",
+        "Separate sections with a horizontal line: <hr>",
+        "Now insert an image: <img src='https://example.com/image.jpg' alt='Example image'>",
+        "And that’s a full HTML doc made with real, common elements!"
+      ],
+      "images": [
+        "spices_metaphor.png",
+        null,
+        "doctype.png",
+        "html_tag.png",
+        "head_tag.png",
+        "title_tag.png",
+        "title_tag.png",
+        "html_structure.png",
+        "html_structure.png",
+        "html_structure.png",
+        "h1_output.png",
+        null,
+        "p_output.png",
+        "a_tag_output.png",
+        "span_output.png",
+        "blockquote_output.png",
+        "hr_output.png",
+        "img_output.png",
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Understand the anatomy of an HTML page"]
+    },
+    {
+      "npcName": "Learn about attributes",
+      "dialogue": [
+        "Hey there! I'm Professor Mika. Pyron’s influence is spreading through Nestvine Hollow—HTML is behaving strangely. We need to understand attributes to fight back.",
+        "Think of buying a phone—you can choose the color, memory, and camera. These are all attributes that modify the base device.",
+        "HTML elements work the same way. Attributes modify how an element behaves or appears.",
+        "Attributes usually go inside the opening tag, right after the tag name. Let me show you an example.",
+        "Type this: <p style='color:green;'>This text is green</p>",
+        "In that line, style='color:green;' is the attribute modifying how the paragraph appears.",
+        "Here’s a diagram breaking it down: element tag, attribute, and content.",
+        "You can use attributes to modify styles, define behavior, provide metadata, and more.",
+        "There are attributes for styling, actions, interactivity—even accessibility.",
+        "Learning to use them properly gives you serious power over your page’s behavior and design.",
+        "Ready to dig deeper?"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Use attributes of attributes",
+      "dialogue": [
+        "Welcome back! I'm Professor Nilo. You’re ready to learn about something even cooler—attributes of attributes!",
+        "Let’s return to the phone example. You chose a background image, then set the background color—that’s modifying a setting *inside* another setting.",
+        "HTML can do that too. Some attributes, like `style`, have their own set of properties (child attributes).",
+        "Look at this: <p style='color:green;'>This text is green</p> — here, 'color' is an attribute of 'style'.",
+        "Now let's try two properties at once: <p style='color:green; font-weight:bold;'>This text is green and bold</p>",
+        "Each child attribute is separated by a semicolon inside the `style` string.",
+        "You can keep stacking them: background-color, font-size, padding, etc.",
+        "These nested attributes work together to change how the parent element looks.",
+        "Here’s a visual to help break it down.",
+        "When you master this, you’re not just styling—you’re composing!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Learn about attributes"]
+    },
+    {
+      "npcName": "Identify the most common attributes",
+      "dialogue": [
+        "You're nearly ready to face Pyron. I’m Professor Elen. Let’s get you fluent with the most common HTML attributes.",
+        "Like in every good toolkit, there are tools you’ll reach for all the time. Attributes are the same.",
+        "Let’s break them into 3 categories: Style/Layout, Action, and Event attributes.",
+        "Here are some style/layout ones: `style`, `id`, `class`, `display`, `aria-label`.",
+        "Example: <div class='info-box'>Content here</div> — this uses a `class` to apply styles.",
+        "Now, action-based attributes: `href`, `src`, `autofocus`, `draggable`.",
+        "Example: <img src='image.jpg'> — `src` tells the browser where to find the image.",
+        "Event attributes make things interactive: `onclick`, `onkeypress`, `onscroll`, and more.",
+        "Example: <button onclick='alert(\"Hi!\")'>Click me</button>",
+        "These attributes work together to bring your pages to life.",
+        "When you're reading code from others, knowing these attributes helps you understand and edit quickly.",
+        "This is the knowledge that makes you a real code trainer in LearnQuest!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Use attributes of attributes"]
+    },
+    {
+      "npcName": "Learn why organizing code matters",
+      "dialogue": [
+        "Welcome to Meta Ridge. I'm Professor Kade. Noir’s chaos spreads through every page—broken layouts, tangled code. To defeat him, we must bring structure.",
+        "Imagine digging through a messy drawer to find your passport. Frustrating, right? That’s what unorganized code feels like.",
+        "Let me show you a better way. When HTML is well-structured, it's easy to scan and navigate—like labeled folders.",
+        "As a developer, you’ll often revisit code months later. Organization helps you find what you need fast.",
+        "And when working with a team, organized code is like a shared map—others can easily follow your work.",
+        "Organized code can even speed up page loads! Placing key scripts and resources where they belong matters.",
+        "Take a look at this mess of code versus the organized version. See the difference?",
+        "This is your first step in learning to bring clarity to chaos. Noir hates that. Let’s keep going!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Learn organization techniques for developers",
+      "dialogue": [
+        "You’ve seen why it matters—now let’s get tactical. I’m Professor Sima, and I’ll show you how developers bring order to HTML.",
+        "First: comments. Use them to mark sections, explain logic, and track TODOs.",
+        "Try this: <!-- This section displays the hero banner -->",
+        "Comments don’t appear on the page, but they’re visible in your code. Be careful what you write—others can read your source!",
+        "Next: code conventions. These keep your naming and formatting consistent.",
+        "Camel case is one example. Say you need a function called 'yearly report table'—you’d write it as: yearlyReportTable",
+        "Now look at dot notation: reports.Annual.Generate — often used in JS.",
+        "Another is kebab-case for styles: my-new-style. Used in CSS classes.",
+        "Here’s a comparison chart to help you pick the right style for your use case.",
+        "Semantic elements also help organize sections. Think: <section>, <article>, <nav>, <time>...",
+        "Each tells browsers (and developers) what the content is.",
+        "And don’t forget your <head>—that’s where metadata, stylesheets, and scripts live.",
+        "Let’s look at a properly structured head section together."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Learn why organizing code matters"]
+    },
+    {
+      "npcName": "Learn organization techniques for users",
+      "dialogue": [
+        "Now it’s time to look at the user side of things. I’m Professor Rina—UX wizard and structure enthusiast.",
+        "You’ve walked into shops before where nothing’s labeled, prices are missing, or items are everywhere, right?",
+        "That’s what a disorganized website feels like to a user. Our job is to fix that.",
+        "Let’s start with lists. Use <ul> for bullets, <ol> for steps, and <dl> for definitions.",
+        "Try this ordered list: <ol><li>Item 1</li><li>Item 2</li></ol>",
+        "Change it to bullets with <ul> instead. Same structure, different experience.",
+        "Now, description lists use <dt> and <dd>. Like this:",
+        "<dl><dt>Term</dt><dd>Description</dd></dl>",
+        "Tables are also great for structured data—but not for layout anymore. That’s outdated.",
+        "Here’s a clean table example you can try.",
+        "By organizing content this way, users find info faster, remember it better, and enjoy using your site.",
+        "And if you combine this with semantic tags and a strong head section—you’re unbeatable.",
+        "Ready to face Noir?"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
+      "requiredPreviousDialogues": ["Learn organization techniques for developers"]
+    },
+    {
+      "npcName": "Learn what CSS is",
+      "dialogue": [
+        "Welcome, traveler! I\u2019m Professor Lyss, keeper of Elemental Glade. The beauty of this place has been drained by Fangor, but we\u2019ll restore it\u2014one style at a time.",
+        "Let\u2019s start simple. Imagine we have this plain HTML paragraph: `<p>This is my paragraph.</p>`",
+        "Right now, it\u2019s unstyled\u2014just plain black text. Let\u2019s add a little color!",
+        "We\u2019ll use something called **CSS**\u2014Cascading Style Sheets. It controls how HTML looks.",
+        "First, try this: `<p style='color:green;'>This is my paragraph.</p>`",
+        "Boom! You\u2019ve used your first CSS rule. You added a style directly to the tag using the `style` attribute.",
+        "Let\u2019s try changing the color to blue: `<p style='color:blue;'>This is my paragraph.</p>`",
+        "See how easy it is to change the appearance?",
+        "Now, let\u2019s increase the font size. Add another rule: `<p style='color:blue; font-size:20px;'>This is my paragraph.</p>`",
+        "Each property is followed by a colon and a value, and separated by semicolons.",
+        "Inline styles work great for quick styling, but they can get messy. We\u2019ll explore better options soon.",
+        "Here\u2019s how inline, internal, and external styles compare visually. We\u2019ll dive deeper into each soon.",
+        "For now, get comfortable with writing `style` attributes\u2014you\u2019re laying the foundation for powerful design!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Learn how styles cascade",
+      "dialogue": [
+        "Welcome back! I\u2019m Professor Elan. Let\u2019s explore the 'cascading' part of CSS\u2014how styles pass down from parent to child.",
+        "Imagine a family tree. If a parent has brown eyes, the child might inherit them\u2026 unless they develop their own color!",
+        "CSS works the same way. Let\u2019s build an example together.",
+        "Start with this: `<div style='color:red;'><p>This is a paragraph.</p></div>`",
+        "Run it in your browser. The paragraph is red\u2014even though the paragraph tag itself has no style!",
+        "That\u2019s inheritance. Now, let\u2019s override it. Try this:",
+        "`<div style='color:red;'><p style='color:blue;'>This is a paragraph.</p></div>`",
+        "See that? The paragraph turns blue\u2014because the child\u2019s style overrides the parent\u2019s.",
+        "You can also inherit layout styles like `margin`, `padding`, and `font-family`.",
+        "Try adding this: `<div style='font-family:sans-serif;'><p>This paragraph inherits the font.</p></div>`",
+        "Understanding how styles flow and override is what gives CSS its power.",
+        "Let\u2019s visualize this cascade using a diagram so you can always remember who wins."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Learn what CSS is"
+      ]
+    },
+    {
+      "npcName": "Effectively use inline styles",
+      "dialogue": [
+        "Let\u2019s take a closer look at inline styles\u2014your most direct way to apply CSS. I\u2019m Professor Ruko, by the way!",
+        "Start with this basic paragraph: `<p>This is my text</p>`",
+        "Now add a style directly into the tag: `<p style='text-decoration:underline;'>This is my text</p>`",
+        "Nice! That underlined it. Let\u2019s try adding another property: `<p style='text-decoration:underline; font-weight:bold;'>This is my text</p>`",
+        "See how we\u2019re stacking properties? This is how inline styles work.",
+        "But... imagine updating this on 50 elements. Not fun.",
+        "Let\u2019s test that\u2014copy and paste the same styled paragraph 3 times.",
+        "Now, change the color to red. See how tedious it gets? That\u2019s why we prefer stylesheets for big projects.",
+        "Inline styles are perfect for one-offs or testing\u2014but not for scaling.",
+        "Remember: style wisely!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Learn how styles cascade"
+      ]
+    },
+    {
+      "npcName": "Learn how to use stylesheets",
+      "dialogue": [
+        "Ready to scale up? I\u2019m Professor Mira. Let\u2019s move from inline chaos to stylesheet clarity!",
+        "Start with an internal stylesheet: add a `<style>` block inside your `<head>` tag like this:",
+        "`<style> p { color:purple; font-size:18px; } </style>`",
+        "Now write a simple paragraph below: `<p>This text will be purple.</p>`",
+        "Your styles are now separated from the content\u2014cleaner and easier to manage!",
+        "Want to go further? Let\u2019s try an external stylesheet.",
+        "Create a file called `styles.css`. Inside it, write: `p { color:green; font-weight:bold; }`",
+        "Now link it in your HTML: `<link rel='stylesheet' href='styles.css'>`",
+        "Save both files and open the HTML in your browser. The paragraph should be green and bold!",
+        "You\u2019ve now used all three types: inline, internal, and external. That\u2019s the pro toolkit!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Effectively use inline styles"
+      ]
+    },
+    {
+      "npcName": "Understand the anatomy of a style",
+      "dialogue": [
+        "Let\u2019s dissect a CSS rule! I\u2019m Professor Cilo, and I love clean, readable styles.",
+        "Every CSS rule follows a specific format: `selector { property: value; }`",
+        "Try this one: `h1 { color:orange; text-align:center; }`",
+        "You\u2019ve got the selector (`h1`), then an opening brace `{`, the property-value pairs, and finally the closing brace `}`.",
+        "Each property-value line ends in a semicolon\u2014don't forget those!",
+        "Let\u2019s label each part visually in a breakdown diagram.",
+        "Now let\u2019s write one from scratch together: `p.intro { font-family:Arial; line-height:1.5; }`",
+        "This targets paragraphs with class \u2018intro\u2019 and gives them some breathing room.",
+        "Mastering this structure means mastering control over design."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Learn how to use stylesheets"
+      ]
+    },
+    {
+      "npcName": "Identify types of stylesheet styles",
+      "dialogue": [
+        "Hey! I\u2019m Professor Vale, selector specialist. Let\u2019s explore the three main types: element, class, and ID.",
+        "Start with an **element selector**: `p { color:blue; }` \u2014 this targets all `<p>` tags.",
+        "Now try a **class selector**: `.highlight { background:yellow; }` \u2014 apply it like this: `<div class='highlight'>Hi!</div>`",
+        "Next is an **ID selector**: `#notice { border:2px solid red; }` \u2014 apply with: `<p id='notice'>Alert!</p>`",
+        "Let\u2019s combine them in one file and preview the results.",
+        "Here\u2019s a comparison chart to help you pick the right one for each situation.",
+        "Remember: IDs should be unique. Classes are reusable. Elements apply broadly.",
+        "Using the right selector type makes your styles easier to read and scale!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Understand the anatomy of a style"
+      ]
+    },
+    {
+      "npcName": "Use CSS selectors",
+      "dialogue": [
+        "Final lesson before Fangor! I\u2019m Professor Luma. Time to *use* those selectors in real layouts.",
+        "Start with a blank HTML page. Add three elements: a `<h1>`, a `<p class='info'>`, and a `<div id='banner'>`",
+        "Now write a stylesheet like this:",
+        "`h1 { font-size: 30px; color: teal; }`",
+        "`.info { font-style: italic; }`",
+        "`#banner { background-color: lightgray; padding: 10px; }`",
+        "See how each rule targets one of your elements?",
+        "Try changing `.info` to `font-style: normal;` and refresh the browser.",
+        "That\u2019s the power of selectors\u2014they bind style to structure.",
+        "You\u2019re now ready to style anything that moves. Let\u2019s go face Fangor!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Identify types of stylesheet styles"
+      ]
+    },
+    {
+      "npcName": "Learn about the CSS box model",
+      "dialogue": [
+        "Welcome to Stylecliff Keep. I\u2019m Professor Ardyn. Shadow lurks here, distorting layout and form. But with the Box Model, we can rebuild order.",
+        "Let\u2019s begin by thinking visually. Imagine each HTML element is like a house with a yard, fence, and sidewalk.",
+        "In CSS terms, this means each element is wrapped in a box\u2014this is the **CSS Box Model**.",
+        "Let\u2019s build one together. Start with a simple `<div>` element: `<div>This is my content box</div>`",
+        "Now let\u2019s add some style to it. Try this in your stylesheet:",
+        "`div { width: 300px; height: 150px; border: 2px solid black; }`",
+        "Refresh your browser. You\u2019ll see a black box around the content!",
+        "What you\u2019re looking at is a styled CSS box. Let\u2019s walk through its layers.",
+        "The content is at the center. Around that is **padding**, then the **border**, and finally the **margin**.",
+        "Let\u2019s add some padding: `padding: 20px;` and margin: `margin: 30px;` to your style block.",
+        "Try setting a background color to see the space inside the border: `background-color: lightblue;`",
+        "Now inspect the box using browser dev tools. You\u2019ll see the layout in the box model diagram.",
+        "Congrats! You\u2019ve just built and explored your first real CSS box."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Identify the components of boxes",
+      "dialogue": [
+        "Nice work so far! I\u2019m Professor Veil. Let\u2019s examine the **components** of the CSS box.",
+        "You\u2019ve already seen the visual structure, but let\u2019s label each part using real code.",
+        "Start with this: `<div class='house-box'>Welcome!</div>`",
+        "Now in your stylesheet, write this:",
+        ".house-box {",
+        "  padding: 15px;",
+        "  border: 2px dashed blue;",
+        "  margin: 25px;",
+        "  background-color: beige;",
+        "  width: 200px;",
+        "}",
+        "Each part here corresponds to a real-world layout piece: the content, padding, border, and margin.",
+        "Let\u2019s highlight each with a different color using dev tools or a diagram. That\u2019ll make it easier to remember.",
+        "Try tweaking each value and see how the layout changes. Double the margin to 50px\u2014what moves?",
+        "Set the padding to 0 and observe the content cling to the border.",
+        "This understanding is key to spacing and layout!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Learn about the CSS box model"
+      ]
+    },
+    {
+      "npcName": "Set the width and height of a CSS box",
+      "dialogue": [
+        "Now let\u2019s learn how to **define the size** of your CSS boxes. I\u2019m Professor Sylas.",
+        "Start by creating a `div` for your hero section. Use this in your HTML:",
+        "`<div id='hero-main-page'>Welcome to the Hero Area!</div>`",
+        "Now go to your CSS and define the style for this ID selector:",
+        "`#hero-main-page { width: 100%; height: 500px; background: lavender; }`",
+        "Save and refresh\u2014your hero section stretches across the entire width of the screen!",
+        "Want to visualize how height and width work? Shrink the browser window and watch the layout adapt.",
+        "Try changing the height to 300px or adding `min-height: 200px;`",
+        "Play with `max-width` too. Add `max-width: 1200px;` to prevent it from getting too wide.",
+        "Understanding these properties gives you full control over your layout\u2019s dimensions.",
+        "And now, you\u2019re ready to size boxes like a true front-end architect."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Identify the components of boxes"
+      ]
+    },
+    {
+      "npcName": "Learn HTML and CSS best practices",
+      "dialogue": [
+        "Welcome to Frostbyte Cavern. I\u2019m Professor Solin. It\u2019s cold, it\u2019s harsh\u2014and Frost freezes everything, even bad habits. Here, we forge *best practices*.",
+        "Best practices are agreed ways of doing things that help keep code readable, consistent, and reliable\u2014especially in teams.",
+        "Let\u2019s see this in action. Here\u2019s messy code: `<h1>Welcome<p>This is important!`",
+        "Now here\u2019s cleaned-up code with best practices: `<!DOCTYPE html><html><head><title>Best Practices</title></head><body><h1>Welcome</h1><p>This is important!</p></body></html>`",
+        "Notice the difference? It\u2019s not just about visuals\u2014it\u2019s about understanding and maintenance.",
+        "Throughout this cavern, you\u2019ll learn six specific best practices that professional web devs live by. Let\u2019s start walking!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": []
+    },
+    {
+      "npcName": "Set a proper doctype declaration",
+      "dialogue": [
+        "Professor Aya here. Before browsers can render a page correctly, they need to know what language version they\u2019re reading.",
+        "Let\u2019s write a document without a doctype: `<html><head><title>Oops</title></head><body><p>Missing something?</p></body></html>`",
+        "Now add a proper doctype at the top: `<!DOCTYPE html>`",
+        "Here\u2019s the corrected full document:",
+        "`<!DOCTYPE html><html lang='en'><head><title>Better!</title></head><body><p>Now the browser knows what to expect.</p></body></html>`",
+        "Doctype isn't a tag or element\u2014it\u2019s a declaration. HTML5 uses the short and simple version.",
+        "Other versions like HTML 4 had long, strict declarations. But unless you're working with legacy code, stick with `<!DOCTYPE html>`",
+        "You\u2019ve now aligned your code with modern browser expectations. Onward!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Learn HTML and CSS best practices"
+      ]
+    },
+    {
+      "npcName": "Use stylesheets over inline styles",
+      "dialogue": [
+        "Professor Nira here. Inline styles are quick, but they grow messy\u2014fast.",
+        "Let\u2019s compare two approaches. First, the inline way: `<h1 style='color:red;'>Alert</h1>`",
+        "Now, let\u2019s do it with an external stylesheet.",
+        "Step 1: In your HTML, add this in the `<head>`: `<link rel='stylesheet' href='styles.css'>`",
+        "Step 2: In `styles.css`, write: `h1 { color: red; }`",
+        "Result? Same look, but much cleaner and scalable.",
+        "Bonus: External styles load faster and are easier to maintain across many pages.",
+        "Let\u2019s visualize this using the principle of \u2018separation of concerns\u2019: content in HTML, design in CSS.",
+        "That\u2019s real-world efficiency!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Set a proper doctype declaration"
+      ]
+    },
+    {
+      "npcName": "Remember to close tags",
+      "dialogue": [
+        "Tag errors are like frost cracks\u2014small at first, but they break the whole layout over time.",
+        "Let\u2019s look at this: `<p>This paragraph is missing a close` \u2014 Looks fine? Not really.",
+        "Now, write the correct version: `<p>This paragraph is complete.</p>`",
+        "Browsers can sometimes guess what you meant, but it slows them down and leads to inconsistencies.",
+        "Close tags help with: speed, compatibility, and team readability.",
+        "Try leaving out a `</div>` in a nested layout and watch things break in dev tools!",
+        "Tag closure is the punctuation of your HTML language\u2014don\u2019t forget it!"
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Use stylesheets over inline styles"
+      ]
+    },
+    {
+      "npcName": "Save and check your work often",
+      "dialogue": [
+        "Professor Lin here. Want to avoid disaster? Save and check early. Save and check often.",
+        "Write 10 lines of code, test it. Not 100. Catch bugs before they freeze your progress.",
+        "Let\u2019s try it. Write a `<form>` and forget one closing tag. Save. Open in browser.",
+        "What do you see? Now fix it and reload\u2014faster than digging through dozens of lines later.",
+        "Testing isn\u2019t just for logic. It\u2019s for layout, color, flow\u2026 everything!",
+        "This habit will make your future self thank you.",
+        "Also\u2014save your work constantly. Use autosave in your IDE or text editor if you can."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Remember to close tags"
+      ]
+    },
+    {
+      "npcName": "Use the power of IDEs",
+      "dialogue": [
+        "Final lesson. I\u2019m Professor Arkyn. Let me show you a web dev\u2019s best ally: the **IDE**\u2014Integrated Development Environment.",
+        "Think of it like a magical toolbench. Everything you need is in one place.",
+        "Here\u2019s what a good IDE gives you: syntax highlighting, autosave, debugging, autocomplete, and more.",
+        "Open your favorite IDE\u2014VS Code, Replit, or others\u2014and start a basic HTML project.",
+        "Notice how it colors tags? That\u2019s syntax highlighting. Makes errors stand out instantly.",
+        "Type an opening `<p>` tag. The IDE autocompletes it with `</p>`\u2014tag closure? Handled.",
+        "Make a syntax error\u2014watch it underline it. That\u2019s built-in linting!",
+        "These tools boost speed, catch errors early, and keep you on best practices\u2014effortlessly.",
+        "IDE power unlocked. Time to freeze Frost."
+      ],
+      "images": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "autoProgressLines": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "requiredPreviousDialogues": [
+        "Save and check your work often"
+      ]
+    }
+  ]
 }

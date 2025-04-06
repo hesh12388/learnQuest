@@ -217,6 +217,7 @@ public class NPC : MonoBehaviour, IInteractable
             graphicsPanel.SetActive(true);
             graphicsImagePanel.SetActive(true);
             graphicsImage.sprite=dialogueData.dialogueImages[dialogueIndex];
+            graphicsImage.SetNativeSize();
             npcImagePanel.SetActive(false);
         }
         else
