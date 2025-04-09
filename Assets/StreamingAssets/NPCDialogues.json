@@ -94,7 +94,7 @@
     {
       "npcName": "Identify the most common HTML elements",
       "dialogue": [
-        "Hey again! Professor Tilda here. Let’s cook up a full HTML page using common elements—think of them like spices in a recipe.",
+        "Hey again! Scientist here. Let’s cook up a full HTML page using common elements—think of them like spices in a recipe.",
         "Some spices (elements) go in every dish. Others are more specialized. Let’s start with the base structure:",
         "<!DOCTYPE html>",
         "<html>",
@@ -141,7 +141,7 @@
     {
       "npcName": "Learn about attributes",
       "dialogue": [
-        "Hey there! I'm Professor Mika. Pyron’s influence is spreading through Nestvine Hollow—HTML is behaving strangely. We need to understand attributes to fight back.",
+        "Hey there! I'm Professor Kit. Pyron’s influence is spreading through Nestvine Hollow—HTML is behaving strangely. We need to understand attributes to fight back.",
         "Think of buying a phone—you can choose the color, memory, and camera. These are all attributes that modify the base device.",
         "HTML elements work the same way. Attributes modify how an element behaves or appears.",
         "Attributes usually go inside the opening tag, right after the tag name. Let me show you an example.",

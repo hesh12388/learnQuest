@@ -18,16 +18,16 @@ public class NPC : MonoBehaviour, IInteractable
     private Button closeDialogue;
     private Button continueDialogue;
     private Button exitDialogue;
-
+    private Image enterKey;
     public bool isInstructing;
     public bool isEvaluation;
-    private int dialogueIndex ;
+    public bool isAssistant;
+    private int dialogueIndex;
     private bool isTyping, isDialogueActive;
-
     private bool isOnPreRequisite = false;
-
-    private string currentMenu;
+    private Coroutine flashingCoroutine;
     private bool isPaused = false;
+
     private void Start(){
         npcImage=UIManager.Instance.demonstration_npcImage;
         dialoguePanel= UIManager.Instance.dialoguePanel;
@@ -38,11 +38,9 @@ public class NPC : MonoBehaviour, IInteractable
         graphicsInstructorImage= UIManager.Instance.graphicsInstructorImage;
         npcImagePanel= UIManager.Instance.npcImagePanel;
         closeDialogue= UIManager.Instance.closeDialogue;
-        
         continueDialogue= UIManager.Instance.continueDialogue;
-        
         exitDialogue= UIManager.Instance.exitDialogue;
-    
+        enterKey=UIManager.Instance.enterKey;
     }
 
     public bool CanInteract()
@@ -53,7 +51,7 @@ public class NPC : MonoBehaviour, IInteractable
     public void Interact()
     {
 
-        if( EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused)
+        if( EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant)
         {
             return;
         }
@@ -75,7 +73,7 @@ public class NPC : MonoBehaviour, IInteractable
     {
         if(isEvaluation)
         {
-            if(NPCManager.Instance.AreAllNPCsCompleted()){
+            if(ObjectiveManager.Instance.AreAllObjectivesCompleted()){
                 EvaluationManager.Instance.StartEvaluation();
                 isInstructing=false;
                 NPCManager.Instance.isInstructing=false;
@@ -88,6 +86,17 @@ public class NPC : MonoBehaviour, IInteractable
                 NPCManager.Instance.isInstructing=false;
                 yield break;
             }
+        }
+        
+        if(isAssistant)
+        {
+           RagChatManager.Instance.ShowRagPanel();
+           Player.Instance.pausePlayer();
+           Player.Instance.stopInteraction();
+           UIManager.Instance.disablePlayerHUD();
+           NPCManager.Instance.isInstructing=false;
+           isInstructing=false;
+           yield break;
         }
         if(!isDialogueActive){
             // Now load the dialogue (after transition is complete)
@@ -103,7 +112,7 @@ public class NPC : MonoBehaviour, IInteractable
         
         for(int i=0; i<dialogueData.requiredPreviousDialogues.Length; i++)
         {
-            if(!NPCManager.Instance.HasCompletedNPC(dialogueData.requiredPreviousDialogues[i]))
+            if(!ObjectiveManager.Instance.IsObjectiveCompleted(dialogueData.requiredPreviousDialogues[i]))
             {
                 isOnPreRequisite = true;
                 DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to " + dialogueData.requiredPreviousDialogues[i] + " first.", dialogueData.requiredPreviousDialogues[i]);
@@ -142,6 +151,11 @@ public class NPC : MonoBehaviour, IInteractable
             StopAllCoroutines();
             dialogueText.SetText(dialogueData.dialogue[dialogueIndex]);
             isTyping=false;
+            if (flashingCoroutine != null)
+            {
+                StopCoroutine(flashingCoroutine);
+            }
+            flashingCoroutine = StartCoroutine(FlashEnterKey());
         }
         else if(++dialogueIndex<dialogueData.dialogue.Length)
         {
@@ -209,7 +223,12 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     IEnumerator TypeDialogue(){
-
+        // Hide the enter key
+        if (flashingCoroutine != null)
+        {
+            StopCoroutine(flashingCoroutine);
+            enterKey.gameObject.SetActive(false);
+        }
         
         if(dialogueData.dialogueImages!=null && dialogueData.dialogueImages.Length>dialogueIndex && dialogueData.dialogueImages[dialogueIndex]!=null)
         {
@@ -218,6 +237,28 @@ public class NPC : MonoBehaviour, IInteractable
             graphicsImagePanel.SetActive(true);
             graphicsImage.sprite=dialogueData.dialogueImages[dialogueIndex];
             graphicsImage.SetNativeSize();
+            // Get the current size after setting native size
+            RectTransform rt = graphicsImage.rectTransform;
+            float currentWidth = rt.rect.width;
+            float currentHeight = rt.rect.height;
+             
+            // Set maximum allowed dimensions
+            float maxWidth = 500f;
+            float maxHeight = 450f;
+            
+            // Check if image exceeds maximum dimensions
+            if (currentWidth > maxWidth || currentHeight > maxHeight)
+            {
+                // Calculate scale factor to fit within constraints while preserving aspect ratio
+                float widthScale = maxWidth / currentWidth;
+                float heightScale = maxHeight / currentHeight;
+                
+                // Use the smaller scale to ensure both dimensions fit
+                float scale = Mathf.Min(widthScale, heightScale);
+                
+                // Apply the scaled size
+                rt.sizeDelta = new Vector2(currentWidth * scale, currentHeight * scale);
+            }
             npcImagePanel.SetActive(false);
         }
         else
@@ -237,6 +278,14 @@ public class NPC : MonoBehaviour, IInteractable
             dialogueText.text+=letter;
             yield return new WaitForSeconds(dialogueData.typingSpeed);
         }
+        // Show the enter key
+        enterKey.gameObject.SetActive(true);
+        
+        if (flashingCoroutine != null)
+        {
+            StopCoroutine(flashingCoroutine);
+        }
+        flashingCoroutine = StartCoroutine(FlashEnterKey());
 
         isTyping=false;
 
@@ -248,7 +297,20 @@ public class NPC : MonoBehaviour, IInteractable
         }
        
     }
-
+    public IEnumerator FlashEnterKey(float flashRate = 0.5f)
+    {
+        // Make sure the enter key starts visible
+        if (enterKey != null && enterKey.gameObject != null)
+        {
+            enterKey.gameObject.SetActive(true);
+            
+            while (true) // Loop until stopped externally
+            {
+                yield return new WaitForSeconds(flashRate);
+                enterKey.gameObject.SetActive(!enterKey.gameObject.activeSelf);
+            }
+        }
+    }
     public void pauseDemonstration(){
         isPaused=true;
     }
@@ -259,6 +321,12 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void EndDialogue(){
         StopAllCoroutines();
+        // Hide the enter key
+        if (flashingCoroutine != null)
+        {
+            StopCoroutine(flashingCoroutine);
+            enterKey.gameObject.SetActive(false);
+        }
         isDialogueActive=false;
         dialogueText.SetText("");
         AudioController.Instance.PlayMenuOpen();
@@ -266,7 +334,7 @@ public class NPC : MonoBehaviour, IInteractable
         dialoguePanel.SetActive(false);
 
         if(dialogueIndex >=dialogueData.dialogue.Length){
-             NPCManager.Instance.MarkNPCCompleted(dialogueData.npcName);
+             ObjectiveManager.Instance.MarkObjectiveCompleted(dialogueData.npcName);
         }
          // Remove button listeners
         if (closeDialogue != null)

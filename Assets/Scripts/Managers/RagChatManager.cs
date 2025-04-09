@@ -27,12 +27,33 @@ public class RagChatManager : MonoBehaviour
     public event Action OnConnected;
     public event Action OnDisconnected;
 
+    private GameObject ragPanel;
+    public bool isUsingAssistant { get; set; } = false;
+
     [Serializable]
     public class RAGMessage
     {
         public string type = "rag-chat";
         public string message;
         public string username;
+    }
+
+    private void Start()
+    {
+       ragPanel = UIManager.Instance.ragPanel;
+    }
+
+    public void ShowRagPanel()
+    {
+        if (ragPanel != null)
+        {
+            ragPanel.SetActive(true);
+            isUsingAssistant = true;
+        }
+        else
+        {
+            Debug.LogError("RagChatManager: ragPanel is null");
+        }
     }
     
     private void Awake()

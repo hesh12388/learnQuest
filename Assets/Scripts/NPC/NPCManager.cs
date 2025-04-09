@@ -17,8 +17,6 @@ public class NPCIndicatorMapping
 
 public class NPCManager : MonoBehaviour
 {
-    private HashSet<string> completedNPCs = new HashSet<string>();
-    private int numNpcs;
     public static NPCManager Instance;
     public CinemachineVirtualCamera shallowCamera;
     public CinemachineVirtualCamera wideCamera;
@@ -79,11 +77,11 @@ public class NPCManager : MonoBehaviour
 
     private void Start()
     {
-        LoadObjectivesFromDatabase();
         npcImage=UIManager.Instance.demonstration_npcImage;
         dialoguePanel= UIManager.Instance.dialoguePanel;
         dialogueText= UIManager.Instance.demonstration_dialogueText;
         closeDialogue= UIManager.Instance.closeDialogue;
+         StartCoroutine(showNextGuide());
     }
 
     // Load prerequisite and post-evaluation dialogues from JSON
@@ -119,57 +117,30 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    // Load objectives from database and initialize the completedNPCs HashSet
-    private void LoadObjectivesFromDatabase()
-    {
-        // Check if there's a logged in user
-        if (DatabaseManager.Instance.loggedInUser == null)
-        {
-            Debug.LogWarning("Cannot load objectives: No user is logged in");
-            return;
-        }
 
-        // Call the DatabaseManager to get objectives
-        DatabaseManager.Instance.GetObjectives((objectives) => {
-            if (objectives != null)
-            {
-                completedNPCs.Clear(); // Clear the current HashSet
+    public IEnumerator showNextGuide(){
+        yield return new WaitForSeconds(2f);
+        DetermineNextObjective();
+        StartCoroutine(ShowNextObjective());
 
-                // Add completed objectives to the HashSet
-                foreach (var objective in objectives)
-                {
-                    if (objective.status.ToLower() == "completed")
-                    {
-                        completedNPCs.Add(objective.objective_name);
-                    }
-                }
-
-                Debug.Log($"Loaded {completedNPCs.Count} completed NPCs/objectives from database");
-                
-                // Update the numNpcs based on the total number of objectives
-                numNpcs = objectives.Count;
-            }
-            else
-            {
-                Debug.LogError("Failed to load objectives from database");
-            }
-        });
     }
 
     // Determine the next objective to complete
-    public void DetermineNextObjective()
+   public void DetermineNextObjective()
     {
-        foreach (var objective in prerequisiteDialogues.Keys)
-        {
-            if (!completedNPCs.Contains(objective))
-            {
-                nextObjective = objective;
-                return;
-            }
-        }
+        // Get incomplete objectives from ObjectiveManager
+        List<Objective> incompleteObjectives = ObjectiveManager.Instance.GetIncompleteObjectives();
 
-        // If all objectives are completed, set the next step to evaluation
-        nextObjective = "evaluation";
+        if (incompleteObjectives.Count > 0)
+        {
+            // Set the next objective to the first incomplete one
+            nextObjective = incompleteObjectives[0].objective_name;
+        }
+        else
+        {
+            // If all objectives are completed, set to evaluation
+            nextObjective = "evaluation";
+        }
     }
 
     // Show the dialogue and guide the player to the next NPC
@@ -209,8 +180,6 @@ public class NPCManager : MonoBehaviour
 
     private IEnumerator ShowDialogueAndGuide(string dialogue, string npcName)
     {
-        Player.Instance.stopInteraction();
-        UIManager.Instance.disablePlayerHUD();
         // Show the dialogue panel
         yield return StartCoroutine(ShowDialoguePanel(dialogue));
 
@@ -224,16 +193,18 @@ public class NPCManager : MonoBehaviour
             Debug.LogWarning($"No indicator found for NPC: {npcName}");
         }
 
-        Player.Instance.resumeInteraction();
-        UIManager.Instance.enablePlayerHUD();
         isInstructing = false;
     }
 
     IEnumerator ShowDialoguePanel(string dialogue)
     {
+        UIManager.Instance.setGameUIPanelsInactive();
+        Player.Instance.stopInteraction();
+        UIManager.Instance.disablePlayerHUD();
         closeDialogue.gameObject.SetActive(false);
         AudioController.Instance.PlayDemonstrationMusic();
         isInstructing = true;
+        UIManager.Instance.OnToggleMenu();
         // Show the dialogue panel
         AudioController.Instance.PlayMenuOpen();
         dialoguePanel.SetActive(true);
@@ -245,6 +216,9 @@ public class NPCManager : MonoBehaviour
         npcImage.sprite = null; // Reset the NPC image
         AudioController.Instance.PlayBackgroundMusic();
         closeDialogue.gameObject.SetActive(true);
+        Player.Instance.resumeInteraction();
+        Player.Instance.resumePlayer();
+        UIManager.Instance.enablePlayerHUD();
     }
 
     private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)
@@ -267,11 +241,11 @@ public class NPCManager : MonoBehaviour
     }
 
     // Show post-evaluation dialogue based on result
-    public IEnumerator ShowPostEvaluationDialogue(string npcName, bool passed)
+    public IEnumerator ShowPostEvaluationDialogue(string npcName, bool hasFailed)
     {
         if (postEvaluationDialogues.ContainsKey(npcName))
         {
-            string dialogue = passed ? postEvaluationDialogues[npcName].pass : postEvaluationDialogues[npcName].fail;
+            string dialogue = hasFailed ? postEvaluationDialogues[npcName].fail : postEvaluationDialogues[npcName].pass;
             yield return StartCoroutine(ShowDialoguePanel(dialogue));
         }
         else
@@ -293,42 +267,6 @@ public class NPCManager : MonoBehaviour
         if (currentLevel == 6) return "Frost";
         
         return "Enemy";  
-    }
-
-    public bool HasCompletedNPC(string npcName)
-    {
-        return completedNPCs.Contains(npcName);
-    }
-
-    public void MarkNPCCompleted(string npcName)
-    {
-        // Only proceed if NPC is not already marked as completed
-        if (!completedNPCs.Contains(npcName))
-        {
-            // Add to local HashSet for immediate feedback
-            completedNPCs.Add(npcName);
-            
-            // Call DatabaseManager to update the database
-            DatabaseManager.Instance.CompleteObjective(npcName, (success) => {
-                if (success)
-                {
-                    Debug.Log($"NPC/Objective '{npcName}' marked as completed in the database");
-                    StartCoroutine(UIManager.Instance.ShowObjectiveComplete(npcName));
-                    
-                }
-                else
-                {
-                    // If the database update failed, remove from local HashSet to maintain consistency
-                    Debug.LogError($"Failed to mark NPC/Objective '{npcName}' as completed in database");
-                    completedNPCs.Remove(npcName);
-                }
-            });
-        }
-    }
-
-    public bool AreAllNPCsCompleted()
-    {
-        return completedNPCs.Count == numNpcs;
     }
 }
 

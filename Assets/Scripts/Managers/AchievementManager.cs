@@ -18,7 +18,8 @@ public class AchievementManager : MonoBehaviour
     private Queue<string> achievementQueue = new Queue<string>();
     public bool isProcessingAchievements = false;
     
-
+    public List<Achievement> Achievements { get; private set; } = new List<Achievement>();
+    
     private void Awake()
     {
         // Singleton pattern
@@ -33,6 +34,35 @@ public class AchievementManager : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Load achievements from the database
+    /// </summary>
+    public void LoadAchievements(Action onComplete = null)
+    {
+        if (DatabaseManager.Instance == null)
+        {
+            Debug.LogError("DatabaseManager is not available. Cannot load achievements.");
+            onComplete?.Invoke();
+            return;
+        }
+
+        DatabaseManager.Instance.GetUserAchievements((achievements) =>
+        {
+            if (achievements != null)
+            {
+                Achievements = achievements;
+                Debug.Log($"Loaded {achievements.Count} achievements.");
+            }
+            else
+            {
+                Debug.LogWarning("Failed to load achievements.");
+                Achievements = new List<Achievement>();
+            }
+
+            onComplete?.Invoke(); // Notify that achievements have been loaded
+        });
+    }
+
     // Call this when an answer is submitted
     public void TrackAnswer(bool isCorrect)
     {
@@ -227,7 +257,7 @@ public class AchievementManager : MonoBehaviour
                 {
                     Debug.Log($"Achievement '{achievementName}' unlocked successfully!");
                     isAchievementSuccess = true;
-                    // Show UI notification
+                    updateUserGems(achievementName);
                 }
                 else
                 {
@@ -248,6 +278,15 @@ public class AchievementManager : MonoBehaviour
         
         isProcessingAchievements = false;
         Player.Instance.resumePlayer();
+    }
+
+    public void updateUserGems(string achievement_name){
+        foreach(Achievement achievement in Achievements){
+            if(achievement.achievement_name==achievement_name){
+                DatabaseManager.Instance.loggedInUser.numGems+=achievement.gems;
+                return;
+            }
+        }
     }
     
     // Unlock an achievement directly (for backward compatibility)

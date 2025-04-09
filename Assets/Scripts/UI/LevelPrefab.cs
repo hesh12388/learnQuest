@@ -19,11 +19,28 @@ public class LevelPrefab : MonoBehaviour
         this.levelNumber.text = level.levelNumber.ToString();
         this.levelIndex = level.levelNumber;
         int score = level.score;
-        for (int i = 0; i < score; i++)
+        int num_stars;
+        if (score >80)
+        {
+            num_stars = 3;
+        }
+        else if (score > 50)
+        {
+            num_stars = 2;
+        }
+        else if (score > 0)
+        {
+            num_stars = 1;
+        }
+        else
+        {
+            num_stars = 0;
+        }
+        for (int i = 0; i < num_stars; i++)
         {
             Instantiate(goldStar, starsPanel.transform);
         }
-        for (int i = 0; i < 3 - score; i++)
+        for (int i = 0; i < 3 - num_stars; i++)
         {
             Instantiate(emptyStar, starsPanel.transform);
         }

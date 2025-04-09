@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,6 +28,9 @@ public class ShopManager : MonoBehaviour
     public static ShopManager Instance { get; private set; } // Singleton instance
 
     public List<UserItem> items_purchased;
+
+    private ShopItemsResponse shopItemsResponse;
+    private string shop_category="Move";
     
     private void Awake()
     {
@@ -51,6 +55,49 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Load shop items from the database
+    /// </summary>
+    public void LoadShopItems()
+    {
+        DatabaseManager.Instance.GetShopItems((shopItems) =>
+        {
+            if (shopItems != null)
+            {
+                shopItemsResponse = shopItems;
+                Debug.Log("Shop items loaded successfully.");
+            }
+            else
+            {
+                Debug.LogWarning("Failed to load shop items.");
+            }
+        });
+
+        // Fetch purchased items from the database
+        DatabaseManager.Instance.GetUserItems((List<UserItem> purchasedItems) =>
+        {
+            items_purchased = purchasedItems;
+            
+            //store in the User object for future use
+            if (DatabaseManager.Instance.loggedInUser != null)
+            {
+                DatabaseManager.Instance.loggedInUser.purchasedItems = purchasedItems;
+            }
+        });
+    }
+
+
+    public void ShowShop(){
+        if(shop_category=="Move"){
+            PopulateMoveItems();
+        }
+        else if(shop_category=="character"){
+            PopulateCharacterItems();
+        }
+        else{
+            PopulateMoveItems();
+        }
+    }
     private void setCoinsText()
     {
         user_coins_text.text = DatabaseManager.Instance.loggedInUser.score.ToString();
@@ -88,9 +135,9 @@ public class ShopManager : MonoBehaviour
     }
     
     // Method to populate character items
-    public void PopulateCharacterItems(ShopItemsResponse shopItemsResponse)
+    public void PopulateCharacterItems()
     {
-     
+        shop_category="character";
         setCoinsText();
         // Clear existing items first
         foreach (Transform child in shopContentPanel) {
@@ -118,63 +165,6 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    public void getBoughtItems(ShopItemsResponse shop)
-    {
-        // Try to use items from the User object first
-        if (DatabaseManager.Instance.loggedInUser != null && 
-            DatabaseManager.Instance.loggedInUser.purchasedItems != null &&
-            DatabaseManager.Instance.loggedInUser.purchasedItems.Count > 0)
-        {
-            items_purchased = DatabaseManager.Instance.loggedInUser.purchasedItems;
-            if(UIManager.Instance.current_shop_category == "Move")
-            {
-                PopulateMoveItems(shop);
-            }
-            else if(UIManager.Instance.current_shop_category == "Boost")
-            {
-                PopulateBoostItems(shop);
-            }
-            else if(UIManager.Instance.current_shop_category == "character")
-            {
-                PopulateCharacterItems(shop);
-            }
-            else
-            {
-                PopulateMoveItems(shop);
-            }
-        }
-        else
-        {
-            // Fallback to fetching from database
-            DatabaseManager.Instance.GetUserItems((List<UserItem> purchasedItems) =>
-            {
-                items_purchased = purchasedItems;
-                
-                // Also store in the User object for future use
-                if (DatabaseManager.Instance.loggedInUser != null)
-                {
-                    DatabaseManager.Instance.loggedInUser.purchasedItems = purchasedItems;
-                }
-                
-                if(UIManager.Instance.current_shop_category == "Move")
-                {
-                    PopulateMoveItems(shop);
-                }
-                else if(UIManager.Instance.current_shop_category == "Boost")
-                {
-                    PopulateBoostItems(shop);
-                }
-                else if(UIManager.Instance.current_shop_category == "character")
-                {
-                    PopulateCharacterItems(shop);
-                }
-                else
-                {
-                    PopulateMoveItems(shop);
-                }
-            });
-        }
-    }
 
     public bool isPurchased(string item_name)
     {
@@ -228,9 +218,9 @@ public class ShopManager : MonoBehaviour
     }
 
     // Method to populate instructor items
-    public void PopulateMoveItems(ShopItemsResponse shopItemsResponse)
+    public void PopulateMoveItems()
     {
-       
+        shop_category="Move";
         setCoinsText();
          // Clear existing items first
         foreach (Transform child in shopContentPanel) {
@@ -280,9 +270,9 @@ public class ShopManager : MonoBehaviour
         });
     }
     // Method to populate boost items
-    public void PopulateBoostItems(ShopItemsResponse shopItemsResponse)
+    public void PopulateBoostItems()
     {
-    
+        shop_category="Boost";
         setCoinsText();
          // Clear existing items first
         foreach (Transform child in shopContentPanel) {

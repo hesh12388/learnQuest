@@ -11,7 +11,7 @@ public class WebSocketManager : MonoBehaviour
 
     // WebSocket instance
     private WebSocket webSocket;
-    private string serverUrl ="ws://localhost:8080";
+    private string serverUrl ="wss://learnquest-expressserver.onrender.com";
     private bool isConnecting = false;
     private bool isConnected = false;
     

@@ -78,6 +78,7 @@ public class ChatManager : MonoBehaviour
     
     private void HandleWebSocketConnected()
     {
+        Debug.Log("WebSocket connected, in chat manager");
         OnConnected?.Invoke();
     }
     

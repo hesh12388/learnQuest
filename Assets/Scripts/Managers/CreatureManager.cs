@@ -15,7 +15,6 @@ public class CreatureManager : MonoBehaviour
     [SerializeField] private float minSpawnDistance = 8f;
     [SerializeField] private float maxSpawnDistance = 15f;
     [SerializeField] private float spawnInterval = 15f;
-    [SerializeField] private bool spawnOnStart = true;
     [SerializeField] private LayerMask obstacleLayer; // Layer mask for obstacles
     
     // List to track active creatures
@@ -38,10 +37,8 @@ public class CreatureManager : MonoBehaviour
     
     private void Start()
     {
-        if (spawnOnStart)
-        {
-            StartSpawning();
-        }
+        // Start spawning creatures
+        StartSpawning();
     }
     
     public void StartSpawning()
@@ -53,7 +50,7 @@ public class CreatureManager : MonoBehaviour
             StartCoroutine(SpawnCreatureRoutine());
         }
     }
-    
+
     public void StopSpawning()
     {
         isSpawning = false;
@@ -62,6 +59,8 @@ public class CreatureManager : MonoBehaviour
 
     private IEnumerator SpawnCreatureRoutine()
     {
+        // Wait for the player to be ready
+        yield return new WaitForSeconds(10f);
         while (isSpawning)
         {
             // Get number of incomplete objectives
@@ -82,24 +81,7 @@ public class CreatureManager : MonoBehaviour
             if (activeCreatures.Count < targetCreatureCount && Player.Instance != null)
             {
                 SpawnCreatureAroundPlayer();
-            }
-            
-            // Remove excess creatures if we have too many
-            while (activeCreatures.Count > targetCreatureCount && activeCreatures.Count > 0)
-            {
-                int lastIndex = activeCreatures.Count - 1;
-                Creature creatureToRemove = activeCreatures[lastIndex];
-                
-                // Remove from list first to avoid double-removal in OnCreatureDefeated
-                activeCreatures.RemoveAt(lastIndex);
-                
-                if (creatureToRemove != null)
-                {
-                    creatureToRemove.OnCreatureDefeated -= HandleCreatureDefeated;
-                    Destroy(creatureToRemove.gameObject);
-                }
-            }
-            
+            }    
             yield return new WaitForSeconds(spawnInterval);
         }
     }

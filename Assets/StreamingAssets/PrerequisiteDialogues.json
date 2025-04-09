@@ -2,7 +2,7 @@
   "objectives": [
     {
       "objective_name": "Learn about tags and elements",
-      "dialogue": "Welcome to Tagroot Forest! Raven’s presence has stirred the code snakes again. To survive out here, you’ll need to learn the most basic building blocks of HTML—tags and elements. Head over to Professor Elara near the clearing. She’ll walk you through your first lesson."
+      "dialogue": "Welcome to Tagroot Forest! Raven’s presence has stirred the code snakes. To survive, you’ll need to learn the basic building blocks of HTML—tags and elements. Head over to Professor Elara. She’ll walk you through your first lesson."
     },
     {
       "objective_name": "Nest HTML elements",
@@ -10,15 +10,15 @@
     },
     {
       "objective_name": "Understand the anatomy of an HTML page",
-      "dialogue": "You’re moving fast, recruit! But Raven’s corruption is deep. The snakes have been distorting entire page structures. It’s time to meet Professor Vex. She’ll show you the true anatomy of a web page—from DOCTYPE to the body—so you can rebuild what was broken."
+      "dialogue": "You’re moving fast, recruit! But Raven’s corruption is deep. The snakes have been distorting entire page structures. It’s time to meet Professor Vex. She’ll show you the true anatomy of a web page so you can rebuild what was broken."
     },
     {
       "objective_name": "Identify the most common HTML elements",
-      "dialogue": "One last prep before you face Raven. Tagroot Forest is full of wild, corrupted elements—paragraphs, images, links. Head to Professor Tilda. She’ll help you master the most common elements you'll see in the wild so you're ready for anything."
+      "dialogue": "One last prep before you face Raven. Tagroot Forest is full of wild elements—paragraphs, images, links. Head to the scientist. He'll help you master the most common elements you'll see in the wild so you're ready for anything."
     },
     {
       "objective_name": "Learn about attributes",
-      "dialogue": "Welcome to Nestvine Hollow. Pyron’s fire is corrupting attributes in the wild. You’ll need to understand how HTML attributes work if you want to tame the creatures here. Find Professor Mika—she’s waiting just ahead."
+      "dialogue": "Welcome to Nestvine Hollow. Pyron’s fire is corrupting attributes in the wild. You’ll need to understand how HTML attributes work if you want to tame the creatures here. Find Professor Kit—he’s waiting just ahead."
     },
     {
       "objective_name": "Use attributes of attributes",
@@ -30,11 +30,11 @@
     },
     {
       "objective_name": "Learn why organizing code matters",
-      "dialogue": "Meta Ridge has fallen into chaos—code fragments lie in disorder, and users are getting lost in the mess. Noir, the master of confusion, thrives here. Before you can challenge him, you need to understand *why* code organization is so important. Head to Professor Kade—he’s holding the front line."
+      "dialogue": "Meta Ridge has fallen into chaos—code is in disorder, and users are lost in the mess. Noir, master of confusion, thrives here. Before you challenge him, you must learn code organization. Head to Professor Kade—he’s on the front line."
     },
     {
       "objective_name": "Learn organization techniques for developers",
-      "dialogue": "You’ve seen the value of order—now it’s time to learn how to build it. Professor Sima will teach you how to use comments, naming conventions, semantic elements, and more to keep your code clean, readable, and fast. She's up ahead, near the ridge’s core."
+      "dialogue": "You’ve seen the value of order—now it’s time to learn how to build it. Professor Sima will teach you how to use comments, naming conventions, semantic elements, and more to keep your code clean, readable, and fast."
     },
     {
       "objective_name": "Learn organization techniques for users",
@@ -42,7 +42,7 @@
     },
     {
       "objective_name": "Learn what CSS is",
-      "dialogue": "Welcome to Elemental Glade. Fangor's influence is spreading colorless fog across the landscape. Nothing looks right. To start bringing order and beauty back, you need to understand the power behind it all—CSS. Find Professor Lyss. She’ll teach you the essence of styling the web."
+      "dialogue": "Welcome to Elemental Glade. Fangor's influence is destroying landscape. Nothing looks right. To start bringing order and beauty back, you need to know the power behind it—CSS. Find Professor Lyss. She’ll teach you the essence of styling."
     },
     {
       "objective_name": "Learn how styles cascade",
@@ -78,11 +78,11 @@
     },
     {
       "objective_name": "Set the width and height of a CSS box",
-      "dialogue": "Final preparation before confronting Shadow’s dimensional illusions. You need to take full control of box size—width, height, and how they respond to space. Professor Sylas guards the overlook and will show you the secrets of size and scale."
+      "dialogue": "Final preparation before confronting Shadow’s illusions. You need to take full control of box size—width, height, and how they respond to space. Professor Sylas guards the overlook and will show you the secrets of size and scale."
     },
     {
       "objective_name": "Learn HTML and CSS best practices",
-      "dialogue": "Welcome to Frostbyte Cavern, the final frontier of LearnQuest. Frost’s chill seeps into every line of careless code. Here, only those who follow best practices can survive. Seek out Professor Solin near the ice pillars—he’ll show you the six rules of clean coding."
+      "dialogue": "Welcome to Frostbyte Cavern, the final frontier of LearnQuest. Frost’s chill seeps into all careless code. Here, only those who follow best practices survive. Seek out Professor Solin —he’ll show you the 6 rules of clean coding."
     },
     {
       "objective_name": "Set a proper doctype declaration",
@@ -105,7 +105,7 @@
       "dialogue": "Final ascent. The cold is fierce, but you have tools. Professor Arkyn guards the summit. Learn the power of IDEs—syntax highlighting, linting, autosave—and prepare to face Frost himself."
     }
   ],
-  "evaluation":[
+  "evaluations":[
     {
       "npcName": "Raven",
       "dialogue": "Raven senses your progress. The code snakes are watching. You've completed all objectives—now it’s time for your evaluation. Head to the enemy zone to face Raven and prove your mastery."

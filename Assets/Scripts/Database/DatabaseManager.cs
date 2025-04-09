@@ -10,7 +10,7 @@ public class DatabaseManager : MonoBehaviour
 {
     public static DatabaseManager Instance { get; private set; } // Singleton instance
 
-    private string serverUrl = "http://localhost:5001"; // Change to your deployed server URL
+    private string serverUrl = "https://learnquest-expressserver.onrender.com";
 
     public User loggedInUser; // Currently logged in user
     private void Awake()
@@ -105,7 +105,7 @@ public class DatabaseManager : MonoBehaviour
     }
 
     // 📌 Start a specific level for the user
-    public void StartLevel()
+    public void StartLevel(Action<bool> callback)
     {
         if (loggedInUser == null)
         {
@@ -113,7 +113,7 @@ public class DatabaseManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(StartLevelRequest());
+        StartCoroutine(StartLevelRequest(callback));
     }
 
     // 📌 Get Objectives for the current level
@@ -132,6 +132,8 @@ public class DatabaseManager : MonoBehaviour
     private IEnumerator GetObjectivesRequest(Action<List<Objective>> callback)
     {
         string username = loggedInUser.username;
+        Debug.Log(loggedInUser.currentChapter);
+        Debug.Log(loggedInUser.currentLevel);
         string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
         string url = $"{serverUrl}/get-objectives/{username}/{level_name}";
         
@@ -150,6 +152,7 @@ public class DatabaseManager : MonoBehaviour
                 {
                     // Parse JSON using JObject
                     JObject responseObj = JObject.Parse(jsonResponse);
+                    Debug.Log(responseObj);
                     JArray objectivesArray = (JArray)responseObj["objectives"];
                     
                     List<Objective> objectives = new List<Objective>();
@@ -163,7 +166,7 @@ public class DatabaseManager : MonoBehaviour
                         int points = objectiveObj["points"].ToObject<int>();
                         objectives.Add(new Objective(objectiveName, status, description, difficulty, points));
                     }
-                    
+                    Debug.Log(objectives);
                     callback?.Invoke(objectives);
                 }
                 catch (Exception ex)
@@ -180,7 +183,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator StartLevelRequest()
+    private IEnumerator StartLevelRequest(Action<bool> callback)
     {
         string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
         string json = "{\"username\":\"" + loggedInUser.username + "\", \"level_name\":\"" + level_name + "\"}";
@@ -198,10 +201,12 @@ public class DatabaseManager : MonoBehaviour
             {
                 string responseText = request.downloadHandler.text;
                 Debug.Log("Level started successfully: " + responseText);
+                callback?.Invoke(true); // Success
             }
             else
             {
                 Debug.LogError("Failed to start level: " + request.error);
+                callback?.Invoke(false); // Failure
             }
         }
     }

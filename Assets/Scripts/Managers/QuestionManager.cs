@@ -9,7 +9,7 @@ using System.IO;
 public class QuestionManager : MonoBehaviour
 {
     public static QuestionManager Instance { get; private set; }
-    
+
     [System.Serializable]
     public class Question
     {
@@ -20,21 +20,24 @@ public class QuestionManager : MonoBehaviour
         public string correctResponse;
         public string incorrectResponse;
     }
-    
+
     [Header("Questions Panel")]
     private GameObject questionPanel;
     private TMP_Text questionText;
     private Button[] answerButtons;
-    
+
     [Header("Questions Data")]
     private string questionsFilePath = "Questions";
     private List<Question> allQuestions = new List<Question>();
     private Dictionary<string, List<Question>> questionsByObjective = new Dictionary<string, List<Question>>();
-    
+
+    private string currentQuestionObjective = null;
+    private int currentQuestionObjectiveIndex = -1;
+
     private Creature currentTarget;
     private Question currentQuestion;
     private bool hasAnsweredCorrectly = false;
-    
+
     private void Awake()
     {
         if (Instance == null)
@@ -47,15 +50,83 @@ public class QuestionManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
+
         LoadQuestions();
     }
-    
+
     private void Start()
     {
-        questionPanel= UIManager.Instance.questionsPanel;
+        questionPanel = UIManager.Instance.questionsPanel;
         answerButtons = UIManager.Instance.question_answerButtons;
-        questionText = UIManager.Instance.question_text;     
+        questionText = UIManager.Instance.question_text;
+    }
+
+    /// <summary>
+    /// Get the current objective for creatures to ask questions about
+    /// (The most recently completed objective)
+    /// </summary>
+    public string GetCurrentQuestionObjective()
+    {
+        if (currentQuestionObjective == null)
+        {
+            UpdateCurrentQuestionObjective();
+        }
+        return currentQuestionObjective;
+    }
+
+    /// <summary>
+    /// Initialize the current question objective
+    /// </summary>
+    public void InitializeCurrentQuestionObjective()
+    {
+        List<Objective> allObjectives = ObjectiveManager.Instance.GetAllObjectives();
+        if (allObjectives == null || allObjectives.Count == 0)
+        {
+            currentQuestionObjective = null;
+            currentQuestionObjectiveIndex = -1;
+            return;
+        }
+
+        int incompleteIndex = allObjectives.FindIndex(o => o.status.ToLower() != "completed");
+
+        if (incompleteIndex >= 0)
+        {
+            int index = Mathf.Max(0, incompleteIndex - 1);
+            currentQuestionObjective = allObjectives[index].objective_name;
+            currentQuestionObjectiveIndex = index;
+        }
+        else
+        {
+            currentQuestionObjective = null;
+            currentQuestionObjectiveIndex = -1;
+        }
+    }
+
+    /// <summary>
+    /// Update the current question objective based on completed objectives
+    /// </summary>
+    public void UpdateCurrentQuestionObjective()
+    {
+        List<Objective> allObjectives = ObjectiveManager.Instance.GetAllObjectives();
+        if (allObjectives == null || allObjectives.Count == 0)
+        {
+            currentQuestionObjective = null;
+            currentQuestionObjectiveIndex = -1;
+            return;
+        }
+
+        int incompleteIndex = allObjectives.FindIndex(o => o.status.ToLower() != "completed");
+
+        if (incompleteIndex < 0)
+        {
+            currentQuestionObjectiveIndex = -1;
+            currentQuestionObjective = null;
+            return;
+        }
+
+        currentQuestionObjectiveIndex += 1;
+        currentQuestionObjectiveIndex = Mathf.Min(currentQuestionObjectiveIndex, incompleteIndex);
+        currentQuestionObjective = allObjectives[currentQuestionObjectiveIndex].objective_name;
     }
     
     private void LoadQuestions()
@@ -117,7 +188,7 @@ public class QuestionManager : MonoBehaviour
         currentTarget = creature;
         
         // Get the current objective for questions
-        string currentObjective = ObjectiveManager.Instance.GetCurrentQuestionObjective();
+        string currentObjective = GetCurrentQuestionObjective();
         
         if (string.IsNullOrEmpty(currentObjective))
         {
@@ -208,7 +279,7 @@ public class QuestionManager : MonoBehaviour
         if (isCorrect)
         {
             // This ensures we move to the next objective for questions
-            ObjectiveManager.Instance.UpdateCurrentQuestionObjective();
+            UpdateCurrentQuestionObjective();
         }
         
         // Disable all answer buttons

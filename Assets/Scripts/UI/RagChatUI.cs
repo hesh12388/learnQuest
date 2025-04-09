@@ -14,9 +14,6 @@ public class RagChatUI : MonoBehaviour
     [SerializeField] private TMP_InputField messageInputField;
     [SerializeField] private Button sendButton;
     [SerializeField] private ScrollRect chatScrollRect;
-    [SerializeField] private GameObject connectingPanel;
-    [SerializeField] private GameObject chatPanel;
-    [SerializeField] private GameObject loadingIndicator; 
     [Header("Settings")]
     [SerializeField] private int maxMessages = 100;
     
@@ -25,11 +22,6 @@ public class RagChatUI : MonoBehaviour
     
     private void OnEnable()
     {
-        connectingPanel.SetActive(true);
-        chatPanel.SetActive(false);
-        
-        loadingIndicator.SetActive(false);
-        
         // Subscribe to RAG chat manager events
         if (RagChatManager.Instance != null)
         {
@@ -69,6 +61,11 @@ public class RagChatUI : MonoBehaviour
             RagChatManager.Instance.OnError -= HandleError;
             RagChatManager.Instance.OnConnected -= HandleConnected;
             RagChatManager.Instance.OnDisconnected -= HandleDisconnected;
+            RagChatManager.Instance.isUsingAssistant = false;
+            Player.Instance.resumePlayer();
+            Player.Instance.resumeInteraction();
+            UIManager.Instance.enablePlayerHUD();
+            Debug.Log("RAG Chat UI disabled");
         }
         
         // Clean up UI events
@@ -92,8 +89,6 @@ public class RagChatUI : MonoBehaviour
     private void HandleConnected()
     {
         // Update UI
-        connectingPanel.SetActive(false);
-        chatPanel.SetActive(true);
         messageInputField.interactable = true;
         sendButton.interactable = true;
     }
@@ -101,8 +96,6 @@ public class RagChatUI : MonoBehaviour
     private void HandleDisconnected()
     {
         // Update UI
-        connectingPanel.SetActive(true);
-        chatPanel.SetActive(false);
         messageInputField.interactable = false;
         sendButton.interactable = false;
     }
@@ -113,8 +106,6 @@ public class RagChatUI : MonoBehaviour
         if (message.isUserMessage)
         {
             AddUserMessageToUI(message);
-            loadingIndicator.SetActive(true);
-            chatPanel.SetActive(false);
             isWaitingForResponse = true;
             // Disable input until response arrives
             messageInputField.interactable = false;
@@ -124,8 +115,6 @@ public class RagChatUI : MonoBehaviour
         else if (!string.IsNullOrEmpty(message.assistantResponse))
         {
             AddAssistantMessageToUI(message);
-            loadingIndicator.SetActive(false);
-            chatPanel.SetActive(true);
             isWaitingForResponse = false;
             // Re-enable input
             messageInputField.interactable = true;
@@ -169,7 +158,6 @@ public class RagChatUI : MonoBehaviour
         
         // Scroll to bottom
         StartCoroutine(ScrollToBottom());
-        connectingPanel.SetActive(false);
     }
     
     private void HandleError(string errorMessage)
@@ -188,7 +176,6 @@ public class RagChatUI : MonoBehaviour
         AddAssistantMessageToUI(errorMsg);
         
         // Hide loading indicator and re-enable input
-        loadingIndicator.SetActive(false);
         isWaitingForResponse = false;
         messageInputField.interactable = true;
         sendButton.interactable = true;

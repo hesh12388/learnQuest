@@ -113,7 +113,7 @@ public class EvaluationManager : MonoBehaviour{
     private bool isTyping;
 
     private int numCorrectAnswers;
-    private int numQuestions=5;
+    private int numQuestions=0;
 
     private bool isPaused = false;
 
@@ -226,6 +226,7 @@ public class EvaluationManager : MonoBehaviour{
     public void StartEvaluation(){
         UIManager.Instance.disablePlayerHUD();
         numCorrectAnswers=0;
+        numQuestions=0;
         isEvaluating = true;
         Player.Instance.pausePlayer();
         // Load the questions for the level
@@ -307,7 +308,10 @@ public class EvaluationManager : MonoBehaviour{
     }
 
     public IEnumerator NotReady(){
+        UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayBattleMusic();
+        Player.Instance.pausePlayer();
+        Player.Instance.stopInteraction();
         isEvaluating = true;
         evaluationPanel.SetActive(true);
         battlePanel.SetActive(false);
@@ -319,6 +323,9 @@ public class EvaluationManager : MonoBehaviour{
         npcIntroPanel.SetActive(false);
         isEvaluating=false;
         AudioController.Instance.PlayBackgroundMusic();
+        UIManager.Instance.enablePlayerHUD();
+        Player.Instance.resumePlayer();
+        Player.Instance.resumeInteraction();
     }
 
     private IEnumerator evaluationSequence(){
@@ -493,25 +500,7 @@ public class EvaluationManager : MonoBehaviour{
     public void pauseBattle()
     {
         // Toggle the pause state
-        isPaused = !isPaused;
-        
-        // You might want to add visual indicators for the paused state
-        if (isPaused)
-        {
-            // Show pause indicator (could be a UI element you add)
-            Debug.Log("Battle paused");
-            
-            // Optionally show a pause menu
-            // pauseMenuPanel.SetActive(true);
-        }
-        else
-        {
-            // Hide pause indicator
-            Debug.Log("Battle resumed");
-            
-            // Optionally hide pause menu
-            // pauseMenuPanel.SetActive(false);
-        }
+        isPaused = !isPaused; 
     }
 
     // Optional: Add a method to explicitly resume the battle
@@ -557,6 +546,7 @@ public class EvaluationManager : MonoBehaviour{
 
     private IEnumerator TimeUpSequence(string message)
     {
+        numQuestions+=1;
         yield return StartCoroutine(TypeText(dialogueText, message, typingSpeed));
         yield return new WaitForSeconds(1f);
         eval_time.text="";
@@ -635,6 +625,7 @@ public class EvaluationManager : MonoBehaviour{
 
     private IEnumerator OnAnswerSelectedCoroutine(int index, EvaluationQuestion question, string text)
     {
+        numQuestions+=1;
         // Stop the timer when an answer is selected
         if (timerCoroutine != null)
         {
@@ -778,7 +769,6 @@ public class EvaluationManager : MonoBehaviour{
         isPaused = false;
         optionPanel.SetActive(false);
         power_up_panel.SetActive(false);
-        DatabaseManager.Instance.loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
         bool hasFailed = playerHealth <= 0;
         
         if (enemyHealth <= 0)
@@ -795,40 +785,57 @@ public class EvaluationManager : MonoBehaviour{
             
         }
 
-        DatabaseManager.Instance.CompleteLevel(hasFailed, (success) => {
-            if (success)
-            {
-                Debug.Log("Level completed successfully");
-            }
-            else
-            {
-                Debug.LogError("Failed to complete level");
-            }
-        });
-        
+
         yield return new WaitForSeconds(2f);
         battlePanel.SetActive(false);
         evaluationPanel.SetActive(false);
         UIManager.Instance.enablePlayerHUD();
         isEvaluating = false;
-        // Show post-evaluation success dialogue
-        yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
-        
-        AudioController.Instance.PlayBackgroundMusic();
-        Player.Instance.resumePlayer();
+        yield return new WaitForSeconds(2f);
 
-        AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
+        User loggedInUser = DatabaseManager.Instance.loggedInUser;
+        Chapter currentChapter = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter];
+        Level currentLevel = currentChapter.levels[loggedInUser.currentLevel - 1];
 
-        // Wait until achievement processing is complete
-        yield return StartCoroutine(WaitForAchievementProcessing());
-        
-        // Now show the completion/failure UI
-        if(hasFailed){
-            UIManager.Instance.showFailedLevel();
+        if(!currentLevel.isCompleted){
+            loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
+
+            DatabaseManager.Instance.CompleteLevel(hasFailed, (success) => {
+                if (success)
+                {
+                    Debug.Log("Level completed successfully");
+                }
+                else
+                {
+                    Debug.LogError("Failed to complete level");
+                }
+            });
+
+            // Show post-evaluation success dialogue
+            yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
+
+             AudioController.Instance.PlayBackgroundMusic();
+            Player.Instance.resumePlayer();
+
+            AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
+
+            // Wait until achievement processing is complete
+            yield return StartCoroutine(WaitForAchievementProcessing());
+
+            // Now show the completion/failure UI
+            if(hasFailed){
+                UIManager.Instance.showFailedLevel();
+            }
+            else{
+                UIManager.Instance.showCompletedLevel();
+            }
         }
         else{
-            UIManager.Instance.showCompletedLevel();
+            // if already completed, no need to show post evaluation dialogues
+            AudioController.Instance.PlayBackgroundMusic();
+            Player.Instance.resumePlayer();
         }
+
     }
 
     // Helper coroutine to wait for achievement processing

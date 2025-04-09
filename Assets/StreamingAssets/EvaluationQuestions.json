@@ -75,7 +75,7 @@
         {
           "question": "Jay wants line breaks in text. Which tag?",
           "options": [
-            "<br>",
+            "`<br>`",
             "<h1>",
             "<span>",
             "<a>"
