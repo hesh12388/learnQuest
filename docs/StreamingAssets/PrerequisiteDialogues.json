@@ -1,0 +1,166 @@
+{
+  "objectives": [
+    {
+      "objective_name": "Learn about tags and elements",
+      "dialogue": "Welcome to Tagroot Forest! Raven’s presence has stirred the code snakes. To survive, you’ll need to learn the basic building blocks of HTML—tags and elements. Head over to Professor Elara. She’ll walk you through your first lesson."
+    },
+    {
+      "objective_name": "Nest HTML elements",
+      "dialogue": "Great work on the basics! Now, things get a little more structured. The code snakes here are drawn to messy, unorganized HTML. Head to Professor Brann—he’ll show you how to nest elements properly so your code can stay strong and clear."
+    },
+    {
+      "objective_name": "Understand the anatomy of an HTML page",
+      "dialogue": "You’re moving fast, recruit! But Raven’s corruption is deep. The snakes have been distorting entire page structures. It’s time to meet Professor Vex. She’ll show you the true anatomy of a web page so you can rebuild what was broken."
+    },
+    {
+      "objective_name": "Identify the most common HTML elements",
+      "dialogue": "One last prep before you face Raven. Tagroot Forest is full of wild elements—paragraphs, images, links. Head to the scientist. He'll help you master the most common elements you'll see in the wild so you're ready for anything."
+    },
+    {
+      "objective_name": "Learn about attributes",
+      "dialogue": "Welcome to Nestvine Hollow. Pyron’s fire is corrupting attributes in the wild. You’ll need to understand how HTML attributes work if you want to tame the creatures here. Find Professor Kit—he’s waiting just ahead."
+    },
+    {
+      "objective_name": "Use attributes of attributes",
+      "dialogue": "Great job so far! Now let’s dive even deeper. Some attributes have their own properties—nested layers of customization. Professor Nilo is the expert here. He can show you how to unlock the full power of styling and syntax."
+    },
+    {
+      "objective_name": "Identify the most common attributes",
+      "dialogue": "You're doing great. Before facing Pyron, you need to get familiar with the most common HTML attributes used on the web. Meet Professor Elen—she’ll walk you through the essentials every developer must know."
+    },
+    {
+      "objective_name": "Learn why organizing code matters",
+      "dialogue": "Meta Ridge has fallen into chaos—code is in disorder, and users are lost in the mess. Noir, master of confusion, thrives here. Before you challenge him, you must learn code organization. Head to Professor Kade—he’s on the front line."
+    },
+    {
+      "objective_name": "Learn organization techniques for developers",
+      "dialogue": "You’ve seen the value of order—now it’s time to learn how to build it. Professor Sima will teach you how to use comments, naming conventions, semantic elements, and more to keep your code clean, readable, and fast."
+    },
+    {
+      "objective_name": "Learn organization techniques for users",
+      "dialogue": "Final lesson before facing Noir. Professor Rina will show you how to organize your HTML so that users can navigate with ease and clarity. From lists to tables to proper layout—it’s all about helping others make sense of your world."
+    },
+    {
+      "objective_name": "Learn what CSS is",
+      "dialogue": "Welcome to Elemental Glade. Fangor's influence is destroying landscape. Nothing looks right. To start bringing order and beauty back, you need to know the power behind it—CSS. Find Professor Lyss. She’ll teach you the essence of styling."
+    },
+    {
+      "objective_name": "Learn how styles cascade",
+      "dialogue": "Great start! But to tame the Glade, you must learn how styles behave when elements are nested. They can inherit or override each other—like family traits. Professor Elan will show you how cascading styles shape everything."
+    },
+    {
+      "objective_name": "Effectively use inline styles",
+      "dialogue": "Before we get too deep, you need to master inline styles—the quickest way to apply design. Professor Ruko has the tools and the tips. Go meet him near the stone circle."
+    },
+    {
+      "objective_name": "Learn how to use stylesheets",
+      "dialogue": "Inline styles get messy fast. Want cleaner, scalable design? Stylesheets are your answer. Professor Mira is the architect of structure. She’ll walk you through both internal and external stylesheets."
+    },
+    {
+      "objective_name": "Understand the anatomy of a style",
+      "dialogue": "Time to crack open the structure of a style itself. Professor Cilo will show you what makes each style tick—selectors, properties, values, and declaration blocks. It’s the grammar of design."
+    },
+    {
+      "objective_name": "Identify types of stylesheet styles",
+      "dialogue": "There are many ways to aim your styles—elements, IDs, classes. Professor Vale is an expert on selectors. She’ll help you see the differences and use each with precision."
+    },
+    {
+      "objective_name": "Use CSS selectors",
+      "dialogue": "Final step before the battle. You’ve seen the selector types—now you’ll apply them. Professor Luma is waiting at the edge of the Glade to show you how to connect your styles to the real world."
+    },
+    {
+      "objective_name": "Learn about the CSS box model",
+      "dialogue": "Welcome to Stylecliff Keep. Shadow has twisted the land—layouts are collapsing, boxes overflowing. To hold the structure together, we must understand the CSS Box Model. Find Professor Ardyn near the shattered gate to begin."
+    },
+    {
+      "objective_name": "Identify the components of boxes",
+      "dialogue": "You’ve learned the concept—now let’s dig deeper. To master layout, you need to know each layer of a CSS box: content, padding, border, and margin. Professor Veil is waiting in the old courtyard with tools to help you break it all down."
+    },
+    {
+      "objective_name": "Set the width and height of a CSS box",
+      "dialogue": "Final preparation before confronting Shadow’s illusions. You need to take full control of box size—width, height, and how they respond to space. Professor Sylas guards the overlook and will show you the secrets of size and scale."
+    },
+    {
+      "objective_name": "Learn HTML and CSS best practices",
+      "dialogue": "Welcome to Frostbyte Cavern, the final frontier of LearnQuest. Frost’s chill seeps into all careless code. Here, only those who follow best practices survive. Seek out Professor Solin —he’ll show you the 6 rules of clean coding."
+    },
+    {
+      "objective_name": "Set a proper doctype declaration",
+      "dialogue": "Good start! Now let’s begin at the very top—literally. Your documents must tell browsers what kind of HTML they speak. Professor Aya waits in the frostbitten archives to help you master the doctype declaration."
+    },
+    {
+      "objective_name": "Use stylesheets over inline styles",
+      "dialogue": "Inline styles may be fast, but they’re fragile in the cold. To survive, your code must be scalable and organized. Professor Nira is up ahead, ready to help you wield external stylesheets with power and precision."
+    },
+    {
+      "objective_name": "Remember to close tags",
+      "dialogue": "Tag errors are like thin ice—one step wrong and your layout cracks. Professor Veil will teach you the importance of closing your tags properly before they break everything beneath your feet."
+    },
+    {
+      "objective_name": "Save and check your work often",
+      "dialogue": "You're close to the peak now. But one small slip could freeze your progress. Professor Lin will show you how saving and checking your work regularly can help you avoid catastrophe."
+    },
+    {
+      "objective_name": "Use the power of IDEs",
+      "dialogue": "Final ascent. The cold is fierce, but you have tools. Professor Arkyn guards the summit. Learn the power of IDEs—syntax highlighting, linting, autosave—and prepare to face Frost himself."
+    }
+  ],
+  "evaluations":[
+    {
+      "npcName": "Raven",
+      "dialogue": "Raven senses your progress. The code snakes are watching. You've completed all objectives—now it’s time for your evaluation. Head to the enemy zone to face Raven and prove your mastery."
+    },
+    {
+      "npcName": "Pyron",
+      "dialogue": "All objectives complete. Pyron is waiting. You’ll need sharp understanding and precise code to defeat him. Enter the lair and begin your evaluation."
+    },
+    {
+      "npcName": "Noir",
+      "dialogue": "The ridge is still broken. Noir waits at its peak, shrouded in tangled tags and misplaced metadata. It’s time to challenge the master of disorder. Begin your evaluation."
+    },
+    {
+      "npcName": "Fangor",
+      "dialogue": "Fangor senses your presence. His chaos lingers over the Glade. You’ve completed your training—now step forward and face the enemy. Use what you’ve learned to restore the style of this world."
+    },
+    {
+      "npcName": "Shadow",
+      "dialogue": "The time has come. Shadow awaits in the highest tower of the Keep. With your knowledge of the box model, you can face his layout distortions and restore clarity to the cliffs."
+    },
+    {
+      "npcName": "Frost",
+      "dialogue": "The storm howls. Frost awaits at the frozen crown of the Cavern. You’ve learned all six best practices—it’s time to put them into action. Step forward, champion, and end this."
+    }
+  ],
+  "post_evaluation": [
+    {
+      "npcName": "Raven",
+      "pass": "You’ve done it. The snakes retreat and Raven’s influence fades—for now. Tagroot Forest is safe, thanks to your growing command of HTML. Onward, hero of LearnQuest!",
+      "fail": "Raven is not yet defeated. The code remains unstable. Study harder, revisit your professors, and return when you’re ready to face the challenge again."
+    },
+    {
+      "npcName": "Pyron",
+      "pass": "Well done! Pyron’s flames are fading, and the attributes of Nestvine Hollow are stable again. You’ve proven yourself a true HTML handler.",
+      "fail": "Pyron still burns at the heart of the Hollow. Your knowledge isn’t enough yet. Revisit the professors and return stronger."
+    },
+    {
+      "npcName": "Noir",
+      "pass": "The fog clears. Noir’s hold over Meta Ridge is broken. Code breathes in order again, and your mastery of structure lights the path forward. You’ve won this round.",
+      "fail": "Noir remains. His shadow twists through every misaligned div and forgotten tag. You need more clarity. Return to the professors and sharpen your skills."
+    },
+    {
+      "npcName": "Fangor",
+      "pass": "The fog lifts. Color returns. Fangor’s grip on the Glade is broken, thanks to your mastery of CSS. Your style is strong.",
+      "fail": "Fangor still coils through broken styles and missing tags. Don’t give up—revisit your professors and return stronger."
+    },
+    {
+      "npcName": "Shadow",
+      "pass": "Light cuts through the clouds. Boxes align. Layout returns to order. You’ve mastered the core of structure and broken Shadow’s illusion.",
+      "fail": "Shadow's presence still twists the Keep. Your boxes collapse under pressure. Revisit your teachers and rebuild your skills before trying again."
+    },
+    {
+      "npcName": "Frost",
+      "pass": "You’ve done it. With best practices blazing, you’ve thawed the code, conquered Frost, and brought clarity back to LearnQuest. You are now a true developer.",
+      "fail": "Frost remains. Your code cracked under pressure. Revisit your professors, sharpen your methods, and return stronger. Victory is within reach."
+    }
+  ]
+}
