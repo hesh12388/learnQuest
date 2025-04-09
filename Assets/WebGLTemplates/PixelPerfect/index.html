@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LearnQuest</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #231F20;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #unity-container {
+        width: 100vmin;
+        height: 100vmin;
+        position: relative;
+      }
+
+      #unity-canvas {
+        width: 100%;
+        height: 100%;
+        background: #231F20;
+        image-rendering: pixelated;
+        display: block;
+      }
+
+      #unity-loading-bar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+      }
+
+      #unity-logo {
+        width: 64px;
+        height: 64px;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256,32L20,128v256l236,96l236-96V128L256,32z M256,64l192,78v228l-192,78L64,370V142L256,64z"/></svg>');
+        background-repeat: no-repeat;
+        background-size: contain;
+        margin-bottom: 20px;
+      }
+
+      #unity-progress-bar-empty {
+        width: 100%;
+        height: 20px;
+        background: #4d4d4d;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background: #29fd53;
+        transition: width 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="unity-container">
+      <canvas id="unity-canvas"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="Build/Build.loader.js"></script>
+    <script>
+      const canvas = document.querySelector("#unity-canvas");
+      const loadingBar = document.querySelector("#unity-loading-bar");
+      const progressBarFull = document.querySelector("#unity-progress-bar-full");
+
+      createUnityInstance(canvas, {
+        dataUrl: "Build/Build.data",
+        frameworkUrl: "Build/Build.framework.js",
+        codeUrl: "Build/Build.wasm",
+      }, (progress) => {
+        progressBarFull.style.width = `${progress * 100}%`;
+      }).then(() => {
+        loadingBar.style.display = "none";
+      });
+    </script>
+  </body>
+</html>
