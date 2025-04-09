@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
+using System.Collections;
 
 [CreateAssetMenu(fileName = "New NPC Dialogue", menuName = "NPC Dialogue")] 
 public class NPCDialogue : ScriptableObject
@@ -68,7 +69,8 @@ public class NPCDialogue : ScriptableObject
                 continue;
             }
             
-            Sprite loadedSprite = Resources.Load<Sprite>(Path.Combine(dialogueImagesFolder, Path.GetFileNameWithoutExtension(imageName)));
+            string resourcePath = dialogueImagesFolder + "/" + Path.GetFileNameWithoutExtension(imageName);
+            Sprite loadedSprite = Resources.Load<Sprite>(resourcePath);
             
             if (loadedSprite != null)
             {
@@ -84,16 +86,24 @@ public class NPCDialogue : ScriptableObject
 
     private static void LoadDialogueFromJSON()
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "NPCDialogues.json");
+        StartCoroutineFromInstance(LoadDialogueAssetRoutine());
+    }
 
-        if (!File.Exists(filePath))
+    private static IEnumerator LoadDialogueAssetRoutine()
+    {
+        string filePath = Path.Combine("NPCDialogues");
+
+        // For WebGL builds, load as a text asset
+        TextAsset textAsset = Resources.Load<TextAsset>(filePath);
+        
+        if (textAsset == null)
         {
-            Debug.LogError("NPC dialogue JSON file not found at: " + filePath);
-            return;
+            Debug.LogError("NPC dialogue JSON file not found at Resources/" + filePath + ".json");
+            yield break;
         }
-
-        string json = File.ReadAllText(filePath);
-
+        
+        string json = textAsset.text;
+      
         try
         {
             NPCDialogueWrapper wrapper = JsonUtility.FromJson<NPCDialogueWrapper>(json);
@@ -101,7 +111,7 @@ public class NPCDialogue : ScriptableObject
             if (wrapper == null || wrapper.dialogues == null || wrapper.dialogues.Count == 0)
             {
                 Debug.LogError("Dialogue data is empty! Check your JSON structure.");
-                return;
+                yield break;
             }
 
             dialogueDictionary = new Dictionary<string, NPCDialogueData>();
@@ -116,6 +126,24 @@ public class NPCDialogue : ScriptableObject
         catch (System.Exception ex)
         {
             Debug.LogError("Error parsing JSON: " + ex.Message);
+        }
+    }
+
+    // Helper method to start coroutines from static methods
+    private static void StartCoroutineFromInstance(IEnumerator routine)
+    {
+        // Find an existing instance or create a temporary GameObject to run the coroutine
+        GameObject dialogueLoader = new GameObject("DialogueLoader");
+        DialogueCoroutineRunner runner = dialogueLoader.AddComponent<DialogueCoroutineRunner>();
+        runner.StartCoroutine(routine);
+    }
+
+    // Helper class to run coroutines
+    private class DialogueCoroutineRunner : MonoBehaviour
+    {
+        public void OnFinished()
+        {
+            Destroy(gameObject);
         }
     }
 

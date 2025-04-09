@@ -135,23 +135,16 @@ public class QuestionManager : MonoBehaviour
         string filePath = Path.Combine(Application.streamingAssetsPath, "Questions.json");
         string jsonContent = "";
         
-        if (File.Exists(filePath))
+        // In WebGL, load directly from Resources
+        TextAsset jsonAsset = Resources.Load<TextAsset>(questionsFilePath);
+        if (jsonAsset != null)
         {
-            jsonContent = File.ReadAllText(filePath);
+            jsonContent = jsonAsset.text;
         }
         else
         {
-            // Fallback to Resources folder
-            TextAsset jsonAsset = Resources.Load<TextAsset>(questionsFilePath);
-            if (jsonAsset != null)
-            {
-                jsonContent = jsonAsset.text;
-            }
-            else
-            {
-                Debug.LogError("Questions file not found in StreamingAssets or Resources!");
-                return;
-            }
+            Debug.LogError("Questions file not found in Resources folder. Make sure 'Questions.json' is in Assets/Resources/");
+            return;
         }
         
         // Parse JSON data

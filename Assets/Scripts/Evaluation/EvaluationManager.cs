@@ -180,18 +180,15 @@ public class EvaluationManager : MonoBehaviour{
         playerName = DatabaseManager.Instance.loggedInUser.username;
         levelName = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].levels[DatabaseManager.Instance.loggedInUser.currentLevel-1].level_name;
         playerMoves = DatabaseManager.Instance.loggedInUser.playerMoves;
-        string filePath = Path.Combine(Application.streamingAssetsPath, "EvaluationQuestions.json");
-
-        if (!File.Exists(filePath))
+        string json = "";
+        TextAsset jsonAsset = Resources.Load<TextAsset>("EvaluationQuestions");
+        if (jsonAsset != null)
         {
-            Debug.LogError($"EvaluationQuestions.json file not found at: {filePath}");
+            json = jsonAsset.text;
         }
-
+        
         try
         {
-            // Read the JSON file
-            string json = File.ReadAllText(filePath);
-
             // Deserialize the JSON into the EvaluationData structure
             EvaluationData evaluationData = JsonConvert.DeserializeObject<EvaluationData>(json);
 

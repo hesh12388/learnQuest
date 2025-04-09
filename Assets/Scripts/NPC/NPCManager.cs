@@ -87,10 +87,10 @@ public class NPCManager : MonoBehaviour
     // Load prerequisite and post-evaluation dialogues from JSON
     private void LoadPrerequisiteDialogues()
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, "PrerequisiteDialogues.json");
-        if (File.Exists(filePath))
+        TextAsset jsonAsset = Resources.Load<TextAsset>("PrerequisiteDialogues");
+        if (jsonAsset != null)
         {
-            string json = File.ReadAllText(filePath);
+            string json = jsonAsset.text;
             var data = JsonConvert.DeserializeObject<PrerequisiteDialogues>(json);
 
             // Load objectives
