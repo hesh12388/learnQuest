@@ -50,7 +50,10 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-
+        if(!UIManager.Instance.isMenuOpen())
+        {
+            UIManager.Instance.setMenuOpen(false);
+        }
         if( EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant)
         {
             return;

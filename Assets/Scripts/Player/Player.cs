@@ -186,7 +186,7 @@ public class Player : MonoBehaviour
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
         Debug.Log("Attack input received!");
-        if (!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen || isPaused)
+        if (!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen() || isPaused)
         {
             return;
         }
@@ -295,7 +295,7 @@ public class Player : MonoBehaviour
     void Update()
     {
 
-        if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen || isPaused){
+        if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen()|| isPaused){
             return;
         }
      
@@ -338,7 +338,7 @@ public class Player : MonoBehaviour
 
     private void OnInteract()
     {
-        if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen){
+        if(!UIManager.Instance.isInGame || stop_interaction || UIManager.Instance.isMenuOpen()){
             return;
         }
 

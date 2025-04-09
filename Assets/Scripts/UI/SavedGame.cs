@@ -55,10 +55,26 @@ public class SavedGame : MonoBehaviour
                 // Debug to verify the calculation
                 Debug.Log($"Start time (UTC): {startDateTime:u}, Current time (UTC): {utcNow:u}, Difference: {playTimeSpan}");
                 
-                timePlayed.text = playTimeSpan.ToString(@"hh\:mm\:ss");
+                // Format time played to include days if applicable
+                string formattedTime;
+                if (playTimeSpan.Days > 0)
+                {
+                    formattedTime = $"{playTimeSpan.Days}d {playTimeSpan.Hours:D2}:{playTimeSpan.Minutes:D2}:{playTimeSpan.Seconds:D2}";
+                }
+                else
+                {
+                    formattedTime = playTimeSpan.ToString(@"hh\:mm\:ss");
+                }
+                
+                timePlayed.text = formattedTime;
             }
-       
+            else
+            {
+                Debug.LogWarning($"Failed to parse date: '{startTime}' using format '{format}'");
+                timePlayed.text = "Unknown";
+            }
         }
+        
     }
 
     public void deleteSavedGame(){

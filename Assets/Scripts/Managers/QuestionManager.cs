@@ -224,6 +224,9 @@ public class QuestionManager : MonoBehaviour
             Player.Instance.pausePlayer();
             Player.Instance.stopInteraction();
         
+        if(UIManager.Instance != null && UIManager.Instance.isMenuOpen())
+            UIManager.Instance.setMenuOpen(false);
+        
         // Show the question panel
         questionPanel.SetActive(true);
         

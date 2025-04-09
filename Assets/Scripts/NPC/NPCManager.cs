@@ -199,12 +199,13 @@ public class NPCManager : MonoBehaviour
     IEnumerator ShowDialoguePanel(string dialogue)
     {
         UIManager.Instance.setGameUIPanelsInactive();
+        UIManager.Instance.setMenuOpen(false);
         Player.Instance.stopInteraction();
+        Player.Instance.pausePlayer();
         UIManager.Instance.disablePlayerHUD();
         closeDialogue.gameObject.SetActive(false);
         AudioController.Instance.PlayDemonstrationMusic();
         isInstructing = true;
-        UIManager.Instance.OnToggleMenu();
         // Show the dialogue panel
         AudioController.Instance.PlayMenuOpen();
         dialoguePanel.SetActive(true);

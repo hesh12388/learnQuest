@@ -158,7 +158,6 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI playerGems;
 
     public static UIManager Instance { get; private set; } // Singleton instance
-    public bool isMenuOpen { get; private set; } = false;
 
 
     private string currentMenu = "settings";
@@ -195,13 +194,19 @@ public class UIManager : MonoBehaviour
         }
     }
 
+
+    public bool isMenuOpen(){
+        return inGameUiPanel.activeSelf;
+    }
+
+    public void setMenuOpen(bool open){
+        
+        inGameUiPanel.SetActive(open);
+    }
+
     public void OnToggleMenu()
     {
         if(!isInGame || (EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating) || (NPCManager.Instance!=null && NPCManager.Instance.isInstructing) || (RagChatManager.Instance!=null && RagChatManager.Instance.isUsingAssistant)){
-            if(inGameUiPanel.activeSelf){
-                inGameUiPanel.SetActive(false);
-                isMenuOpen = false;
-            }
             return;
         }
 
@@ -213,13 +218,12 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-
         // Toggle the inGameUiPanel active state
         if (inGameUiPanel != null)
         {
             inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
-            isMenuOpen = !isMenuOpen;
-            if (isMenuOpen)
+            
+            if (inGameUiPanel.activeSelf)
             {
                 if (currentMenu == "settings")
                 {
@@ -353,7 +357,6 @@ public class UIManager : MonoBehaviour
         levelUnlockPanel.SetActive(false);
         chapterCompletedPanel.SetActive(false);
         questionsPanel.SetActive(false);
-        isMenuOpen = false;
     }
 
     public void StartNextLevel(){
@@ -393,7 +396,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
         setCheckMarkActive(4);
         currentMenu = "character";
@@ -408,7 +410,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
         setCheckMarkActive(2);
         currentMenu = "levels";
@@ -437,7 +438,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
 
         setCheckMarkActive(7);
@@ -467,7 +467,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
 
         setCheckMarkActive(3); // Assuming chat is index 1
@@ -482,7 +481,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
         setCheckMarkActive(6);
         currentMenu = "objectives";
@@ -521,7 +519,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
         setCheckMarkActive(0);
         currentMenu = "settings";
@@ -535,7 +532,6 @@ public class UIManager : MonoBehaviour
         }
         if(!inGameUiPanel.activeSelf){
             inGameUiPanel.SetActive(true);
-            isMenuOpen=true;
         }
         setCheckMarkActive(5);
         currentMenu = "achievements";
@@ -653,7 +649,6 @@ public class UIManager : MonoBehaviour
         if (!inGameUiPanel.activeSelf)
         {
             inGameUiPanel.SetActive(true);
-            isMenuOpen = true;
         }
         setCheckMarkActive(1);
         currentMenu = "leaderboard";

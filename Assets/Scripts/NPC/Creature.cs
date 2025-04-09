@@ -91,7 +91,7 @@ public class Creature : MonoBehaviour
                 continue;
                 
             // Skip validation and reset timers if player is in menu/tutorial/paused
-            if (Player.Instance.isPaused || Player.Instance.stop_interaction || UIManager.Instance.isMenuOpen)
+            if (Player.Instance.isPaused || Player.Instance.stop_interaction || UIManager.Instance.isMenuOpen())
             {
                 // Reset timers since we're legitimately waiting
                 stuckTimer = 0f;
@@ -169,7 +169,7 @@ public class Creature : MonoBehaviour
             return;
             
         // Skip AI if player is paused or UI is open
-        if (Player.Instance.isPaused || Player.Instance.stop_interaction || UIManager.Instance.isMenuOpen)
+        if (Player.Instance.isPaused || Player.Instance.stop_interaction || UIManager.Instance.isMenuOpen())
         {
             StopMovement();
             return;
