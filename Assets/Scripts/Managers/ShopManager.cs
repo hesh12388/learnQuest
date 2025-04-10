@@ -95,7 +95,7 @@ public class ShopManager : MonoBehaviour
             PopulateCharacterItems();
         }
         else{
-            PopulateMoveItems();
+            PopulateBoostItems();
         }
     }
     private void setCoinsText()
@@ -197,8 +197,6 @@ public class ShopManager : MonoBehaviour
         
         // Update the UI to reflect the change
         refreshShopItems();
-        
-    
     }
 
     // Equip a character

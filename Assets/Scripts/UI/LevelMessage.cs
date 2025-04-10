@@ -11,7 +11,7 @@ public class LevelMessage : MonoBehaviour
     public void SetLevelUpdateUI(float score, int bestScore, int points, bool isFailed)
     {
         scoreText.text = score.ToString();
-        bestScoreText.text = bestScore.ToString();
+        bestScoreText.text = " Best Score: " + bestScore.ToString();
         if(isFailed)
         {
             pointsText.text = "X0";

@@ -617,11 +617,17 @@ public class DatabaseManager : MonoBehaviour
                 {
                     JObject response = JObject.Parse(responseText);
                     
-                    // If response includes updated user score/coins, update the local user object
+                    //update user balance with remaining credits
                     if (response.ContainsKey("remaining_credits"))
                     {
                         int newBalance = response["remaining_credits"].ToObject<int>();
-                        loggedInUser.score = newBalance;  // Assuming score is used as currency
+
+                        if(itemType=="Boost"){
+                            loggedInUser.numGems = newBalance;  //numGems is used as currency
+                        }
+                        else{
+                            loggedInUser.score = newBalance;  //score is used as currency
+                        }
                         
                         Debug.Log($"User balance updated to: {newBalance}");
                     }

@@ -86,10 +86,6 @@ public class ShopItemUI: MonoBehaviour
         {
             SetButtonInteractable(false);
         }
-        else
-        {
-            SetButtonInteractable(true);
-        }
     }
 
     public void refreshItem(){
@@ -120,10 +116,6 @@ public class ShopItemUI: MonoBehaviour
         else if(itemCategory=="Boost" && item.cost>DatabaseManager.Instance.loggedInUser.numGems)
         {
             SetButtonInteractable(false);
-        }
-        else
-        {
-            SetButtonInteractable(true);
         }
     }
 }

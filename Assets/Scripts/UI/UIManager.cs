@@ -1032,7 +1032,11 @@ public class UIManager : MonoBehaviour
     public void SignOut(){
         setGameUIPanelsInactive();
         setPanelsInactive();
+        setMenuOpen(false);
         playerHUD.SetActive(false);
+        settingsButton.SetActive(true);
+        landingPanel.SetActive(true);
+        isInGame = false;
         StartCoroutine(signOutSequence());
     }
 

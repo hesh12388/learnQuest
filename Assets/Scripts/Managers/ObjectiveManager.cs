@@ -96,19 +96,15 @@ public class ObjectiveManager : MonoBehaviour
     public void MarkObjectiveCompleted(string objectiveName)
     {
         Objective objective = objectives.Find(o => o.objective_name == objectiveName);
-        if (objective != null)
-        {
-            objective.status = "completed";
-            DatabaseManager.Instance.loggedInUser.score+= objective.points;
-            Debug.Log($"Objective '{objectiveName}' marked as completed");
-        }
+        
 
         // Call DatabaseManager to update the database
         DatabaseManager.Instance.CompleteObjective(objectiveName, (success) => {
             if (success)
             {
                 Debug.Log($"NPC/Objective '{objectiveName}' marked as completed in the database");
-                
+                objective.status = "completed";
+                DatabaseManager.Instance.loggedInUser.score+= objective.points;
                 StartCoroutine(ShowObjectiveComplete(objective));    
             }
             else

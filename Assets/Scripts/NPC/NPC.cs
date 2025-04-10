@@ -247,7 +247,7 @@ public class NPC : MonoBehaviour, IInteractable
              
             // Set maximum allowed dimensions
             float maxWidth = 500f;
-            float maxHeight = 450f;
+            float maxHeight = 300f;
             
             // Check if image exceeds maximum dimensions
             if (currentWidth > maxWidth || currentHeight > maxHeight)

@@ -179,7 +179,6 @@ public class EvaluationManager : MonoBehaviour{
     {
         playerName = DatabaseManager.Instance.loggedInUser.username;
         levelName = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].levels[DatabaseManager.Instance.loggedInUser.currentLevel-1].level_name;
-        playerMoves = DatabaseManager.Instance.loggedInUser.playerMoves;
         string json = "";
         TextAsset jsonAsset = Resources.Load<TextAsset>("EvaluationQuestions");
         if (jsonAsset != null)
@@ -221,11 +220,13 @@ public class EvaluationManager : MonoBehaviour{
 
 
     public void StartEvaluation(){
+        playerMoves = DatabaseManager.Instance.loggedInUser.playerMoves;
         UIManager.Instance.disablePlayerHUD();
         numCorrectAnswers=0;
         numQuestions=0;
         isEvaluating = true;
         Player.Instance.pausePlayer();
+        questionTimeLimit = 30f;
         // Load the questions for the level
 
         if (currentQuestions == null || currentQuestions.Count == 0)
@@ -520,6 +521,7 @@ public class EvaluationManager : MonoBehaviour{
         // Disable answer buttons
         optionPanel.SetActive(false);
         power_up_panel.SetActive(false);
+        AchievementManager.Instance.TrackAnswer(false);
         eval_time.text="";
         // Handle the timeout as an incorrect answer
         if (isEnemyTurn)
@@ -535,9 +537,12 @@ public class EvaluationManager : MonoBehaviour{
         {
             // If player is attacking, just mark it as a miss
             StartCoroutine(TimeUpSequence("Time's up! Your attack missed and the enemy countered!"));
-            playerHealth -= healthDecreaseAmount;
+            playerHealth -= (healthDecreaseAmount*2);
+            playerHealth= Mathf.Clamp(playerHealth, 0f, 1f);
             playerHealthBar.localScale = new Vector3(playerHealth, 1f, 1f);
         }
+
+        
     }
 
 
@@ -545,6 +550,7 @@ public class EvaluationManager : MonoBehaviour{
     {
         numQuestions+=1;
         yield return StartCoroutine(TypeText(dialogueText, message, typingSpeed));
+        yield return StartCoroutine(FlashSpriteEffect(playerImage));
         yield return new WaitForSeconds(1f);
         eval_time.text="";
         // Toggle the turn
@@ -770,6 +776,7 @@ public class EvaluationManager : MonoBehaviour{
         
         if (enemyHealth <= 0)
         {
+            AudioController.Instance.ToggleMusic(false);
             AudioController.Instance.PlayBattleVictory();
             yield return StartCoroutine(TypeText(dialogueText, "You defeated the enemy! Well done!", typingSpeed));
             
@@ -777,6 +784,7 @@ public class EvaluationManager : MonoBehaviour{
         }
         else if (playerHealth <= 0)
         {
+            AudioController.Instance.ToggleMusic(false);
             AudioController.Instance.PlayBattleLoss();
             yield return StartCoroutine(TypeText(dialogueText, "You were defeated. Better luck next time!", typingSpeed));
             
@@ -811,7 +819,8 @@ public class EvaluationManager : MonoBehaviour{
             // Show post-evaluation success dialogue
             yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
 
-             AudioController.Instance.PlayBackgroundMusic();
+            AudioController.Instance.ToggleMusic(true);
+            AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
 
             AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
@@ -829,6 +838,7 @@ public class EvaluationManager : MonoBehaviour{
         }
         else{
             // if already completed, no need to show post evaluation dialogues
+            AudioController.Instance.ToggleMusic(true);
             AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
         }
