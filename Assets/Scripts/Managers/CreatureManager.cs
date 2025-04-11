@@ -63,19 +63,44 @@ public class CreatureManager : MonoBehaviour
         yield return new WaitForSeconds(10f);
         while (isSpawning)
         {
-            // Get number of incomplete objectives
-            int incompleteObjectivesCount = 0;
+
+            // Check if level is completed based on user data
+            bool isLevelCompleted = false;
+            
+            if (DatabaseManager.Instance != null && DatabaseManager.Instance.loggedInUser != null)
+            {
+                var user = DatabaseManager.Instance.loggedInUser;
+                
+                // Get current level data
+                if (user.courseStructure != null && 
+                    user.currentChapter < user.courseStructure.chapters.Count &&
+                    user.currentLevel-1 < user.courseStructure.chapters[user.currentChapter].levels.Count)
+                {
+                    isLevelCompleted = user.courseStructure.chapters[user.currentChapter].levels[user.currentLevel-1].isCompleted;
+                }
+            }
+            
+            if (isLevelCompleted)
+            {
+                // Level is completed, don't spawn creatures
+                ClearAllCreatures();
+                Debug.Log("Level is marked as completed - not spawning creatures");
+                yield return new WaitForSeconds(spawnInterval);
+                continue;
+            }
+        
+            // Get number of completed objectives
+            int completedObjectivesCount = 0;
             
             if (ObjectiveManager.Instance != null)
             {
-                incompleteObjectivesCount = ObjectiveManager.Instance.GetIncompleteObjectives().Count;
+                completedObjectivesCount = ObjectiveManager.Instance.GetCompletedObjectives().Count;
             }
             
             // Calculate target creature count (up to maxCreatures, at least 1 if there are incomplete objectives)
-            int targetCreatureCount = incompleteObjectivesCount > 0 ? 
-                Mathf.Min(incompleteObjectivesCount, maxCreatures) : 0;
+            int targetCreatureCount = 1 + completedObjectivesCount;
             
-            Debug.Log($"Target creatures: {targetCreatureCount}, Current: {activeCreatures.Count}, Incomplete objectives: {incompleteObjectivesCount}");
+            Debug.Log($"Target creatures: {targetCreatureCount}, Current: {activeCreatures.Count}, Incomplete objectives: {completedObjectivesCount}");
             
             // Spawn if needed
             if (activeCreatures.Count < targetCreatureCount && Player.Instance != null)

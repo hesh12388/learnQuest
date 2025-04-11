@@ -31,9 +31,6 @@ public class QuestionManager : MonoBehaviour
     private List<Question> allQuestions = new List<Question>();
     private Dictionary<string, List<Question>> questionsByObjective = new Dictionary<string, List<Question>>();
 
-    private string currentQuestionObjective = null;
-    private int currentQuestionObjectiveIndex = -1;
-
     private Creature currentTarget;
     private Question currentQuestion;
     private bool hasAnsweredCorrectly = false;
@@ -63,71 +60,32 @@ public class QuestionManager : MonoBehaviour
 
     /// <summary>
     /// Get the current objective for creatures to ask questions about
-    /// (The most recently completed objective)
+    /// (The first incomplete objective)
     /// </summary>
-    public string GetCurrentQuestionObjective()
-    {
-        if (currentQuestionObjective == null)
-        {
-            UpdateCurrentQuestionObjective();
-        }
-        return currentQuestionObjective;
-    }
-
-    /// <summary>
-    /// Initialize the current question objective
-    /// </summary>
-    public void InitializeCurrentQuestionObjective()
+    public string GetCurrentIncompleteObjective()
     {
         List<Objective> allObjectives = ObjectiveManager.Instance.GetAllObjectives();
         if (allObjectives == null || allObjectives.Count == 0)
         {
-            currentQuestionObjective = null;
-            currentQuestionObjectiveIndex = -1;
-            return;
+            return null;
         }
 
         int incompleteIndex = allObjectives.FindIndex(o => o.status.ToLower() != "completed");
-
+        
         if (incompleteIndex >= 0)
         {
-            int index = Mathf.Max(0, incompleteIndex - 1);
-            currentQuestionObjective = allObjectives[index].objective_name;
-            currentQuestionObjectiveIndex = index;
+            return allObjectives[incompleteIndex].objective_name;
         }
-        else
+        
+        // If all objectives are complete, return the last one
+        if (allObjectives.Count > 0)
         {
-            currentQuestionObjective = null;
-            currentQuestionObjectiveIndex = -1;
+            return allObjectives[allObjectives.Count - 1].objective_name;
         }
+        
+        return null;
     }
 
-    /// <summary>
-    /// Update the current question objective based on completed objectives
-    /// </summary>
-    public void UpdateCurrentQuestionObjective()
-    {
-        List<Objective> allObjectives = ObjectiveManager.Instance.GetAllObjectives();
-        if (allObjectives == null || allObjectives.Count == 0)
-        {
-            currentQuestionObjective = null;
-            currentQuestionObjectiveIndex = -1;
-            return;
-        }
-
-        int incompleteIndex = allObjectives.FindIndex(o => o.status.ToLower() != "completed");
-
-        if (incompleteIndex < 0)
-        {
-            currentQuestionObjectiveIndex = -1;
-            currentQuestionObjective = null;
-            return;
-        }
-
-        currentQuestionObjectiveIndex += 1;
-        currentQuestionObjectiveIndex = Mathf.Min(currentQuestionObjectiveIndex, incompleteIndex);
-        currentQuestionObjective = allObjectives[currentQuestionObjectiveIndex].objective_name;
-    }
     
     private void LoadQuestions()
     {
@@ -174,37 +132,79 @@ public class QuestionManager : MonoBehaviour
     /// <summary>
     /// Show a question when a creature is clicked
     /// </summary>
-  
     public void ShowQuestionForCreature(Creature creature)
     {
         // Store reference to current target
         currentTarget = creature;
         
-        // Get the current objective for questions
-        string currentObjective = GetCurrentQuestionObjective();
+        // Get all valid objectives for questions
+        List<string> validObjectives = GetValidObjectives();
         
-        if (string.IsNullOrEmpty(currentObjective))
+        if (validObjectives.Count == 0)
         {
-            Debug.Log("No objective available for questions");
+            Debug.Log("No objectives available for questions");
             return;
         }
         
-        Debug.Log($"Showing question for objective: {currentObjective}");
+        // Randomly select one of the valid objectives
+        string selectedObjective = validObjectives[Random.Range(0, validObjectives.Count)];
+        Debug.Log($"Showing question for objective: {selectedObjective}");
         
-        // Find a random question for the current objective
-        if (questionsByObjective.ContainsKey(currentObjective) && 
-            questionsByObjective[currentObjective].Count > 0)
+        // Find a random question for the selected objective
+        if (questionsByObjective.ContainsKey(selectedObjective) && 
+            questionsByObjective[selectedObjective].Count > 0)
         {
-            int randomIndex = Random.Range(0, questionsByObjective[currentObjective].Count);
-            Question question = questionsByObjective[currentObjective][randomIndex];
+            int randomIndex = Random.Range(0, questionsByObjective[selectedObjective].Count);
+            Question question = questionsByObjective[selectedObjective][randomIndex];
             
             // Show the question
             ShowQuestion(question);
         }
         else
         {
-            Debug.Log($"No questions available for objective: {currentObjective}");
+            Debug.Log($"No questions available for objective: {selectedObjective}");
         }
+    }
+
+    /// <summary>
+    /// Get all valid objectives for questions (all completed + current incomplete)
+    /// </summary>
+    private List<string> GetValidObjectives()
+    {
+        List<string> validObjectives = new List<string>();
+        List<Objective> allObjectives = ObjectiveManager.Instance.GetAllObjectives();
+        
+        if (allObjectives == null || allObjectives.Count == 0)
+        {
+            return validObjectives;
+        }
+        
+        // Find the index of the first incomplete objective
+        int incompleteIndex = allObjectives.FindIndex(o => o.status.ToLower() != "completed");
+        
+        // Add all completed objectives
+        for (int i = 0; i < allObjectives.Count; i++)
+        {
+            // Include all completed objectives and the first incomplete one
+            if (allObjectives[i].status.ToLower() == "completed" || i == incompleteIndex)
+            {
+                validObjectives.Add(allObjectives[i].objective_name);
+            }
+            
+            // Stop once we've added the first incomplete objective
+            if (i == incompleteIndex)
+            {
+                break;
+            }
+        }
+        
+        // If all objectives are complete, include them all
+        if (incompleteIndex < 0)
+        {
+            validObjectives = allObjectives.Select(o => o.objective_name).ToList();
+        }
+        
+        return validObjectives;
     }
     
     private void ShowQuestion(Question question)
@@ -269,13 +269,6 @@ public class QuestionManager : MonoBehaviour
                 AudioController.Instance.PlayAnswerCorrect();
             else
                 AudioController.Instance.PlayAnswerIncorrect();
-        }
-        
-        // If answered correctly, advance to the next objective for questions
-        if (isCorrect)
-        {
-            // This ensures we move to the next objective for questions
-            UpdateCurrentQuestionObjective();
         }
         
         // Disable all answer buttons

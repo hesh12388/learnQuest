@@ -39,8 +39,6 @@ public class ObjectiveManager : MonoBehaviour
             {
                 objectives = fetchedObjectives;
                 Debug.Log($"Loaded {objectives.Count} objectives for the current level");
-                // Initialize the current question objective
-                QuestionManager.Instance.InitializeCurrentQuestionObjective();
             }
             else
             {
