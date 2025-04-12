@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using System;
 
 [System.Serializable]
 public class EvaluationQuestion
@@ -45,170 +47,113 @@ public class EnemyBattleSprite
     public Sprite battleBackground;
 }
 
-public class EvaluationManager : MonoBehaviour{
 
-    private Image playerImage;
-    private Image npcImage;
-    private TMP_Text dialogueText;
-    private Button[] answerButtons;
+public class EvaluationManager : MonoBehaviour
+{
+    public static EvaluationManager Instance;
     
-    private GameObject evaluationPanel;
-    private GameObject battlePanel;
-    private GameObject npcIntroPanel;
-    private GameObject optionPanel;
-    private GameObject power_up_panel;
-
-    //background variables
-    private Image battleBackground;
-    private Image battleIntroBackground;
-
-    //player hud variables
-    private TMP_Text playerNameText;
-    private TMP_Text playerLevelText;
-    private Transform playerHealthBar;
-
-    //npc hud variables
-    private TMP_Text npcNameText;
-    private TMP_Text npcLevelText;
-    private Transform npcHealthBar;
-
-    //intro panel variables
-    private Image npcIntroImage;
-    private TMP_Text npcIntroNameText;
-
-    //placeholder variables for now
-    private string npcName;
-    private string playerName;
-    private Sprite enemyImage;
-    private Sprite PlayerImage;
-
+    [Header("Battle Sprites")]
     public List<CharacterBattleSprite> characterBattleSprites;
-    private Dictionary<string, Sprite> characterBattleSpritesDict;
     public List<EnemyBattleSprite> enemyBattleSprites;
+    
+    // Private state variables
+    private Dictionary<string, Sprite> characterBattleSpritesDict;
     private Dictionary<string, Sprite> enemyBattleSpritesDict;
     private Dictionary<string, Sprite> enemyBackgroundSpritesDict;
     private float typingSpeed = 0.05f;
-
+    private string npcName;
+    private string playerName;
     private string levelName;
-
-    private float playerHealth = 1f; // Health is represented as a scale (1 = full health)
-    private float enemyHealth = 1f; // Health is represented as a scale (1 = full health)
-    private float healthDecreaseAmount = 0.25f; // Amount of health to decrease per turn
-    private List<EvaluationQuestion> currentQuestions; // Store the loaded questions
-    private int currentQuestionIndex = 0; // Track the current question
-    private Button [] power_up_buttons;
+    private Sprite enemyImage;
+    private Sprite PlayerImage;
+    private string[] npcMoves;
+    private string[] playerMoves;
+    private List<EvaluationQuestion> currentQuestions;
+    private int currentQuestionIndex = 0;
+    private float playerHealth = 1f;
+    private float enemyHealth = 1f;
+    private float healthDecreaseAmount = 0.25f;
+    private float questionTimeLimit = 30f;
+    private float currentQuestionTime;
+    private Coroutine timerCoroutine;
     private bool isEnemyTurn;
-    private TMP_Text eval_time;
-    public static EvaluationManager Instance;
-
-    private string [] npcMoves;
-    private string [] playerMoves;
-
-    private float questionTimeLimit = 30f; // Time limit in seconds
-    private float currentQuestionTime; // Current remaining time
-    private Coroutine timerCoroutine; // Reference to manage the timer coroutine
-
     public bool isEvaluating;
-
     private bool isTyping;
-
     private int numCorrectAnswers;
-    private int numQuestions=0;
-
+    private int numQuestions = 0;
     private bool isPaused = false;
-
-     private void Awake()
+    
+    private void Awake()
     {
-         if (Instance == null)
-         {
+        if (Instance == null)
+        {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep this object between scenes
-         }
+            DontDestroyOnLoad(gameObject);
+        }
         else
         {
             Destroy(gameObject);
         }
-        
-        
     }
-
-    private void Start(){
-        playerImage = UIManager.Instance.playerImage;
-        npcImage = UIManager.Instance.eval_npcImage;
-        dialogueText = UIManager.Instance.eval_dialogueText;
-        answerButtons = UIManager.Instance.answerButtons;
-        evaluationPanel = UIManager.Instance.evaluationPanel;
-        battlePanel = UIManager.Instance.battlePanel;
-        npcIntroPanel = UIManager.Instance.npcIntroPanel;
-        optionPanel = UIManager.Instance.optionPanel;
-        playerNameText = UIManager.Instance.playerNameText;
-        playerLevelText = UIManager.Instance.playerLevelText;
-        playerHealthBar = UIManager.Instance.playerHealthBar;
-        npcNameText = UIManager.Instance.npcNameText;
-        npcLevelText = UIManager.Instance.npcLevelText;
-        npcHealthBar = UIManager.Instance.npcHealthBar;
-        npcIntroImage = UIManager.Instance.npcIntroImage;
-        npcIntroNameText = UIManager.Instance.npcIntroNameText;
-        power_up_buttons = UIManager.Instance.power_up_buttons;
-        eval_time = UIManager.Instance.eval_time;
-        power_up_panel = UIManager.Instance.power_up_panel;
-        battleBackground = UIManager.Instance.battleBackground;
-        battleIntroBackground = UIManager.Instance.battleIntroBackground;
-    }
-
-    public void initializeBattleSprites(){
+    
+    public void initializeBattleSprites()
+    {
         characterBattleSpritesDict = new Dictionary<string, Sprite>();
-        foreach(CharacterBattleSprite character in characterBattleSprites){
+        foreach (CharacterBattleSprite character in characterBattleSprites)
+        {
             characterBattleSpritesDict[character.characterName] = character.battleSprite;
         }
+        
         enemyBattleSpritesDict = new Dictionary<string, Sprite>();
-        foreach(EnemyBattleSprite enemy in enemyBattleSprites){
-            enemyBattleSpritesDict[enemy.characterName] = enemy.battleSprite;
-        }
         enemyBackgroundSpritesDict = new Dictionary<string, Sprite>();
-        foreach(EnemyBattleSprite enemy in enemyBattleSprites){
+        foreach (EnemyBattleSprite enemy in enemyBattleSprites)
+        {
+            enemyBattleSpritesDict[enemy.characterName] = enemy.battleSprite;
             enemyBackgroundSpritesDict[enemy.characterName] = enemy.battleBackground;
         }
+        
         enemyImage = enemyBattleSpritesDict[npcName];
-        battleBackground.sprite = enemyBackgroundSpritesDict[npcName];
-        battleIntroBackground.sprite = enemyBackgroundSpritesDict[npcName];
         PlayerImage = characterBattleSpritesDict[DatabaseManager.Instance.loggedInUser.equippedCharacter];
     }
-
+    
     public void LoadQuestionsForLevel()
     {
         playerName = DatabaseManager.Instance.loggedInUser.username;
         levelName = DatabaseManager.Instance.loggedInUser.courseStructure.chapters[DatabaseManager.Instance.loggedInUser.currentChapter].levels[DatabaseManager.Instance.loggedInUser.currentLevel-1].level_name;
-        string json = "";
+        
+        // Load questions from Resources
         TextAsset jsonAsset = Resources.Load<TextAsset>("EvaluationQuestions");
-        if (jsonAsset != null)
+        if (jsonAsset == null)
         {
-            json = jsonAsset.text;
+            Debug.LogError("EvaluationQuestions.json not found in Resources folder!");
+            return;
         }
+        
+        string json = jsonAsset.text;
         
         try
         {
             // Deserialize the JSON into the EvaluationData structure
             EvaluationData evaluationData = JsonConvert.DeserializeObject<EvaluationData>(json);
-
+            
             if (evaluationData == null || evaluationData.levels == null)
             {
                 Debug.LogError("Failed to parse EvaluationQuestions.json or no levels found.");
+                return;
             }
-
+            
             // Find the level by name
             LevelQuestions level = evaluationData.levels.Find(l => l.level_name == levelName);
-
+            
             if (level == null)
             {
                 Debug.LogWarning($"No questions found for level: {levelName}");
-
+                return;
             }
-
-            npcName= level.enemy_name;
+            
+            npcName = level.enemy_name;
             npcMoves = level.enemy_moves;
-            // Return the list of questions for the level
-            currentQuestions=level.questions;
+            currentQuestions = level.questions;
             
             initializeBattleSprites();
         }
@@ -217,24 +162,24 @@ public class EvaluationManager : MonoBehaviour{
             Debug.LogError($"Error loading questions for level {levelName}: {ex.Message}");
         }
     }
-
-
-    public void StartEvaluation(){
+    
+    public void StartEvaluation()
+    {
         playerMoves = DatabaseManager.Instance.loggedInUser.playerMoves;
         UIManager.Instance.disablePlayerHUD();
-        numCorrectAnswers=0;
-        numQuestions=0;
+        numCorrectAnswers = 0;
+        numQuestions = 0;
         isEvaluating = true;
         Player.Instance.pausePlayer();
         questionTimeLimit = 30f;
+        
         // Load the questions for the level
-
         if (currentQuestions == null || currentQuestions.Count == 0)
         {
             Debug.LogError("No questions found for the level.");
             return;
         }
-
+        
         // Reset current question index and health
         currentQuestionIndex = 0;
         playerHealth = 1f;
@@ -242,20 +187,17 @@ public class EvaluationManager : MonoBehaviour{
         
         // Check purchased boost items and set up power-up buttons
         SetupPowerUpButtons();
-
-
+        
         // Start the evaluation sequence
         StartCoroutine(evaluationSequence());
-        
     }
-
-
+    
     private void SetupPowerUpButtons()
     {
         // Default: disable all power-up buttons
-        foreach (Button button in power_up_buttons)
+        for (int i = 0; i < 3; i++)
         {
-            button.interactable = false;
+            UIManager.Instance.SetupPowerUpButton(i, false);
         }
         
         // Check if user is logged in
@@ -282,18 +224,15 @@ public class EvaluationManager : MonoBehaviour{
             switch (boostItem.item_name)
             {
                 case "Extra Time":
-                    if (power_up_buttons.Length > 0)
-                        power_up_buttons[0].interactable = true;
+                    UIManager.Instance.SetupPowerUpButton(0, true);
                     break;
                     
                 case "Power Reveal":
-                    if (power_up_buttons.Length > 1)
-                        power_up_buttons[1].interactable = true;
+                    UIManager.Instance.SetupPowerUpButton(1, true);
                     break;
                     
                 case "Hint Token":
-                    if (power_up_buttons.Length > 2)
-                        power_up_buttons[2].interactable = true;
+                    UIManager.Instance.SetupPowerUpButton(2, true);
                     break;
                     
                 default:
@@ -304,169 +243,179 @@ public class EvaluationManager : MonoBehaviour{
         
         Debug.Log($"Enabled {boostItems.Count} power-up buttons based on purchased items");
     }
-
-    public IEnumerator NotReady(){
+    
+    public IEnumerator NotReady()
+    {
         UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayBattleMusic();
         Player.Instance.pausePlayer();
         Player.Instance.stopInteraction();
         isEvaluating = true;
-        evaluationPanel.SetActive(true);
-        battlePanel.SetActive(false);
-        npcIntroPanel.SetActive(true);
-        npcIntroImage.sprite = enemyImage;
-        yield return StartCoroutine(TypeText(npcIntroNameText, "You are not ready to battle me yet!", typingSpeed));
+        
+        UIManager.Instance.ShowEvaluationPanel(true);
+        UIManager.Instance.ShowBattlePanel(false);
+        UIManager.Instance.ShowNPCIntroPanel(true);
+        UIManager.Instance.SetNPCIntroImage(enemyImage);
+        
+        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText("You are not ready to battle me yet!", typingSpeed));
         yield return new WaitForSeconds(2f);
-        evaluationPanel.SetActive(false);
-        npcIntroPanel.SetActive(false);
-        isEvaluating=false;
+        
+        UIManager.Instance.ShowEvaluationPanel(false);
+        UIManager.Instance.ShowNPCIntroPanel(false);
+        isEvaluating = false;
         AudioController.Instance.PlayBackgroundMusic();
         UIManager.Instance.enablePlayerHUD();
         Player.Instance.resumePlayer();
         Player.Instance.resumeInteraction();
     }
-
-    private IEnumerator evaluationSequence(){
-
+    
+    private IEnumerator evaluationSequence()
+    {
         yield return StartCoroutine(TransitionManager.Instance.contentTransition());
         AudioController.Instance.PlayBattleMusic();
-        // show the npc intro panel
-        evaluationPanel.SetActive(true);
-        npcIntroPanel.SetActive(true);
-        npcIntroImage.sprite = enemyImage;
-        yield return StartCoroutine(TypeText(npcIntroNameText, npcName + " has appeared!", typingSpeed));
+        
+        // Show the npc intro panel
+        UIManager.Instance.ShowEvaluationPanel(true);
+        UIManager.Instance.ShowNPCIntroPanel(true);
+        UIManager.Instance.SetNPCIntroImage(enemyImage);
+        
+        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(npcName + " has appeared!", typingSpeed));
         yield return new WaitForSeconds(2f);
-
-        //show the battle panel
+        
+        // Show the battle panel
         yield return StartCoroutine(TransitionManager.Instance.contentTransition());
-        npcIntroPanel.SetActive(false);
-        battlePanel.SetActive(true);
-        npcNameText.text = npcName;
-        npcLevelText.text = "Lvl 1";
-        playerNameText.text = playerName;
-        playerLevelText.text = "Lvl 1";
-        playerImage.sprite = PlayerImage;
-        npcImage.sprite = enemyImage;
-
+        UIManager.Instance.ShowNPCIntroPanel(false);
+        UIManager.Instance.ShowBattlePanel(true);
+        
+        // Setup the battle UI
+        UIManager.Instance.SetupEvaluationUI(
+            playerName, 
+            npcName, 
+            PlayerImage, 
+            enemyImage, 
+            enemyBackgroundSpritesDict[npcName]
+        );
+        
         // Start the first question
         StartCoroutine(ShowQuestionCoroutine(currentQuestions[currentQuestionIndex]));
     }
-
-
+    
     // Power-up: Remove two wrong answers
     public void GiveHint()
     {
-        // Check if we're in a valid state to use power-up
-        if (currentQuestionIndex >= currentQuestions.Count || !optionPanel.activeSelf)
+        // Check if we're in a question state
+        if (isPaused || timerCoroutine == null || currentQuestionIndex >= currentQuestions.Count)
+        {
+            Debug.LogWarning("Cannot use hint - not in an active question state");
             return;
+        }
         
         // Disable the power-up button to prevent multiple uses
-        if (power_up_buttons.Length > 2)
-            power_up_buttons[2].interactable = false;
-
-        EvaluationQuestion currentQuestion = currentQuestions[currentQuestionIndex];
-        int correctIndex = currentQuestion.correctIndex;
+        UIManager.Instance.SetupPowerUpButton(2, false);
         
-        // Find all wrong answers
-        List<int> wrongAnswerIndexes = new List<int>();
-        for (int i = 0; i < answerButtons.Length; i++)
+        // Get the current question
+        EvaluationQuestion question = currentQuestions[currentQuestionIndex];
+        
+        // Identify wrong answer indices
+        List<int> wrongAnswerIndices = new List<int>();
+        for (int i = 0; i < 4; i++)
         {
-            if (i != correctIndex && answerButtons[i].gameObject.activeSelf)
+            if (i != question.correctIndex)
             {
-                wrongAnswerIndexes.Add(i);
+                wrongAnswerIndices.Add(i);
             }
         }
         
-        // Randomly remove two wrong answers if possible
-        if (wrongAnswerIndexes.Count >= 2)
+        // Shuffle and select two wrong answers to disable
+        if (wrongAnswerIndices.Count >= 2)
         {
-            // Shuffle the list
-            for (int i = 0; i < wrongAnswerIndexes.Count; i++)
+            // Shuffle the wrong answers
+            for (int i = wrongAnswerIndices.Count - 1; i > 0; i--)
             {
-                int temp = wrongAnswerIndexes[i];
-                int randomIndex = Random.Range(0, wrongAnswerIndexes.Count);
-                wrongAnswerIndexes[i] = wrongAnswerIndexes[randomIndex];
-                wrongAnswerIndexes[randomIndex] = temp;
+                int j = UnityEngine.Random.Range(0, i + 1);
+                int temp = wrongAnswerIndices[i];
+                wrongAnswerIndices[i] = wrongAnswerIndices[j];
+                wrongAnswerIndices[j] = temp;
             }
             
-            // Disable the first two wrong answers
-            answerButtons[wrongAnswerIndexes[0]].gameObject.SetActive(false);
-            answerButtons[wrongAnswerIndexes[1]].gameObject.SetActive(false);
+            // Disable two wrong answers through UIManager
+            for (int i = 0; i < 2; i++)
+            {
+                int idx = wrongAnswerIndices[i];
+                UIManager.Instance.answerButtons[idx].gameObject.SetActive(false);
+            }
         }
-
-
         
         // Remove the item from the user's inventory
         DatabaseManager.Instance.RemoveUserItem("Hint Token", (success) => {
             if (success)
-                Debug.Log("Hint Token item used and removed from inventory");
+                Debug.Log("Hint Token used and removed from inventory");
             else
-                Debug.LogError("Failed to remove Hint Token item from inventory");
+                Debug.LogError("Failed to remove Hint Token from inventory");
         });
-        
     }
 
+    
     // Power-up: Add extra time (30 seconds)
     public void AddExtraTime()
     {
         // Check if we're in a valid state to use power-up
-        if (!optionPanel.activeSelf || timerCoroutine == null)
-            return;
-
-        // Disable the power-up button to prevent multiple uses
-        if (power_up_buttons.Length > 0)
-            power_up_buttons[0].interactable = false;
+        if (!isPaused && timerCoroutine != null)
+        {
+            // Disable the power-up button to prevent multiple uses
+            UIManager.Instance.SetupPowerUpButton(0, false);
+                
+            // Add 30 seconds to the current time
+            currentQuestionTime += 30f;
+            questionTimeLimit = 60f;
             
-        // Add 30 seconds to the current time
-        currentQuestionTime += 30f;
-        questionTimeLimit = 60f;
-        
-        // Update the timer display immediately
-        eval_time.text = Mathf.CeilToInt(currentQuestionTime).ToString();
-        
-        
-        // Remove the item from the user's inventory
-        DatabaseManager.Instance.RemoveUserItem("Extra Time", (success) => {
-            if (success)
-                Debug.Log("Extra Time item used and removed from inventory");
-            else
-                Debug.LogError("Failed to remove Extra Time item from inventory");
-        });
+            // Update the timer display immediately
+            UIManager.Instance.UpdateTimerText(currentQuestionTime);
+            
+            // Remove the item from the user's inventory
+            DatabaseManager.Instance.RemoveUserItem("Extra Time", (success) => {
+                if (success)
+                    Debug.Log("Extra Time item used and removed from inventory");
+                else
+                    Debug.LogError("Failed to remove Extra Time item from inventory");
+            });
+        }
     }
-
+    
     // Power-up: Reveal the correct answer (disables all wrong answers)
     public void RevealAnswer()
     {
-        // Check if we're in a valid state to use power-up
-        if (currentQuestionIndex >= currentQuestions.Count || !optionPanel.activeSelf)
-            return;
-
-        // Disable the power-up button to prevent multiple uses
-        if (power_up_buttons.Length > 1)
-            power_up_buttons[1].interactable = false;
-        
-        EvaluationQuestion currentQuestion = currentQuestions[currentQuestionIndex];
-        int correctIndex = currentQuestion.correctIndex;
-        
-        // Disable all wrong answer buttons
-        for (int i = 0; i < answerButtons.Length; i++)
+        // Check if we're in a question state
+        if (isPaused || timerCoroutine == null || currentQuestionIndex >= currentQuestions.Count)
         {
-            if (i != correctIndex)
-            {
-                answerButtons[i].gameObject.SetActive(false);
-            }
+            Debug.LogWarning("Cannot use power reveal - not in an active question state");
+            return;
         }
         
+        // Disable the power-up button to prevent multiple uses
+        UIManager.Instance.SetupPowerUpButton(1, false);
+        
+        // Get the current question
+        EvaluationQuestion question = currentQuestions[currentQuestionIndex];
+        
+        // Disable all wrong answers through UIManager
+        for (int i = 0; i < 4; i++)
+        {
+            if (i != question.correctIndex)
+            {
+                UIManager.Instance.answerButtons[i].gameObject.SetActive(false);
+            }
+        }
         
         // Remove the item from the user's inventory
         DatabaseManager.Instance.RemoveUserItem("Power Reveal", (success) => {
             if (success)
-                Debug.Log("Power Reveal item used and removed from inventory");
+                Debug.Log("Power Reveal used and removed from inventory");
             else
-                Debug.LogError("Failed to remove Power Reveal item from inventory");
+                Debug.LogError("Failed to remove Power Reveal from inventory");
         });
     }
-
+    
     // Modify the QuestionTimerCoroutine to check for paused state
     private IEnumerator QuestionTimerCoroutine()
     {
@@ -478,7 +427,7 @@ public class EvaluationManager : MonoBehaviour{
             if (!isPaused)
             {
                 // Update the timer display
-                eval_time.text = Mathf.CeilToInt(currentQuestionTime).ToString();
+                UIManager.Instance.UpdateTimerText(currentQuestionTime);
                 
                 // Decrease time
                 currentQuestionTime -= 0.1f;
@@ -493,22 +442,21 @@ public class EvaluationManager : MonoBehaviour{
         
         yield break;
     }
-
+    
     // Implement the pauseBattle method
     public void pauseBattle()
     {
         // Toggle the pause state
         isPaused = !isPaused; 
     }
-
+    
     // Optional: Add a method to explicitly resume the battle
     public void resumeBattle()
     {
         isPaused = false;
-        // Hide any pause indicators
         Debug.Log("Battle resumed");
     }
-
+    
     private void TimeUp()
     {
         // Stop the timer
@@ -518,18 +466,21 @@ public class EvaluationManager : MonoBehaviour{
             timerCoroutine = null;
         }
         
-        // Disable answer buttons
-        optionPanel.SetActive(false);
-        power_up_panel.SetActive(false);
+        // Disable answer panels
+        UIManager.Instance.ShowOptionPanel(false);
+        UIManager.Instance.ShowPowerUpPanel(false);
+        UIManager.Instance.ClearTimerText();
+        
+        // Track answer (incorrect)
         AchievementManager.Instance.TrackAnswer(false);
-        eval_time.text="";
+        
         // Handle the timeout as an incorrect answer
         if (isEnemyTurn)
         {
             // If enemy is attacking, player health decreases
-            playerHealth -= (healthDecreaseAmount*2);
-            playerHealth= Mathf.Clamp(playerHealth, 0f, 1f);
-            playerHealthBar.localScale = new Vector3(playerHealth, 1f, 1f);
+            playerHealth -= (healthDecreaseAmount * 2);
+            playerHealth = Mathf.Clamp(playerHealth, 0f, 1f);
+            UIManager.Instance.UpdateHealthBar(true, playerHealth);
             
             StartCoroutine(TimeUpSequence("Time's up! The enemy's attack was successful!"));
         }
@@ -537,22 +488,19 @@ public class EvaluationManager : MonoBehaviour{
         {
             // If player is attacking, just mark it as a miss
             StartCoroutine(TimeUpSequence("Time's up! Your attack missed and the enemy countered!"));
-            playerHealth -= (healthDecreaseAmount*2);
-            playerHealth= Mathf.Clamp(playerHealth, 0f, 1f);
-            playerHealthBar.localScale = new Vector3(playerHealth, 1f, 1f);
+            playerHealth -= (healthDecreaseAmount * 2);
+            playerHealth = Mathf.Clamp(playerHealth, 0f, 1f);
+            UIManager.Instance.UpdateHealthBar(true, playerHealth);
         }
-
-        
     }
-
-
+    
     private IEnumerator TimeUpSequence(string message)
     {
-        numQuestions+=1;
-        yield return StartCoroutine(TypeText(dialogueText, message, typingSpeed));
-        yield return StartCoroutine(FlashSpriteEffect(playerImage));
+        numQuestions += 1;
+        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(message, typingSpeed));
+        yield return StartCoroutine(UIManager.Instance.FlashSprite(UIManager.Instance.playerImage));
         yield return new WaitForSeconds(1f);
-        eval_time.text="";
+        
         // Toggle the turn
         isEnemyTurn = !isEnemyTurn;
         currentQuestionIndex++;
@@ -566,133 +514,6 @@ public class EvaluationManager : MonoBehaviour{
         {
             if (enemyHealth <= 0 || playerHealth <= 0)
             {
-                EndBattle();
-            }
-            else
-            {
-                StartCoroutine(ShowQuestionCoroutine(currentQuestions[currentQuestionIndex]));
-            }
-        }
-    }
-
-    private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)
-    {   
-        isTyping = true;
-        textObject.text = ""; // Clear the text before typing
-        foreach (char letter in message.ToCharArray())
-        {
-            textObject.text += letter; // Add one character at a time
-            yield return new WaitForSeconds(typingSpeed); // Wait before adding the next character
-        }
-
-        isTyping = false;
-    }
-
-    private IEnumerator ShowQuestionCoroutine(EvaluationQuestion question)
-    {
-        optionPanel.SetActive(true);
-        power_up_panel.SetActive(true);
-        // Start typing the question
-        yield return StartCoroutine(TypeText(dialogueText, question.question + "\n\n What will " + playerName + " do?", typingSpeed));
-
-        for (int i = 0; i < answerButtons.Length; i++)
-        {
-            if (i < question.options.Length)
-            {
-                TMP_Text answerText = answerButtons[i].GetComponentInChildren<TMP_Text>();
-                answerText.text = playerMoves[i];
-                int capturedIndex = i;
-                answerButtons[i].gameObject.SetActive(true);
-                answerButtons[i].onClick.RemoveAllListeners();
-                answerButtons[i].onClick.AddListener(() => StartCoroutine(OnAnswerSelectedCoroutine(capturedIndex, question, playerMoves[capturedIndex])));
-
-                 AddHoverListeners(answerButtons[capturedIndex], capturedIndex);
-
-                
-            }
-            else
-            {
-                answerButtons[i].gameObject.SetActive(false);
-            }
-        }
-
-        // Start the timer after setting up the question
-        if (timerCoroutine != null)
-        {
-            StopCoroutine(timerCoroutine);
-        }
-        timerCoroutine = StartCoroutine(QuestionTimerCoroutine());
-
-        yield break;
-    }
-
-    private IEnumerator OnAnswerSelectedCoroutine(int index, EvaluationQuestion question, string text)
-    {
-        numQuestions+=1;
-        // Stop the timer when an answer is selected
-        if (timerCoroutine != null)
-        {
-            StopCoroutine(timerCoroutine);
-            timerCoroutine = null;
-            eval_time.text="";
-        }
-
-        optionPanel.SetActive(false);
-        power_up_panel.SetActive(false);
-        yield return StartCoroutine(TypeText(dialogueText, playerName + " used " + text + "!", typingSpeed));
-        yield return new WaitForSeconds(1f);
-        if (index == question.correctIndex)
-        {
-            // Player answered correctly
-            numCorrectAnswers++;
-            enemyHealth -= healthDecreaseAmount;
-            enemyHealth= Mathf.Clamp(enemyHealth, 0f, 1f);
-            npcHealthBar.localScale = new Vector3(enemyHealth, 1f, 1f);
-            AchievementManager.Instance.TrackAnswer(true);
-            if (isEnemyTurn)
-            {
-                yield return StartCoroutine(TypeText(dialogueText, "Correct! You blocked the enemy's attack and countered to deal damage!", typingSpeed));
-            }
-            else
-            {
-                yield return StartCoroutine(TypeText(dialogueText, "Correct! You dealt damage to the enemy!", typingSpeed));
-            }
-
-            // Flash enemy sprite to indicate damage
-            StartCoroutine(FlashSpriteEffect(npcImage));
-        }
-        else
-        {
-            playerHealth -= (healthDecreaseAmount*2);
-            playerHealth= Mathf.Clamp(playerHealth, 0f, 1f);
-            playerHealthBar.localScale = new Vector3(playerHealth, 1f, 1f);
-            AchievementManager.Instance.TrackAnswer(false);
-            // Player answered incorrectly
-            if (isEnemyTurn)
-            {
-                yield return StartCoroutine(TypeText(dialogueText, "Incorrect! The enemy attacked successfully!", typingSpeed));
-               
-            }
-            else
-            {
-                yield return StartCoroutine(TypeText(dialogueText, "Incorrect! You missed your attack and the enemy has countered to deal damage!", typingSpeed));
-            }
-            // Flash player sprite to indicate damage
-            StartCoroutine(FlashSpriteEffect(playerImage));
-        }
-        
-        yield return new WaitForSeconds(1f); // Add a small delay before the next turn
-        // Toggle the turn
-        isEnemyTurn = !isEnemyTurn;
-        currentQuestionIndex++;
-        // Start the next turn
-        if (isEnemyTurn)
-        {
-            StartCoroutine(EnemyTurn());
-        }
-        else
-        {
-            if(enemyHealth <= 0 || playerHealth <= 0){
                 StartCoroutine(EndBattle());
             }
             else
@@ -701,110 +522,233 @@ public class EvaluationManager : MonoBehaviour{
             }
         }
     }
-
-    /// <summary>
-    /// Creates a flashing effect for a sprite to indicate damage
-    /// </summary>
-    private IEnumerator FlashSpriteEffect(Image targetImage, float duration = 0.5f)
+    
+    private IEnumerator ShowQuestionCoroutine(EvaluationQuestion question)
     {
-        // Store the original sprite
-        Sprite originalSprite = targetImage.sprite;
-        Color originalColor = targetImage.color;
+        UIManager.Instance.ShowOptionPanel(true);
+        UIManager.Instance.ShowPowerUpPanel(true);
         
-        // Flash duration and interval
-        float endTime = Time.time + duration;
-        float flashInterval = 0.1f;
-        AudioController.Instance.PlayHit();
-        // Flash the sprite by toggling visibility
-        while (Time.time < endTime)
+        // Start typing the question
+        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+            question.question + "\n\n What will " + playerName + " do?", 
+            typingSpeed
+        ));
+        
+        // Set up answer callbacks
+        Action<int>[] callbacks = new Action<int>[4];
+        for (int i = 0; i < 4; i++)
         {
-            // Toggle visibility by changing alpha
-            targetImage.color = new Color(
-                originalColor.r, 
-                originalColor.g, 
-                originalColor.b, 
-                targetImage.color.a > 0.5f ? 0.0f : 1.0f
-            );
-            
-            yield return new WaitForSeconds(flashInterval);
+            int capturedIndex = i;
+            callbacks[i] = (index) => StartCoroutine(OnAnswerSelectedCoroutine(capturedIndex, question, playerMoves[capturedIndex]));
         }
         
-        // Ensure sprite is fully visible when done
-        targetImage.sprite = originalSprite;
-        targetImage.color = originalColor;
+        // Setup the buttons through UIManager
+        UIManager.Instance.SetupAnswerButtons(playerMoves, callbacks);
+        
+        // Setup hover listeners for each button
+        for (int i = 0; i < playerMoves.Length && i < 4; i++)
+        {
+            int capturedIndex = i;
+            
+            // Add hover enter listener
+            UIManager.Instance.SetupAnswerButtonHover(
+                UIManager.Instance.answerButtons[i],
+                EventTriggerType.PointerEnter,
+                (data) => OnHoverEnter(capturedIndex)
+            );
+            
+            // Add hover exit listener
+            UIManager.Instance.SetupAnswerButtonHover(
+                UIManager.Instance.answerButtons[i],
+                EventTriggerType.PointerExit,
+                (data) => OnHoverExit()
+            );
+        }
+        
+        // Start the timer after setting up the question
+        if (timerCoroutine != null)
+        {
+            StopCoroutine(timerCoroutine);
+        }
+        timerCoroutine = StartCoroutine(QuestionTimerCoroutine());
+        
+        yield break;
     }
-
+    
+    private IEnumerator OnAnswerSelectedCoroutine(int index, EvaluationQuestion question, string text)
+    {
+        numQuestions += 1;
+        
+        // Stop the timer when an answer is selected
+        if (timerCoroutine != null)
+        {
+            StopCoroutine(timerCoroutine);
+            timerCoroutine = null;
+            UIManager.Instance.ClearTimerText();
+        }
+        
+        UIManager.Instance.ShowOptionPanel(false);
+        UIManager.Instance.ShowPowerUpPanel(false);
+        
+        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(playerName + " used " + text + "!", typingSpeed));
+        yield return new WaitForSeconds(1f);
+        
+        if (index == question.correctIndex)
+        {
+            // Player answered correctly
+            numCorrectAnswers++;
+            enemyHealth -= healthDecreaseAmount;
+            enemyHealth = Mathf.Clamp(enemyHealth, 0f, 1f);
+            UIManager.Instance.UpdateHealthBar(false, enemyHealth);
+            AchievementManager.Instance.TrackAnswer(true);
+            
+            if (isEnemyTurn)
+            {
+                yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                    "Correct! You blocked the enemy's attack and countered to deal damage!", 
+                    typingSpeed
+                ));
+            }
+            else
+            {
+                yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                    "Correct! You dealt damage to the enemy!", 
+                    typingSpeed
+                ));
+            }
+            
+            // Flash enemy sprite to indicate damage
+            StartCoroutine(UIManager.Instance.FlashSprite(UIManager.Instance.eval_npcImage));
+        }
+        else
+        {
+            // Player answered incorrectly
+            playerHealth -= (healthDecreaseAmount * 2);
+            playerHealth = Mathf.Clamp(playerHealth, 0f, 1f);
+            UIManager.Instance.UpdateHealthBar(true, playerHealth);
+            AchievementManager.Instance.TrackAnswer(false);
+            
+            if (isEnemyTurn)
+            {
+                yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                    "Incorrect! The enemy attacked successfully!", 
+                    typingSpeed
+                ));
+            }
+            else
+            {
+                yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                    "Incorrect! You missed your attack and the enemy has countered to deal damage!", 
+                    typingSpeed
+                ));
+            }
+            
+            // Flash player sprite to indicate damage
+            StartCoroutine(UIManager.Instance.FlashSprite(UIManager.Instance.playerImage));
+        }
+        
+        yield return new WaitForSeconds(1f); // Add a small delay before the next turn
+        
+        // Toggle the turn
+        isEnemyTurn = !isEnemyTurn;
+        currentQuestionIndex++;
+        
+        // Start the next turn
+        if (isEnemyTurn)
+        {
+            StartCoroutine(EnemyTurn());
+        }
+        else
+        {
+            if (enemyHealth <= 0 || playerHealth <= 0)
+            {
+                StartCoroutine(EndBattle());
+            }
+            else
+            {
+                StartCoroutine(ShowQuestionCoroutine(currentQuestions[currentQuestionIndex]));
+            }
+        }
+    }
+    
     private IEnumerator EnemyTurn()
     {
-        if(enemyHealth <= 0 || playerHealth <= 0){
+        if (enemyHealth <= 0 || playerHealth <= 0)
+        {
             yield return StartCoroutine(EndBattle());
             yield break;
         }
-
         else
         {
-             yield return new WaitForSeconds(2f); // Wait before the enemy's turn
+            yield return new WaitForSeconds(2f); // Wait before the enemy's turn
             EvaluationQuestion question = currentQuestions[currentQuestionIndex];
-
             
-            int randomIndex = Random.Range(0, 4);
-            yield return StartCoroutine(TypeText(dialogueText, npcName + " used " + npcMoves[randomIndex] + "\n Answer correctly to block!", typingSpeed));
+            int randomIndex = UnityEngine.Random.Range(0, 4);
+            yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                npcName + " used " + npcMoves[randomIndex] + "\n Answer correctly to block!", 
+                typingSpeed
+            ));
+            
             yield return new WaitForSeconds(1f);
-
+            
             yield return StartCoroutine(ShowQuestionCoroutine(question));
         }
     }
-
-    public void closeBattle(){
+    
+    public void closeBattle()
+    {
         // Stop all coroutines to prevent any lingering processes
         StopAllCoroutines();
-        battlePanel.SetActive(false);
-        evaluationPanel.SetActive(false);
+        UIManager.Instance.ShowBattlePanel(false);
+        UIManager.Instance.ShowEvaluationPanel(false);
         isEvaluating = false;
         Player.Instance.resumePlayer();
+        UIManager.Instance.enablePlayerHUD();
         AudioController.Instance.PlayBackgroundMusic();
     }
-
     
     IEnumerator EndBattle()
     {
         // Reset pause state
         isPaused = false;
-        optionPanel.SetActive(false);
-        power_up_panel.SetActive(false);
+        UIManager.Instance.ShowOptionPanel(false);
+        UIManager.Instance.ShowPowerUpPanel(false);
         bool hasFailed = playerHealth <= 0;
         
         if (enemyHealth <= 0)
         {
             AudioController.Instance.ToggleMusic(false);
             AudioController.Instance.PlayBattleVictory();
-            yield return StartCoroutine(TypeText(dialogueText, "You defeated the enemy! Well done!", typingSpeed));
-            
-
+            yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                "You defeated the enemy! Well done!", 
+                typingSpeed
+            ));
         }
         else if (playerHealth <= 0)
         {
             AudioController.Instance.ToggleMusic(false);
             AudioController.Instance.PlayBattleLoss();
-            yield return StartCoroutine(TypeText(dialogueText, "You were defeated. Better luck next time!", typingSpeed));
-            
+            yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
+                "You were defeated. Better luck next time!", 
+                typingSpeed
+            ));
         }
-
-
+        
         yield return new WaitForSeconds(2f);
-        battlePanel.SetActive(false);
-        evaluationPanel.SetActive(false);
+        UIManager.Instance.ShowBattlePanel(false);
+        UIManager.Instance.ShowEvaluationPanel(false);
         UIManager.Instance.enablePlayerHUD();
         isEvaluating = false;
         yield return new WaitForSeconds(2f);
-
+        
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Chapter currentChapter = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter];
         Level currentLevel = currentChapter.levels[loggedInUser.currentLevel - 1];
-
-        if(!currentLevel.isCompleted){
-            loggedInUser.setLevelScore(((float)numCorrectAnswers/numQuestions) * 100);
-
+        
+        if (!currentLevel.isCompleted)
+        {
+            loggedInUser.setLevelScore(((float)numCorrectAnswers / numQuestions) * 100);
+            
             DatabaseManager.Instance.CompleteLevel(hasFailed, (success) => {
                 if (success)
                 {
@@ -815,36 +759,38 @@ public class EvaluationManager : MonoBehaviour{
                     Debug.LogError("Failed to complete level");
                 }
             });
-
+            
             // Show post-evaluation success dialogue
             yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
-
+            
             AudioController.Instance.ToggleMusic(true);
             AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
-
+            
             AchievementManager.Instance.CheckAchievements(levelName, DatabaseManager.Instance.loggedInUser.getLevelTime(), numQuestions, numCorrectAnswers, hasFailed);
-
+            
             // Wait until achievement processing is complete
             yield return StartCoroutine(WaitForAchievementProcessing());
-
+            
             // Now show the completion/failure UI
-            if(hasFailed){
+            if (hasFailed)
+            {
                 UIManager.Instance.showFailedLevel();
             }
-            else{
+            else
+            {
                 UIManager.Instance.showCompletedLevel();
             }
         }
-        else{
-            // if already completed, no need to show post evaluation dialogues
+        else
+        {
+            // If already completed, no need to show post evaluation dialogues
             AudioController.Instance.ToggleMusic(true);
             AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
         }
-
     }
-
+    
     // Helper coroutine to wait for achievement processing
     private IEnumerator WaitForAchievementProcessing()
     {
@@ -853,7 +799,7 @@ public class EvaluationManager : MonoBehaviour{
         
         // Wait until achievement manager is no longer processing
         while (AchievementManager.Instance != null && 
-            AchievementManager.Instance.isProcessingAchievements)
+               AchievementManager.Instance.isProcessingAchievements)
         {
             yield return null; // Wait one frame
         }
@@ -861,44 +807,22 @@ public class EvaluationManager : MonoBehaviour{
         // Add a small buffer after processing completes
         yield return new WaitForSeconds(0.5f);
     }
-
-    // Function to Add Hover Listeners
-    private void AddHoverListeners(Button button, int i)
+    
+    // Hover handlers
+    private void OnHoverEnter(int index)
     {
-        EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
-
-        if (trigger == null)
-            trigger = button.gameObject.AddComponent<EventTrigger>();
-
-        // Pointer Enter (Hover Start)
-        EventTrigger.Entry entryEnter = new EventTrigger.Entry();
-        entryEnter.eventID = EventTriggerType.PointerEnter;
-        entryEnter.callback.AddListener((data) => OnHoverEnter(button, i));
-        trigger.triggers.Add(entryEnter);
-
-        // Pointer Exit (Hover End)
-        EventTrigger.Entry entryExit = new EventTrigger.Entry();
-        entryExit.eventID = EventTriggerType.PointerExit;
-        entryExit.callback.AddListener((data) => OnHoverExit(button));
-        trigger.triggers.Add(entryExit);
-    }
-
-    // Hover Event Handlers
-    private void OnHoverEnter(Button button, int i)
-    {
-        if(!isTyping)
+        if (!isTyping && currentQuestionIndex < currentQuestions.Count)
         {
-            dialogueText.text = currentQuestions[currentQuestionIndex].options[i];
+            UIManager.Instance.eval_dialogueText.text = currentQuestions[currentQuestionIndex].options[index];
         }
     }
-
-    private void OnHoverExit(Button button)
+    
+    private void OnHoverExit()
     {
-        if(!isTyping)
+        if (!isTyping && currentQuestionIndex < currentQuestions.Count)
         {
-            dialogueText.text = currentQuestions[currentQuestionIndex].question + "\n\n What will " + playerName + " do?";
+            UIManager.Instance.eval_dialogueText.text = currentQuestions[currentQuestionIndex].question + 
+                "\n\n What will " + playerName + " do?";
         }
     }
-
-
 }

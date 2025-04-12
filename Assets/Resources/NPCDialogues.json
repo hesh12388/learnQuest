@@ -13,7 +13,7 @@
         "Let me show you a diagram that breaks it down: opening tag, content, closing tag.",
         "In the browser, this might appear in italics, but that’s up to the parser—it’s not hardcoded!",
         "Remember: <em> means emphasis, not italics. If you want to show importance, you might want <strong> instead.",
-        "Or for a change in tone or voice, maybe <i> is better.",
+        "Or for a change in tone or voice, maybe italic is better.",
         "You're doing great! You've just built your first real HTML element. Keep going!"
       ],
       "images": [

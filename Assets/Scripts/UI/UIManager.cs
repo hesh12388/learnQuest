@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using System;
+using UnityEngine.Events;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Panels")]
@@ -1096,6 +1098,365 @@ public class UIManager : MonoBehaviour
                 registrationFailedMessage.SetActive(true);
             }
         });
+    }
+
+    // Show the dialogue panel with NPC data
+    public void ShowDialoguePanel(NPCDialogue dialogueData, int dialogueIndex)
+    {
+        dialoguePanel.SetActive(true);
+        if(dialogueData == null)
+        {
+            Debug.LogError("Dialogue data is null");
+            return;
+        }
+
+        demonstration_npcImage.sprite = dialogueData.npcSprite;
+    }
+
+    // Hide the dialogue panel
+    public void HideDialoguePanel()
+    {
+        dialoguePanel.SetActive(false);
+    }
+
+    // Display dialogue text (with typing effect managed by UIManager)
+    public IEnumerator TypeDialogueText(string text, float typingSpeed, System.Action onComplete = null)
+    {
+        demonstration_dialogueText.SetText("");
+        
+        foreach(char letter in text.ToCharArray())
+        {
+            demonstration_dialogueText.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        
+        if (onComplete != null)
+            onComplete();
+    }
+
+    // Set the dialogue text directly
+    public void SetDialogueText(string text)
+    {
+        demonstration_dialogueText.SetText(text);
+    }
+
+    // Show dialogue image
+    public void ShowDialogueImage(Sprite npcSprite, Sprite dialogueImage)
+    {
+        // Set up the graphics panel
+        graphicsInstructorImage.sprite = npcSprite;
+        graphicsPanel.SetActive(true);
+        graphicsImagePanel.SetActive(true);
+        npcImagePanel.SetActive(false);
+        
+        // Set and scale the image
+        graphicsImage.sprite = dialogueImage;
+        graphicsImage.SetNativeSize();
+        
+        // Scale the image if needed
+        RectTransform rt = graphicsImage.rectTransform;
+        float currentWidth = rt.rect.width;
+        float currentHeight = rt.rect.height;
+        
+        // Maximum allowed dimensions
+        float maxWidth = 500f;
+        float maxHeight = 300f;
+        
+        // Scale if image exceeds maximum dimensions
+        if (currentWidth > maxWidth || currentHeight > maxHeight)
+        {
+            float widthScale = maxWidth / currentWidth;
+            float heightScale = maxHeight / currentHeight;
+            float scale = Mathf.Min(widthScale, heightScale);
+            rt.sizeDelta = new Vector2(currentWidth * scale, currentHeight * scale);
+        }
+    }
+
+    // Show NPC image without graphics
+    public void ShowNPCImageOnly(Sprite npcSprite)
+    {
+        npcImagePanel.SetActive(true);
+        graphicsPanel.SetActive(false);
+        demonstration_npcImage.sprite = npcSprite;
+    }
+
+    // Start flashing the enter key
+    public Coroutine StartFlashingEnterKey(float flashRate = 0.5f)
+    {
+        return StartCoroutine(FlashEnterKeyCoroutine(flashRate));
+    }
+
+    // Stop flashing the enter key
+    public void StopFlashingEnterKey(Coroutine flashingCoroutine)
+    {
+        if (flashingCoroutine != null)
+        {
+            StopCoroutine(flashingCoroutine);
+            enterKey.gameObject.SetActive(false);
+        }
+    }
+
+    // Coroutine for flashing enter key
+    private IEnumerator FlashEnterKeyCoroutine(float flashRate)
+    {
+        enterKey.gameObject.SetActive(true);
+        
+        while (true)
+        {
+            yield return new WaitForSeconds(flashRate);
+            enterKey.gameObject.SetActive(!enterKey.gameObject.activeSelf);
+        }
+    }
+
+    // Set up dialogue button listeners
+    public void SetupDialogueButtons(System.Action onPause, System.Action onResume, System.Action onExit)
+    {
+        if (closeDialogue != null)
+            closeDialogue.onClick.RemoveAllListeners();
+            
+        if (continueDialogue != null)
+            continueDialogue.onClick.RemoveAllListeners();
+            
+        if (exitDialogue != null)
+            exitDialogue.onClick.RemoveAllListeners();
+            
+        closeDialogue.onClick.AddListener(() => onPause());
+        continueDialogue.onClick.AddListener(() => onResume());
+        exitDialogue.onClick.AddListener(() => onExit());
+    }
+
+    #region Question UI Methods
+
+    public void ShowQuestionPanel(bool show)
+    {
+        questionsPanel.SetActive(show);
+    }
+
+    public void SetQuestionText(string text)
+    {
+        question_text.text = text;
+    }
+
+    public void SetupQuestionAnswerButtons(string[] answers, System.Action<int>[] callbacks)
+    {
+        for (int i = 0; i < question_answerButtons.Length; i++)
+        {
+            if (i < answers.Length)
+            {
+                question_answerButtons[i].gameObject.SetActive(true);
+                question_answerButtons[i].GetComponentInChildren<TMP_Text>().text = answers[i];
+                
+                // Remove previous listeners and add new one
+                question_answerButtons[i].onClick.RemoveAllListeners();
+                
+                // Capture the index for the closure
+                int capturedIndex = i;
+                
+                // Add new listener with captured index
+                question_answerButtons[i].onClick.AddListener(() => {
+                    callbacks[capturedIndex]?.Invoke(capturedIndex);
+                });
+            }
+            else
+            {
+                question_answerButtons[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void DisableQuestionAnswerButtons()
+    {
+        foreach (Button button in question_answerButtons)
+        {
+            button.interactable = false;
+        }
+    }
+
+    public void ResetQuestionAnswerButtons()
+    {
+        foreach (Button button in question_answerButtons)
+        {
+            button.interactable = true;
+        }
+    }
+
+    #endregion
+
+    #region Evaluation UI Methods
+
+    public void SetupEvaluationUI(string playerName, string npcName, Sprite playerSprite, Sprite enemySprite, Sprite backgroundSprite)
+    {
+        // Set up player info
+        playerNameText.text = playerName;
+        playerLevelText.text = "Lvl 1";
+        playerImage.sprite = playerSprite;
+        
+        // Set up enemy info
+        npcNameText.text = npcName;
+        npcLevelText.text = "Lvl 1";
+        eval_npcImage.sprite = enemySprite;
+        
+        // Set up backgrounds
+        battleBackground.sprite = backgroundSprite;
+        battleIntroBackground.sprite = backgroundSprite;
+        
+        // Reset health bars
+        playerHealthBar.localScale = new Vector3(1f, 1f, 1f);
+        npcHealthBar.localScale = new Vector3(1f, 1f, 1f);
+    }
+
+    public void ShowEvaluationPanel(bool show)
+    {
+        evaluationPanel.SetActive(show);
+    }
+
+    public void ShowBattlePanel(bool show)
+    {
+        battlePanel.SetActive(show);
+    }
+
+    public void ShowNPCIntroPanel(bool show)
+    {
+        npcIntroPanel.SetActive(show);
+    }
+
+    public void ShowOptionPanel(bool show)
+    {
+        optionPanel.SetActive(show);
+    }
+
+    public void ShowPowerUpPanel(bool show)
+    {
+        power_up_panel.SetActive(show);
+    }
+
+    public void SetNPCIntroImage(Sprite sprite)
+    {
+        npcIntroImage.sprite = sprite;
+    }
+
+    public void UpdateHealthBar(bool isPlayer, float healthValue)
+    {
+        healthValue = Mathf.Clamp(healthValue, 0f, 1f);
+        
+        if (isPlayer)
+        {
+            playerHealthBar.localScale = new Vector3(healthValue, 1f, 1f);
+        }
+        else
+        {
+            npcHealthBar.localScale = new Vector3(healthValue, 1f, 1f);
+        }
+    }
+
+    public void SetupAnswerButtons(string[] answers, Action<int>[] callbacks)
+    {
+        for (int i = 0; i < answerButtons.Length; i++)
+        {
+            if (i < answers.Length)
+            {
+                TMP_Text answerText = answerButtons[i].GetComponentInChildren<TMP_Text>();
+                answerText.text = answers[i];
+                
+                answerButtons[i].gameObject.SetActive(true);
+                answerButtons[i].onClick.RemoveAllListeners();
+                
+                // Add click callback
+                int capturedIndex = i;
+                answerButtons[i].onClick.AddListener(() => callbacks[capturedIndex]?.Invoke(capturedIndex));
+            }
+            else
+            {
+                answerButtons[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void SetupPowerUpButton(int buttonIndex, bool interactable)
+    {
+        if (buttonIndex >= 0 && buttonIndex < power_up_buttons.Length)
+        {
+            power_up_buttons[buttonIndex].interactable = interactable;
+        }
+    }
+
+    public void UpdateTimerText(float timeValue)
+    {
+        eval_time.text = Mathf.CeilToInt(timeValue).ToString();
+    }
+
+    public void ClearTimerText()
+    {
+        eval_time.text = "";
+    }
+
+    public IEnumerator FlashSprite(Image targetImage, float duration = 0.5f)
+    {
+        // Store the original sprite
+        Sprite originalSprite = targetImage.sprite;
+        Color originalColor = targetImage.color;
+        
+        // Flash duration and interval
+        float endTime = Time.time + duration;
+        float flashInterval = 0.1f;
+        
+        // Flash the sprite by toggling visibility
+        while (Time.time < endTime)
+        {
+            // Toggle visibility by changing alpha
+            targetImage.color = new Color(
+                originalColor.r, 
+                originalColor.g, 
+                originalColor.b, 
+                targetImage.color.a > 0.5f ? 0.0f : 1.0f
+            );
+            
+            yield return new WaitForSeconds(flashInterval);
+        }
+        
+        // Ensure sprite is fully visible when done
+        targetImage.sprite = originalSprite;
+        targetImage.color = originalColor;
+    }
+
+    public IEnumerator TypeEvaluationText(string text, float typingSpeed, Action onComplete = null)
+    {
+        eval_dialogueText.text = "";
+        
+        foreach (char letter in text.ToCharArray())
+        {
+            eval_dialogueText.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        
+        onComplete?.Invoke();
+    }
+
+    public void SetupAnswerButtonHover(Button button, EventTriggerType eventID, UnityAction<BaseEventData> callback)
+    {
+        EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
+        if (trigger == null)
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+        
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = eventID;
+        entry.callback.AddListener(callback);
+        trigger.triggers.Add(entry);
+    }
+
+    #endregion
+
+    // Clear dialogue button listeners
+    public void ClearDialogueButtonListeners()
+    {
+        if (closeDialogue != null)
+            closeDialogue.onClick.RemoveAllListeners();
+            
+        if (continueDialogue != null)
+            continueDialogue.onClick.RemoveAllListeners();
+            
+        if (exitDialogue != null)
+            exitDialogue.onClick.RemoveAllListeners();
     }
 
     public void QuitGame()

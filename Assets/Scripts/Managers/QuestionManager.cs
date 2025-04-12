@@ -21,11 +21,6 @@ public class QuestionManager : MonoBehaviour
         public string incorrectResponse;
     }
 
-    [Header("Questions Panel")]
-    private GameObject questionPanel;
-    private TMP_Text questionText;
-    private Button[] answerButtons;
-
     [Header("Questions Data")]
     private string questionsFilePath = "Questions";
     private List<Question> allQuestions = new List<Question>();
@@ -51,12 +46,6 @@ public class QuestionManager : MonoBehaviour
         LoadQuestions();
     }
 
-    private void Start()
-    {
-        questionPanel = UIManager.Instance.questionsPanel;
-        answerButtons = UIManager.Instance.question_answerButtons;
-        questionText = UIManager.Instance.question_text;
-    }
 
     /// <summary>
     /// Get the current objective for creatures to ask questions about
@@ -209,41 +198,33 @@ public class QuestionManager : MonoBehaviour
     
     private void ShowQuestion(Question question)
     {
+        UIManager.Instance.ResetQuestionAnswerButtons();
         currentQuestion = question;
         hasAnsweredCorrectly = false;
         
         // Pause the player
-        if (Player.Instance != null)
+        if (Player.Instance != null) {
             Player.Instance.pausePlayer();
             Player.Instance.stopInteraction();
+        }
         
         if(UIManager.Instance != null && UIManager.Instance.isMenuOpen())
             UIManager.Instance.setMenuOpen(false);
         
-        // Show the question panel
-        questionPanel.SetActive(true);
+        // Set up UI through UIManager
+        UIManager.Instance.ShowQuestionPanel(true);
+        UIManager.Instance.SetQuestionText(question.questionText);
         
-        // Set question text
-        questionText.text = question.questionText;
-        
-        
-        // Set up answer buttons
-        for (int i = 0; i < answerButtons.Length; i++)
+        // Set up answer button callbacks
+        System.Action<int>[] callbacks = new System.Action<int>[question.answers.Length];
+        for (int i = 0; i < question.answers.Length; i++)
         {
-            if (i < question.answers.Length)
-            {
-                answerButtons[i].gameObject.SetActive(true);
-                answerButtons[i].GetComponentInChildren<TMP_Text>().text = question.answers[i];
-                
-                int answerIndex = i; // Need to capture for lambda
-                answerButtons[i].onClick.RemoveAllListeners();
-                answerButtons[i].onClick.AddListener(() => OnAnswerSelected(answerIndex));
-            }
-            else
-            {
-                answerButtons[i].gameObject.SetActive(false);
-            }
+            int capturedIndex = i;
+            callbacks[i] = (index) => OnAnswerSelected(capturedIndex);
         }
+        
+        // Set up answer buttons through UIManager
+        UIManager.Instance.SetupQuestionAnswerButtons(question.answers, callbacks);
         
         // Play sound
         if (AudioController.Instance != null)
@@ -260,7 +241,7 @@ public class QuestionManager : MonoBehaviour
         
         // Show response based on correctness
         string responseText = isCorrect ? currentQuestion.correctResponse : currentQuestion.incorrectResponse;
-        questionText.text = responseText;
+        UIManager.Instance.SetQuestionText(responseText);
         
         // Play sound based on result
         if (AudioController.Instance != null)
@@ -271,11 +252,8 @@ public class QuestionManager : MonoBehaviour
                 AudioController.Instance.PlayAnswerIncorrect();
         }
         
-        // Disable all answer buttons
-        foreach (Button button in answerButtons)
-        {
-            button.interactable = false;
-        }
+        // Disable all answer buttons through UIManager
+        UIManager.Instance.DisableQuestionAnswerButtons();
         
         StartCoroutine(CloseQuestionPanel());
     }
@@ -284,6 +262,7 @@ public class QuestionManager : MonoBehaviour
     {
         // Wait for a short duration before closing the panel
         yield return new WaitForSeconds(2f);
+        
         // If answered correctly, destroy the creature
         if (hasAnsweredCorrectly && currentTarget != null)
         {
@@ -291,19 +270,14 @@ public class QuestionManager : MonoBehaviour
             currentTarget.TakeDamage(999); // Large damage to ensure death
         }
         
-        // Reset the buttons
-        foreach (Button button in answerButtons)
-        {
-            button.interactable = true;
-        }
-        
-        // Hide the question panel
-        questionPanel.SetActive(false);
+        // Hide the question panel through UIManager
+        UIManager.Instance.ShowQuestionPanel(false);
         
         // Resume the player
-        if (Player.Instance != null)
+        if (Player.Instance != null) {
             Player.Instance.resumePlayer();
             Player.Instance.resumeInteraction();
+        }
             
         // Clear references
         currentTarget = null;

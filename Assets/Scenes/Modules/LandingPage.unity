@@ -35612,7 +35612,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400.37497, y: -240.55856}
+  m_AnchoredPosition: {x: 475.26392, y: -207.64407}
   m_SizeDelta: {x: 532.27, y: 351}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &515546868
@@ -38951,7 +38951,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY
+  m_text: That the text should be emphasized
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
   m_sharedMaterial: {fileID: 3150034411072574702, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
@@ -45387,7 +45387,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400.5931, y: -229.59464}
+  m_AnchoredPosition: {x: 475.26392, y: -196.79077}
   m_SizeDelta: {x: 667.8862, y: 383.1145}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &727164927
@@ -49233,7 +49233,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY
+  m_text: That the text should be centered
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
   m_sharedMaterial: {fileID: 3150034411072574702, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
@@ -88032,7 +88032,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY
+  m_text: That the text should be hidden
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
   m_sharedMaterial: {fileID: 3150034411072574702, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
@@ -89659,11 +89659,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3175781764739595762, guid: f118a8d224f73fe449b8a2599690e4bb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 400.5931
+      value: 475.26392
       objectReference: {fileID: 0}
     - target: {fileID: 3175781764739595762, guid: f118a8d224f73fe449b8a2599690e4bb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -506.1519
+      value: -473.34802
       objectReference: {fileID: 0}
     - target: {fileID: 3175781764739595762, guid: f118a8d224f73fe449b8a2599690e4bb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -91640,7 +91640,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY
+  m_text: That the text should be bold
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
   m_sharedMaterial: {fileID: 3150034411072574702, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
@@ -103981,7 +103981,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400.37497, y: -490.20526}
+  m_AnchoredPosition: {x: 475.26392, y: -457.29077}
   m_SizeDelta: {x: 630.2672, y: 108.2934}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1662123417
@@ -106784,7 +106784,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hi There. Welcome to the LearnQuest World.
+  m_text: What does the <em> element tell the browser?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}
   m_sharedMaterial: {fileID: 3150034411072574702, guid: 3115363a3e4a041f380b61939fdf1016, type: 2}

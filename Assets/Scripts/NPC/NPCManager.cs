@@ -29,13 +29,7 @@ public class NPCManager : MonoBehaviour
     private Dictionary<string, string> evaluationDialogues = new Dictionary<string, string>();
     private Dictionary<string, PostEvaluationDialogue> postEvaluationDialogues = new Dictionary<string, PostEvaluationDialogue>();
     private string nextObjective;
-    private Image npcImage;
-    private GameObject dialoguePanel;
-    private TMP_Text dialogueText;
-    private Button closeDialogue;
-
     public Sprite npcImageSprite;
-
     private float typingSpeed = 0.05f;
 
     private void Awake()
@@ -77,11 +71,7 @@ public class NPCManager : MonoBehaviour
 
     private void Start()
     {
-        npcImage=UIManager.Instance.demonstration_npcImage;
-        dialoguePanel= UIManager.Instance.dialoguePanel;
-        dialogueText= UIManager.Instance.demonstration_dialogueText;
-        closeDialogue= UIManager.Instance.closeDialogue;
-         StartCoroutine(showNextGuide());
+        StartCoroutine(showNextGuide());
     }
 
     // Load prerequisite and post-evaluation dialogues from JSON
@@ -203,20 +193,28 @@ public class NPCManager : MonoBehaviour
         Player.Instance.stopInteraction();
         Player.Instance.pausePlayer();
         UIManager.Instance.disablePlayerHUD();
-        closeDialogue.gameObject.SetActive(false);
         AudioController.Instance.PlayDemonstrationMusic();
         isInstructing = true;
-        // Show the dialogue panel
+        
+        // Show the dialogue panel using UIManager methods
         AudioController.Instance.PlayMenuOpen();
-        dialoguePanel.SetActive(true);
-        npcImage.sprite = npcImageSprite; // Set the NPC image
-        yield return StartCoroutine(TypeText(dialogueText, dialogue, typingSpeed));
-        yield return new WaitForSeconds(2f); // Wait for a moment before closing
+        
+        // Use existing UIManager dialogue methods
+        UIManager.Instance.ShowDialoguePanel(null, 0);
+        UIManager.Instance.ShowNPCImageOnly(npcImageSprite);
+        UIManager.Instance.closeDialogue.gameObject.SetActive(false);
+        
+        // Type the dialogue using UIManager's typing method
+        yield return StartCoroutine(UIManager.Instance.TypeDialogueText(dialogue, typingSpeed));
+        
+        // Wait for a moment before closing
+        yield return new WaitForSeconds(2f);
+        
+        // Close dialogue and reset state
         AudioController.Instance.PlayMenuOpen();
-        dialoguePanel.SetActive(false);
-        npcImage.sprite = null; // Reset the NPC image
+        UIManager.Instance.HideDialoguePanel();
         AudioController.Instance.PlayBackgroundMusic();
-        closeDialogue.gameObject.SetActive(true);
+        UIManager.Instance.closeDialogue.gameObject.SetActive(true);
         Player.Instance.resumeInteraction();
         Player.Instance.resumePlayer();
         UIManager.Instance.enablePlayerHUD();
@@ -232,7 +230,7 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    private IEnumerator showNpcIndicator(string npcName)
+    public IEnumerator showNpcIndicator(string npcName)
     {
         CameraManager.SwitchCamera(wideCamera);
         npcIndicators[npcName].SetActive(true);

@@ -1,24 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+
 public class NPC : MonoBehaviour, IInteractable
 {
     public NPCDialogue dialogueData;
     
-    private Image npcImage;
-    private GameObject dialoguePanel;
-    private TMP_Text dialogueText;
-    private GameObject graphicsPanel;
-    private Image graphicsImage;
-    private GameObject graphicsImagePanel;
-    private Image graphicsInstructorImage;
-    private GameObject npcImagePanel;
-    private Button closeDialogue;
-    private Button continueDialogue;
-    private Button exitDialogue;
-    private Image enterKey;
     public bool isInstructing;
     public bool isEvaluation;
     public bool isAssistant;
@@ -27,21 +14,6 @@ public class NPC : MonoBehaviour, IInteractable
     private bool isOnPreRequisite = false;
     private Coroutine flashingCoroutine;
     private bool isPaused = false;
-
-    private void Start(){
-        npcImage=UIManager.Instance.demonstration_npcImage;
-        dialoguePanel= UIManager.Instance.dialoguePanel;
-        dialogueText= UIManager.Instance.demonstration_dialogueText;
-        graphicsPanel= UIManager.Instance.graphicsPanel;
-        graphicsImage= UIManager.Instance.graphicsImage;
-        graphicsImagePanel= UIManager.Instance.graphicsImagePanel;
-        graphicsInstructorImage= UIManager.Instance.graphicsInstructorImage;
-        npcImagePanel= UIManager.Instance.npcImagePanel;
-        closeDialogue= UIManager.Instance.closeDialogue;
-        continueDialogue= UIManager.Instance.continueDialogue;
-        exitDialogue= UIManager.Instance.exitDialogue;
-        enterKey=UIManager.Instance.enterKey;
-    }
 
     public bool CanInteract()
     {
@@ -54,7 +26,8 @@ public class NPC : MonoBehaviour, IInteractable
         {
             UIManager.Instance.setMenuOpen(false);
         }
-        if( EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant)
+        
+        if(EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant)
         {
             return;
         }
@@ -65,10 +38,11 @@ public class NPC : MonoBehaviour, IInteractable
             return;
         }
 
-        isInstructing=true;
-        NPCManager.Instance.isInstructing=true;
+        isInstructing = true;
+        NPCManager.Instance.isInstructing = true;
         Player.Instance.pausePlayer();
-        // Start the interaction coroutine instead of doing everything immediately
+        
+        // Start the interaction coroutine
         StartCoroutine(InteractSequence());
     }
 
@@ -78,15 +52,15 @@ public class NPC : MonoBehaviour, IInteractable
         {
             if(ObjectiveManager.Instance.AreAllObjectivesCompleted()){
                 EvaluationManager.Instance.StartEvaluation();
-                isInstructing=false;
-                NPCManager.Instance.isInstructing=false;
+                isInstructing = false;
+                NPCManager.Instance.isInstructing = false;
                 yield break;
             }
             else{
                 yield return StartCoroutine(EvaluationManager.Instance.NotReady());
                 Player.Instance.resumePlayer();
-                isInstructing=false;
-                NPCManager.Instance.isInstructing=false;
+                isInstructing = false;
+                NPCManager.Instance.isInstructing = false;
                 yield break;
             }
         }
@@ -97,32 +71,35 @@ public class NPC : MonoBehaviour, IInteractable
            Player.Instance.pausePlayer();
            Player.Instance.stopInteraction();
            UIManager.Instance.disablePlayerHUD();
-           NPCManager.Instance.isInstructing=false;
-           isInstructing=false;
+           NPCManager.Instance.isInstructing = false;
+           isInstructing = false;
            yield break;
         }
+        
         if(!isDialogueActive){
-            // Now load the dialogue (after transition is complete)
+            // Load the dialogue data
             dialogueData.LoadDialogue();
-            // Wait for the transition to complete
+            
+            // Wait for transition to complete
             yield return StartCoroutine(TransitionManager.Instance.contentTransition());
-            closeDialogue.onClick.AddListener(pauseDemonstration);
-            continueDialogue.onClick.AddListener(resumeDemonstration);
-            exitDialogue.onClick.AddListener(EndDialogue);
+            
+            // Set up dialogue button listeners through UIManager
+            UIManager.Instance.SetupDialogueButtons(pauseDemonstration, resumeDemonstration, EndDialogue);
             AudioController.Instance.PlayMenuOpen();
         }
 
-        
-        for(int i=0; i<dialogueData.requiredPreviousDialogues.Length; i++)
+        // Check for prerequisites
+        for(int i = 0; i < dialogueData.requiredPreviousDialogues.Length; i++)
         {
             if(!ObjectiveManager.Instance.IsObjectiveCompleted(dialogueData.requiredPreviousDialogues[i]))
             {
                 isOnPreRequisite = true;
-                DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to " + dialogueData.requiredPreviousDialogues[i] + " first.", dialogueData.requiredPreviousDialogues[i]);
+                DisplayPrerequisiteMessage("Hello there! You are not quite ready for this lesson yet. You need to " + 
+                                          dialogueData.requiredPreviousDialogues[i] + " first.", 
+                                          dialogueData.requiredPreviousDialogues[i]);
                 yield break;
             }
         }
-
       
         if(isDialogueActive)
         {
@@ -135,39 +112,52 @@ public class NPC : MonoBehaviour, IInteractable
     }
 
     void StartDialogue(){
+        // Disable player controls and HUD
         UIManager.Instance.disablePlayerHUD();
+
+        // Play the demonstration music
         AudioController.Instance.PlayDemonstrationMusic();
-        isDialogueActive=true;
-        dialogueIndex=0;
 
-        npcImage.sprite=dialogueData.npcSprite;
-
-        dialoguePanel.SetActive(true);
-
+        // Set the dialogue state
+        isDialogueActive = true;
+        dialogueIndex = 0;
+        
+        // Show dialogue panel through UIManager
+        UIManager.Instance.ShowDialoguePanel(dialogueData, dialogueIndex);
+        
+        // Start typing the dialogue
         StartCoroutine(TypeDialogue());
     }
 
     void NextLine(){
         AudioController.Instance.PlayButtonClick();
+        
         if(isTyping)
         {
             StopAllCoroutines();
-            dialogueText.SetText(dialogueData.dialogue[dialogueIndex]);
-            isTyping=false;
+            
+            // Set text directly through UIManager
+            UIManager.Instance.SetDialogueText(dialogueData.dialogue[dialogueIndex]);
+            
+            isTyping = false;
+            
+            // Stop any existing flashing coroutine
             if (flashingCoroutine != null)
             {
-                StopCoroutine(flashingCoroutine);
+                UIManager.Instance.StopFlashingEnterKey(flashingCoroutine);
             }
-            flashingCoroutine = StartCoroutine(FlashEnterKey());
-        }
-        else if(++dialogueIndex<dialogueData.dialogue.Length)
-        {
-          
-            StartCoroutine(TypeDialogue());
             
+            // Start new flashing coroutine
+            flashingCoroutine = UIManager.Instance.StartFlashingEnterKey();
+        }
+        else if(++dialogueIndex < dialogueData.dialogue.Length)
+        {
+            // Show the next dialogue if there is more dialogue available
+            StartCoroutine(TypeDialogue());
         }
         else
         {
+            // End the dialogue if no more lines are available
             EndDialogue();
         }
     }
@@ -179,13 +169,11 @@ public class NPC : MonoBehaviour, IInteractable
         StopAllCoroutines();
         UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayDemonstrationMusic();
-        // Show the dialogue panel
         AudioController.Instance.PlayMenuOpen();
-        dialoguePanel.SetActive(true);
-        npcImage.sprite=dialogueData.npcSprite;
-        // Display only the NPC image, not graphics
-        npcImagePanel.SetActive(true);
-        graphicsPanel.SetActive(false);
+        
+        // Show dialogue panel with NPC
+        UIManager.Instance.ShowDialoguePanel(dialogueData, 0);
+        UIManager.Instance.ShowNPCImageOnly(dialogueData.npcSprite);
         
         // Start typing the prerequisite message
         StartCoroutine(TypePrerequisiteMessage(message, requiredNPC));
@@ -194,166 +182,106 @@ public class NPC : MonoBehaviour, IInteractable
     // Similar to TypeDialogue but for prerequisite messages
     private IEnumerator TypePrerequisiteMessage(string message, string requiredNPC)
     {
-        // Set typing state
+        // Start typing through UIManager
         isTyping = true;
-        dialogueText.SetText("");
-        
-        // Type out the message character by character
-        foreach(char letter in message.ToCharArray())
-        {
-            dialogueText.text += letter;
-            yield return new WaitForSeconds(dialogueData.typingSpeed);
-        }
-        
+        yield return UIManager.Instance.TypeDialogueText(message, dialogueData.typingSpeed);
         isTyping = false;
         
         // Auto-close the message after a delay
         yield return new WaitForSeconds(3f);
 
-    
-        // Close dialogue and resume player
-        StopAllCoroutines();
+        // Close dialogue and resume player controls
         isDialogueActive = false;
-        dialogueText.SetText("");
+
+        // Update the UI
+        UIManager.Instance.SetDialogueText("");
         AudioController.Instance.PlayMenuOpen();
-        dialoguePanel.SetActive(false);
+        UIManager.Instance.HideDialoguePanel();
         isInstructing = false;
-        NPCManager.Instance.isInstructing=false;
+        
+        // Show the NPC indicator
+        yield return StartCoroutine(NPCManager.Instance.showNpcIndicator(requiredNPC));
+        
+        // Resume player controls
+        NPCManager.Instance.isInstructing = false;
         Player.Instance.resumePlayer();
+        Player.Instance.resumeInteraction();
         isOnPreRequisite = false;
         AudioController.Instance.PlayBackgroundMusic();
         UIManager.Instance.enablePlayerHUD();
+        Debug.Log(Player.Instance.stop_interaction);
+        Debug.Log(Player.Instance.isPaused);
     }
 
     IEnumerator TypeDialogue(){
-        // Hide the enter key
+        // Stop any flashing enter key effect
         if (flashingCoroutine != null)
         {
-            StopCoroutine(flashingCoroutine);
-            enterKey.gameObject.SetActive(false);
+            UIManager.Instance.StopFlashingEnterKey(flashingCoroutine);
         }
         
-        if(dialogueData.dialogueImages!=null && dialogueData.dialogueImages.Length>dialogueIndex && dialogueData.dialogueImages[dialogueIndex]!=null)
+        // Show either dialogue image or NPC image
+        if(dialogueData.dialogueImages != null && dialogueData.dialogueImages.Length > dialogueIndex && 
+           dialogueData.dialogueImages[dialogueIndex] != null)
         {
-            graphicsInstructorImage.sprite=dialogueData.npcSprite;
-            graphicsPanel.SetActive(true);
-            graphicsImagePanel.SetActive(true);
-            graphicsImage.sprite=dialogueData.dialogueImages[dialogueIndex];
-            graphicsImage.SetNativeSize();
-            // Get the current size after setting native size
-            RectTransform rt = graphicsImage.rectTransform;
-            float currentWidth = rt.rect.width;
-            float currentHeight = rt.rect.height;
-             
-            // Set maximum allowed dimensions
-            float maxWidth = 500f;
-            float maxHeight = 300f;
-            
-            // Check if image exceeds maximum dimensions
-            if (currentWidth > maxWidth || currentHeight > maxHeight)
-            {
-                // Calculate scale factor to fit within constraints while preserving aspect ratio
-                float widthScale = maxWidth / currentWidth;
-                float heightScale = maxHeight / currentHeight;
-                
-                // Use the smaller scale to ensure both dimensions fit
-                float scale = Mathf.Min(widthScale, heightScale);
-                
-                // Apply the scaled size
-                rt.sizeDelta = new Vector2(currentWidth * scale, currentHeight * scale);
-            }
-            npcImagePanel.SetActive(false);
+            UIManager.Instance.ShowDialogueImage(dialogueData.npcSprite, dialogueData.dialogueImages[dialogueIndex]);
         }
         else
         {
-            npcImagePanel.SetActive(true);
-            graphicsPanel.SetActive(false);
+            UIManager.Instance.ShowNPCImageOnly(dialogueData.npcSprite);
         }
 
-        isTyping=true;
-        dialogueText.SetText("");
-
-        string fullText = dialogueData.dialogue[dialogueIndex];
+        isTyping = true;
         
-        foreach(char letter in dialogueData.dialogue[dialogueIndex].ToCharArray())
-        {
-            
-            dialogueText.text+=letter;
-            yield return new WaitForSeconds(dialogueData.typingSpeed);
-        }
-        // Show the enter key
-        enterKey.gameObject.SetActive(true);
+        // Use UIManager to handle text typing
+        yield return UIManager.Instance.TypeDialogueText(dialogueData.dialogue[dialogueIndex], dialogueData.typingSpeed);
         
-        if (flashingCoroutine != null)
-        {
-            StopCoroutine(flashingCoroutine);
-        }
-        flashingCoroutine = StartCoroutine(FlashEnterKey());
+        // Start flashing enter key
+        flashingCoroutine = UIManager.Instance.StartFlashingEnterKey();
+        
+        isTyping = false;
 
-        isTyping=false;
-
-        if(dialogueData.autoProgressLines.Length>dialogueIndex && dialogueData.autoProgressLines[dialogueIndex])
+        // Handle auto-progress if configured
+        if(dialogueData.autoProgressLines.Length > dialogueIndex && dialogueData.autoProgressLines[dialogueIndex])
         {
-            
             yield return new WaitForSeconds(dialogueData.autoProgressDelay);
             NextLine();
         }
-       
     }
-    public IEnumerator FlashEnterKey(float flashRate = 0.5f)
-    {
-        // Make sure the enter key starts visible
-        if (enterKey != null && enterKey.gameObject != null)
-        {
-            enterKey.gameObject.SetActive(true);
-            
-            while (true) // Loop until stopped externally
-            {
-                yield return new WaitForSeconds(flashRate);
-                enterKey.gameObject.SetActive(!enterKey.gameObject.activeSelf);
-            }
-        }
-    }
+
     public void pauseDemonstration(){
-        isPaused=true;
+        isPaused = true;
     }
     
     public void resumeDemonstration(){
-        isPaused=false;
+        isPaused = false;
     }
 
     public void EndDialogue(){
         StopAllCoroutines();
-        // Hide the enter key
+        
+        // Stop flashing enter key
         if (flashingCoroutine != null)
         {
-            StopCoroutine(flashingCoroutine);
-            enterKey.gameObject.SetActive(false);
+            UIManager.Instance.StopFlashingEnterKey(flashingCoroutine);
         }
-        isDialogueActive=false;
-        dialogueText.SetText("");
+        
+        isDialogueActive = false;
+        UIManager.Instance.SetDialogueText("");
         AudioController.Instance.PlayMenuOpen();
         AudioController.Instance.PlayBackgroundMusic();
-        dialoguePanel.SetActive(false);
+        UIManager.Instance.HideDialoguePanel();
 
-        if(dialogueIndex >=dialogueData.dialogue.Length){
+        if(dialogueIndex >= dialogueData.dialogue.Length){
              ObjectiveManager.Instance.MarkObjectiveCompleted(dialogueData.npcName);
         }
-         // Remove button listeners
-        if (closeDialogue != null)
-            closeDialogue.onClick.RemoveListener(pauseDemonstration);
         
-        if (continueDialogue != null)
-            continueDialogue.onClick.RemoveListener(resumeDemonstration);
+        // Remove button listeners
+        UIManager.Instance.ClearDialogueButtonListeners();
         
-        if (exitDialogue != null)
-            exitDialogue.onClick.RemoveListener(EndDialogue);
-
-        isInstructing=false;
-        NPCManager.Instance.isInstructing=false;
+        isInstructing = false;
+        NPCManager.Instance.isInstructing = false;
         UIManager.Instance.enablePlayerHUD();
         Player.Instance.resumePlayer();
     }
-
-
 }

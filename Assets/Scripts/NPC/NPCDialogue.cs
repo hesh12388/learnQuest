@@ -23,7 +23,6 @@ public class NPCDialogue : ScriptableObject
     private static Dictionary<string, NPCDialogueData> dialogueDictionary;
 
     
-
     public void LoadDialogue()
     {
         if (dialogueDictionary == null)
