@@ -98,7 +98,6 @@ public class CourseManager : MonoBehaviour
             {
                 Debug.Log($"Successfully started level {level}.");
                 ObjectiveManager.Instance.LoadObjectives();
-                ShopManager.Instance.LoadShopItems();
                 AchievementManager.Instance.LoadAchievements();
                 StartCoroutine(TransitionManager.Instance.transition(level));
                 EvaluationManager.Instance.LoadQuestionsForLevel();

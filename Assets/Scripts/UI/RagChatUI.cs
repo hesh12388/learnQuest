@@ -19,6 +19,8 @@ public class RagChatUI : MonoBehaviour
     
     private Dictionary<string, ChatMessageUI> messageUIComponents = new Dictionary<string, ChatMessageUI>();
     private bool isWaitingForResponse = false;
+    private bool hasShownWelcomeMessage = false;
+    private const string WELCOME_MESSAGE = "Hi, I am Toby, your AI assistant. I can answer any questions you may have about the course material or game itself, but beyond that, I cannot. How can I help you within the LearnQuest world today?";
     
     private void OnEnable()
     {
@@ -74,6 +76,9 @@ public class RagChatUI : MonoBehaviour
             
         if (messageInputField != null)
             messageInputField.onSubmit.RemoveAllListeners();
+
+        // Reset welcome message flag so it shows again next time
+        hasShownWelcomeMessage = false;
     }
 
     private IEnumerator ConnectAsync()
@@ -156,10 +161,35 @@ public class RagChatUI : MonoBehaviour
             }
         }
         
+        // Show welcome message after history
+        ShowWelcomeMessage();
+    
         // Scroll to bottom
         StartCoroutine(ScrollToBottom());
     }
-    
+     
+
+    // method for showing the welcome message
+    private void ShowWelcomeMessage()
+    {
+        if (hasShownWelcomeMessage)
+            return;
+            
+        // Create a welcome message
+        RagChatMessage welcomeMsg = new RagChatMessage
+        {
+            id = "welcome_" + System.Guid.NewGuid().ToString(),
+            assistantResponse = WELCOME_MESSAGE,
+            timestamp = System.DateTime.Now,
+            isUserMessage = false
+        };
+        
+        // Add to UI
+        AddAssistantMessageToUI(welcomeMsg);
+        hasShownWelcomeMessage = true;
+    }
+
+
     private void HandleError(string errorMessage)
     {
         Debug.LogError($"RAG Chat error: {errorMessage}");

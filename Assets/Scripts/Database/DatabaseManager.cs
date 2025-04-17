@@ -132,8 +132,6 @@ public class DatabaseManager : MonoBehaviour
     private IEnumerator GetObjectivesRequest(Action<List<Objective>> callback)
     {
         string username = loggedInUser.username;
-        Debug.Log(loggedInUser.currentChapter);
-        Debug.Log(loggedInUser.currentLevel);
         string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
         string url = $"{serverUrl}/get-objectives/{username}/{level_name}";
         
@@ -709,8 +707,6 @@ public class DatabaseManager : MonoBehaviour
 
                     // Create and store the User object
                     loggedInUser = new User(emailAddress, username, createdAt, score, numGems, streak_counter);
-                    StartCoroutine(LoadUserItemsAfterLogin(callback));
-                    yield break;
                 }
 
                 callback?.Invoke(true); // Success
@@ -722,47 +718,7 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
-
-    private IEnumerator LoadUserItemsAfterLogin(Action<bool> loginCallback)
-    {
-        // Wait for the coroutine to complete and store items in the user object
-        bool itemsLoaded = false;
-        GetUserItems((items) => {
-            if (items != null)
-            {
-                loggedInUser.purchasedItems = items;
-                Debug.Log($"Loaded {items.Count} purchased items for user {loggedInUser.username}");
-
-                // Extract player moves from purchased items
-                List<string> movesList = new List<string>();
-                foreach (UserItem item in items)
-                {
-                    if (item.item_type == "Move" && movesList.Count < 4)
-                    {
-                        movesList.Add(item.item_name);
-                    }
-                    else if(item.item_type == "character" && item.item_name=="Jessica"){
-                        loggedInUser.equippedCharacter = item.item_name;
-                    }
-                }
-                
-                // Set the player moves
-                loggedInUser.playerMoves = movesList.ToArray();
-                Debug.Log($"Set {loggedInUser.playerMoves.Length} player moves");
-            }
-            itemsLoaded = true;
-        });
-        
-        // Wait until items are loaded
-        while (!itemsLoaded)
-        {
-            yield return null;
-        }
-        
-        // Now finalize the login process
-        loginCallback?.Invoke(true);
-    }
-
+    
     // 📌 Get Course Structure
     public void GetCourseStructure(Action<CourseStructure> callback)
     {

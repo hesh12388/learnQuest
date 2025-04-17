@@ -1,9 +1,26 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
+// Simple data class to pass item data to UIManager
+public class ShopItemData
+{
+    public ShopItem item;
+    public string category;
+    public Sprite sprite;
+    public string itemDescription;
+    public string item_use;
+    
+    public ShopItemData(ShopItem item, string category, Sprite sprite, string itemDescription = null, string item_use = null)
+    {
+        this.item = item;
+        this.category = category;
+        this.sprite = sprite;
+        this.itemDescription = itemDescription;
+        this.item_use = item_use;
+    }
+}
+   
 public class ShopManager : MonoBehaviour
 {
     [System.Serializable]
@@ -11,13 +28,9 @@ public class ShopManager : MonoBehaviour
     {
         public string itemId;
         public Sprite itemImage;
+        public string itemDescription;
+        public string item_use;
     }
-    
-    // References to UI components
-    public Transform shopContentPanel;
-    public GameObject shopItemPrefab;
-    public TextMeshProUGUI user_coins_text;
-    public TextMeshProUGUI user_gems_text;
     
     // Item image mappings (assigned in inspector)
     public List<ItemImage> itemImages = new List<ItemImage>();
@@ -28,22 +41,20 @@ public class ShopManager : MonoBehaviour
     public static ShopManager Instance { get; private set; } // Singleton instance
 
     public List<UserItem> items_purchased;
-
     private ShopItemsResponse shopItemsResponse;
-    private string shop_category="Move";
-    
+
+
     private void Awake()
     {
-
-         if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject); // Keep this object between scenes
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Keep this object between scenes
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
         // Convert the list to a dictionary for faster lookups
         foreach (ItemImage item in itemImages)
@@ -82,28 +93,109 @@ public class ShopManager : MonoBehaviour
             if (DatabaseManager.Instance.loggedInUser != null)
             {
                 DatabaseManager.Instance.loggedInUser.purchasedItems = purchasedItems;
+                DatabaseManager.Instance.loggedInUser.equippedCharacter = "Jessica";
+                // Set up player moves based on purchased items
+                SetupPlayerMoves(purchasedItems);
             }
         });
     }
 
 
-    public void ShowShop(){
-        if(shop_category=="Move"){
-            PopulateMoveItems();
-        }
-        else if(shop_category=="character"){
-            PopulateCharacterItems();
-        }
-        else{
-            PopulateBoostItems();
-        }
-    }
-    private void setCoinsText()
+    /// <summary>
+    /// Set up player moves based on purchased items
+    /// </summary>
+    private void SetupPlayerMoves(List<UserItem> purchasedItems)
     {
-        user_coins_text.text = DatabaseManager.Instance.loggedInUser.score.ToString();
-        user_gems_text.text = DatabaseManager.Instance.loggedInUser.numGems.ToString();
+        // Create a new array for player moves (default to 4 moves)
+        string[] playerMoves = new string[4];
+        
+        // Find all purchased move items
+        List<UserItem> purchasedMoves = purchasedItems.FindAll(item => item.item_type == "Move");
+        
+        // If player has purchased moves, use them starting from index 0
+        for (int i = 0; i < purchasedMoves.Count && i < 4; i++)
+        {
+            playerMoves[i] = purchasedMoves[i].item_name;
+        }
+        
+        // Set the player moves
+        DatabaseManager.Instance.loggedInUser.playerMoves = playerMoves;
+        
+        Debug.Log("Player moves initialized: " + string.Join(", ", playerMoves));
     }
-    
+
+    public ShopItemData GetItemInfo(string itemName)
+    {
+        
+        // Look for the item in our item images list to get descriptions
+        ItemImage itemImageData = itemImages.Find(i => i.itemId == itemName);
+        
+        if (itemImageData == null)
+        {
+            Debug.LogWarning($"No item data found for: {itemName}");
+            return null;
+        }
+         
+        foreach (KeyValuePair<string, List<ShopItem>> entry in shopItemsResponse.categories)
+        {
+            // Check each category's items
+            foreach (ShopItem item in entry.Value)
+            {
+                // If we find the item, store it and break out of the loop
+                if (item.item_name.Trim() == itemName.Trim())
+                {
+                    Debug.Log(item.cost);
+                    return new ShopItemData(
+                        item,
+                        entry.Key,
+                        itemImageData.itemImage,
+                        itemImageData.itemDescription,
+                        itemImageData.item_use
+                    );
+            
+                }
+            }
+            
+        }
+        
+        return null; // Item not found
+    }
+
+    // Get items for a specific category to display in the UI
+    public List<ShopItemData> GetItemsForCategory(string category)
+    {
+        List<ShopItemData> result = new List<ShopItemData>();
+        
+        if (shopItemsResponse == null || shopItemsResponse.categories == null)
+        {
+            Debug.LogWarning("Shop items not loaded yet");
+            return result;
+        }
+        
+        if (!shopItemsResponse.categories.ContainsKey(category))
+        {
+            Debug.LogWarning($"Category {category} not found in shop items");
+            return result;
+        }
+        
+        foreach (ShopItem item in shopItemsResponse.categories[category])
+        {
+            // Get the sprite for this item
+            Sprite itemSprite = null;
+            if (itemImageDictionary.ContainsKey(item.item_name))
+            {
+                itemSprite = itemImageDictionary[item.item_name];
+            }
+            else
+            {
+                Debug.LogWarning($"No image found for item: {item.item_name}");
+            }
+            
+            result.Add(new ShopItemData(item, category, itemSprite));
+        }
+        
+        return result;
+    }
 
     // Check if an item is equipped
     public bool isEquipped(string item_name, string item_type)
@@ -133,39 +225,8 @@ public class ShopManager : MonoBehaviour
         
         return false;
     }
-    
-    // Method to populate character items
-    public void PopulateCharacterItems()
-    {
-        shop_category="character";
-        setCoinsText();
-        // Clear existing items first
-        foreach (Transform child in shopContentPanel) {
-            Destroy(child.gameObject);
-        }
 
-        foreach (ShopItem item in shopItemsResponse.categories["character"])
-        {
-            Debug.Log("Item name: " + item.item_name);
-            GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
-            shopItemObject.GetComponent<ShopItemUI>().itemCategory = "character";
-            shopItemObject.GetComponent<ShopItemUI>().item = item;
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
-            
-            
-        }
-    }
-
-    public void refreshShopItems()
-    {
-        foreach (Transform child in shopContentPanel)
-        {
-            
-            child.GetComponent<ShopItemUI>().refreshItem();
-        }
-    }
-
-
+    // Check if an item is already purchased
     public bool isPurchased(string item_name)
     {
         foreach(UserItem item in items_purchased)
@@ -176,12 +237,11 @@ public class ShopManager : MonoBehaviour
             }
         }
         return false;
-
     }
     
+    // Equip a move
     public void equipMove(string item_name)
     {
-     
         // Create a new array with the new move at the front
         string[] newMoves = new string[4];
         newMoves[0] = item_name;
@@ -196,7 +256,7 @@ public class ShopManager : MonoBehaviour
         DatabaseManager.Instance.loggedInUser.playerMoves = newMoves;
         
         // Update the UI to reflect the change
-        refreshShopItems();
+        UIManager.Instance.RefreshShopItems();
     }
 
     // Equip a character
@@ -211,53 +271,44 @@ public class ShopManager : MonoBehaviour
         PlayerManager.Instance.SetActivePlayerAppearance(item_name);
         
         // Update the UI to reflect the change
-        refreshShopItems();
-        
-    }
-
-    // Method to populate instructor items
-    public void PopulateMoveItems()
-    {
-        shop_category="Move";
-        setCoinsText();
-         // Clear existing items first
-        foreach (Transform child in shopContentPanel) {
-            Destroy(child.gameObject);
-        }
-
-        foreach (ShopItem item in shopItemsResponse.categories["Move"])
-        {
-            GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
-            shopItemObject.GetComponent<ShopItemUI>().itemCategory = "Move";
-            shopItemObject.GetComponent<ShopItemUI>().item = item;
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
-        }
+        UIManager.Instance.RefreshShopItems();
     }
     
+    // Buy an item
     public void buyItem(string item_name, string item_type)
     {
+
+        // Play purchase sound
+        AudioController.Instance.PlayBuyItem();
+
+        // If already purchased, just equip it
         if(isPurchased(item_name))
         {
             if(item_type == "Move")
             {
                 equipMove(item_name);
+                
             }
             else if(item_type == "character")
             {
                 equipCharacter(item_name);
             }
-
             return;
         }
-        AudioController.Instance.PlayBuyItem();
+    
+        // Process the purchase through the database
         DatabaseManager.Instance.BuyItem(item_name, item_type, (bool success) =>
         {
             if (success)
             {
                 Debug.Log("Item bought successfully");
-                setCoinsText();
+                
+                // Add to purchased items
                 items_purchased.Add(new UserItem(item_name, item_type));
-                refreshShopItems();
+                
+                // Update UI
+                UIManager.Instance.UpdateShopCurrencyDisplay();
+                UIManager.Instance.RefreshShopItems();
                 UIManager.Instance.updatePlayerCoins();
                 UIManager.Instance.updatePlayerGems();
             }
@@ -267,28 +318,4 @@ public class ShopManager : MonoBehaviour
             }
         });
     }
-    // Method to populate boost items
-    public void PopulateBoostItems()
-    {
-        shop_category="Boost";
-        setCoinsText();
-         // Clear existing items first
-        foreach (Transform child in shopContentPanel) {
-            Destroy(child.gameObject);
-        }
-
-        foreach (ShopItem item in shopItemsResponse.categories["Boost"])
-        {
-            GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel.transform);
-            shopItemObject.GetComponent<ShopItemUI>().itemCategory = "Boost";
-            shopItemObject.GetComponent<ShopItemUI>().item = item;
-            shopItemObject.GetComponent<ShopItemUI>().UpdateUI(itemImageDictionary[item.item_name], item.item_name, item.cost);
-        }
-    }
-    
-  
-     
-
-    
 }
-

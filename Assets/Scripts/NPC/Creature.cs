@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
+
 public class Creature : MonoBehaviour
 {
     [Header("Stats")]
@@ -29,6 +30,19 @@ public class Creature : MonoBehaviour
     public float invulnerabilityTime = 1.0f;
     private bool isInvulnerable = false;
 
+    [Header("Bounce Animation")]
+    [SerializeField] private float bounceInterval = 3f; // Time between bounces
+    [SerializeField] private float bounceDuration = 1f; // How long the bounce takes
+    [SerializeField] private float bounceHeight = 0.5f; // How high the creature bounces
+    [SerializeField] private AnimationCurve bounceCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // Animation curve for bounce
+    
+    
+    // Bounce state
+    private bool isBouncing = false;
+    private float nextBounceTime;
+    private Vector3 originalPosition;
+    private Transform spriteTransform; // We'll use this to bounce just the sprite, not the collider
+
     // Path validation
     private Vector3 lastPosition;
     private float stuckTimer = 0f;
@@ -38,6 +52,7 @@ public class Creature : MonoBehaviour
     private Animator animator;
     private NavMeshAgent agent;
     
+    public GameObject messageBubble;
     // Events
     public event Action<Creature> OnCreatureDefeated;
     
@@ -45,6 +60,33 @@ public class Creature : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        
+        // Find or create sprite transform
+        spriteTransform = transform.Find("Sprite");
+        if (spriteTransform == null)
+        {
+            // If there's no separate sprite child, use the main transform
+            // or create a child sprite container if needed
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                spriteTransform = transform; // Use main transform if it has the sprite renderer
+            }
+            else
+            {
+                // Find first child with sprite renderer
+                sr = GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
+                {
+                    spriteTransform = sr.transform;
+                }
+                else
+                {
+                    // Fallback to main transform
+                    spriteTransform = transform;
+                }
+            }
+        }
         
         // Configure NavMeshAgent for 2D
         if (agent != null)
@@ -64,6 +106,9 @@ public class Creature : MonoBehaviour
         currentHealth = maxHealth;
         lastPosition = transform.position;
         StartCoroutine(ValidatePathRoutine());
+        
+        // Set first bounce time
+        nextBounceTime = Time.time + UnityEngine.Random.Range(1f, bounceInterval);
     }
     
     private void Start()
@@ -77,6 +122,9 @@ public class Creature : MonoBehaviour
                 transform.position = hit.position;
             }
         }
+        
+        // Store original position for bouncing
+        originalPosition = spriteTransform.localPosition;
     }
     
     private IEnumerator ValidatePathRoutine()
@@ -98,8 +146,9 @@ public class Creature : MonoBehaviour
                 pathInvalidTimer = 0f;
                 continue;
             }
-
-            // Check if the path to player is valid
+        
+            // In Creature.cs
+            // Set destination to player position
             agent.SetDestination(Player.Instance.transform.position);
             
             // Check path status
@@ -175,6 +224,17 @@ public class Creature : MonoBehaviour
             return;
         }
 
+        // Check if it's time to bounce
+        if (!isBouncing && !isRetreating && Time.time >= nextBounceTime)
+        {
+            StartCoroutine(PerformBounce());
+            return;
+        }
+
+        // Skip normal movement if bouncing
+        if (isBouncing)
+            return;
+
         agent.isStopped = false;
         float distanceToPlayer = Vector2.Distance(transform.position, Player.Instance.transform.position);
         
@@ -210,6 +270,105 @@ public class Creature : MonoBehaviour
         // Update animator
         UpdateAnimator();
        
+    }
+
+    // method for bounce animation
+    private IEnumerator PerformBounce()
+    {
+        isBouncing = true;
+        
+        // Stop movement
+        if (agent != null)
+        {
+            agent.isStopped = true;
+        }
+        
+        // Set animation to idle
+        if (animator != null)
+        {
+            animator.SetBool("isMoving", false);
+            animator.SetFloat("moveX", 0f);
+            animator.SetFloat("moveY", 0f);
+        }
+        
+        // Get sprite renderer or transform to animate
+        SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        Transform targetTransform = spriteRenderer != null ? spriteRenderer.transform : transform;
+            
+        // Store original position
+        Vector3 startPos = targetTransform.position;
+        
+        // Multiple bounces with decreasing height
+        int numberOfBounces = 5;
+        float currentBounceHeight = bounceHeight;
+        messageBubble.SetActive(true);
+        for (int i = 0; i < numberOfBounces; i++)
+        {
+            // Calculate the duration for this bounce (make subsequent bounces faster)
+            float currentBounceDuration = bounceDuration * (1f - (i * 0.2f));
+            
+            // Move up (first half of bounce)
+            float moveUpTime = currentBounceDuration * 0.5f;
+            float elapsedTime = 0f;
+            
+            while (elapsedTime < moveUpTime)
+            {
+                float ratio = elapsedTime / moveUpTime;
+                float yOffset = currentBounceHeight * ratio;
+                
+                targetTransform.position = new Vector3(
+                    startPos.x,
+                    startPos.y + yOffset,
+                    startPos.z
+                );
+                
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // Move down (second half of bounce)
+            elapsedTime = 0f;
+            float moveDownTime = currentBounceDuration * 0.5f;
+            Vector3 topPosition = targetTransform.position;
+            
+            while (elapsedTime < moveDownTime)
+            {
+                float ratio = elapsedTime / moveDownTime;
+                
+                targetTransform.position = Vector3.Lerp(
+                    topPosition, 
+                    startPos, 
+                    ratio
+                );
+                
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // Ensure we're back at the start position
+            targetTransform.position = startPos;
+            
+            // Reduce bounce height for next bounce (makes it look more natural)
+            currentBounceHeight *= 0.5f;
+            
+            // Small pause between bounces
+            if (i < numberOfBounces - 1)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        // Resume movement
+        if (agent != null)
+        {
+            agent.isStopped = false;
+        }
+        
+        // Schedule next bounce
+        nextBounceTime = Time.time + bounceInterval;
+        
+        isBouncing = false;
+        messageBubble.SetActive(false);
     }
     
     private void UpdateAnimator()

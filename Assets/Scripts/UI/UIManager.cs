@@ -67,6 +67,29 @@ public class UIManager : MonoBehaviour
     public GameObject achievementsPanel;
     public GameObject levelsGamePanel;
     public GameObject shopPanel;
+    public GameObject menuButton;
+
+    [Header("Shop Item Info Panel")]
+    public GameObject itemInfoPanel;
+    public TextMeshProUGUI itemInfoName;
+    public TextMeshProUGUI itemInfoDescription;
+    public TextMeshProUGUI itemInfoUse;
+    public TextMeshProUGUI itemInfoCost;
+    public Image itemInfoCurrencySprite;
+    public Image itemInfoSprite;
+
+    [Header("Shop UI")]
+    public Transform shopContentPanel;
+    public GameObject shopItemPrefab;
+    public TextMeshProUGUI user_coins_text;
+    public TextMeshProUGUI user_gems_text;
+    private string current_shop_category="Move";
+
+    [Header("Objective Guide UI")]
+    public GameObject objectiveGuidePanel;
+    public TextMeshProUGUI objective_guide_text;
+    public GameObject objectiveGuideButton;
+    public GameObject objectivesCompleteButton;
 
     [Header("Leaderboard UI")]
     public Transform leaderboardContentPanel;  
@@ -209,20 +232,24 @@ public class UIManager : MonoBehaviour
     public void OnToggleMenu()
     {
         if(!isInGame || (EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating) || (NPCManager.Instance!=null && NPCManager.Instance.isInstructing) || (RagChatManager.Instance!=null && RagChatManager.Instance.isUsingAssistant)){
+            Debug.Log("Menu toggle ignored due to game state");
             return;
         }
 
         if(IsPointerOverInputField()){
+            Debug.Log("Menu toggle ignored due to input field focus");
             return;
         }
 
         if(Player.Instance.stop_interaction){
+            Debug.Log("Menu toggle ignored due to player interaction");
             return;
         }
 
         // Toggle the inGameUiPanel active state
         if (inGameUiPanel != null)
         {
+            Debug.Log("Toggling inGameUiPanel");
             inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
             
             if (inGameUiPanel.activeSelf)
@@ -300,6 +327,28 @@ public class UIManager : MonoBehaviour
         landingSettingsPanel.SetActive(false);
     }
 
+    public void setObjectiveGuideText(string text, bool objectivesCompleted){
+
+        if(!objectiveGuidePanel.activeSelf){
+            objectiveGuidePanel.SetActive(true);
+        }
+
+        objective_guide_text.text = text;
+        if(objectivesCompleted){
+            objectiveGuideButton.SetActive(false);
+            objectivesCompleteButton.SetActive(true);
+        }
+        else{
+            objectiveGuideButton.SetActive(true);
+            objectivesCompleteButton.SetActive(false);
+        }
+    }
+
+    public void showObjectiveGuide(){
+        Debug.Log("Showing objective guide");
+        StartCoroutine(NPCManager.Instance.showNpcIndicator(objective_guide_text.text));
+    }
+
     public void showLandingSettings(){
         landingSettingsPanel.SetActive(!landingSettingsPanel.activeSelf);
         if(landingSettingsPanel.activeSelf){
@@ -364,6 +413,9 @@ public class UIManager : MonoBehaviour
     public void StartNextLevel(){
         setGameUIPanelsInactive();
         Player.Instance.resumeInteraction();
+        objectiveGuidePanel.SetActive(false);
+        playerHUD.SetActive(false);
+        helpButton.SetActive(false);
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         if(loggedInUser.currentLevel<loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels.Count){
             startLevel(loggedInUser.currentLevel+1);
@@ -373,11 +425,13 @@ public class UIManager : MonoBehaviour
     public void disablePlayerHUD(){
         playerHUD.SetActive(false);
         helpButton.SetActive(false);
+        menuButton.SetActive(false);
     }
     
     public void enablePlayerHUD(){
         playerHUD.SetActive(true);
         helpButton.SetActive(true);
+        menuButton.SetActive(true);
     }
 
     public void restartEvaluation(){
@@ -432,33 +486,6 @@ public class UIManager : MonoBehaviour
         objectiveCompletionPanel.SetActive(false);
         Player.Instance.resumeInteraction();
         Player.Instance.resumePlayer();
-    }
-
-    public void ShowShop() {
-        if(!isInGame){
-            return;
-        }
-        if(!inGameUiPanel.activeSelf){
-            inGameUiPanel.SetActive(true);
-        }
-
-        setCheckMarkActive(7);
-        currentMenu = "shop";
-        setGameUIPanelsInactive();
-        shopPanel.SetActive(true);
-        ShopManager.Instance.ShowShop();
-    }
-
-    public void ShowShopByCharacters(){
-        ShopManager.Instance.PopulateCharacterItems();
-    }
-
-    public void ShowShopByMove(){
-        ShopManager.Instance.PopulateMoveItems();
-    }
-
-    public void ShowShopByBoosts(){
-        ShopManager.Instance.PopulateBoostItems();
     }
     
     // Add this to your existing UIManager.cs
@@ -776,7 +803,10 @@ public class UIManager : MonoBehaviour
         setPanelsInactive();
         setGameUIPanelsInactive();
         inGameUiPanel.SetActive(false);
-        settingsButton.SetActive(false);    
+        settingsButton.SetActive(false);
+        helpButton.SetActive(false);
+        menuButton.SetActive(false);
+        objectiveGuidePanel.SetActive(false);    
         // Load game data at the start of the level
         CourseManager.Instance.StartLevel(level, (success) =>{
             if (success)
@@ -784,6 +814,8 @@ public class UIManager : MonoBehaviour
                 landingPanel.SetActive(false);
                 isInGame = true;
                 playerHUD.SetActive(true);
+                helpButton.SetActive(true);
+                menuButton.SetActive(true);
                 updatePlayerCoins();
                 updatePlayerGems();
             }
@@ -792,6 +824,12 @@ public class UIManager : MonoBehaviour
                 Debug.LogError("Failed to load level data");
             }
         });
+    }
+
+    public void showObjectiveInMap(string objectiveName){
+       setGameUIPanelsInactive();
+       setMenuOpen(false);
+       StartCoroutine(NPCManager.Instance.showNpcIndicator(objectiveName));
     }
 
     public void updatePlayerCoins(){
@@ -997,6 +1035,7 @@ public class UIManager : MonoBehaviour
                 {
                     setPanelsInactive();
                     ShowSavedGames();
+                    ShopManager.Instance.LoadShopItems();
                 }
                 else
                 {
@@ -1372,6 +1411,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ClearButtonEventTriggers()
+    {
+        foreach (Button button in answerButtons)
+        {
+            EventTrigger trigger = button.GetComponent<EventTrigger>();
+            if (trigger != null)
+            {
+                trigger.triggers.Clear();
+            }
+        }
+    }
+
     public void SetupPowerUpButton(int buttonIndex, bool interactable)
     {
         if (buttonIndex >= 0 && buttonIndex < power_up_buttons.Length)
@@ -1442,6 +1493,134 @@ public class UIManager : MonoBehaviour
         entry.eventID = eventID;
         entry.callback.AddListener(callback);
         trigger.triggers.Add(entry);
+    }
+
+    #endregion
+
+    #region Shop UI Methods
+
+    public void ShowShop(){
+        if(!isInGame){
+            return;
+        }
+        if(!inGameUiPanel.activeSelf){
+            inGameUiPanel.SetActive(true);
+        }
+
+        setCheckMarkActive(7);
+        currentMenu = "shop";
+        setGameUIPanelsInactive();
+
+        // Show the shop panel
+        shopPanel.SetActive(true);
+
+
+        ShowShopCategory(current_shop_category);
+    }
+    // Show the shop panel
+    public void ShowShopByCharacters(){
+        current_shop_category = "character";
+        ShowShopCategory("character");
+    }
+
+    public void ShowShopByMove(){
+        current_shop_category = "Move";
+        ShowShopCategory("Move");
+    }
+
+    public void ShowShopByBoosts(){
+        current_shop_category = "Boost";
+        ShowShopCategory("Boost");
+    }
+    
+    // Display the shop panel and populate with appropriate items
+    public void ShowShopCategory(string category)
+    {
+        // Update currency display
+        UpdateShopCurrencyDisplay();
+        
+        // Populate items based on category
+        PopulateShopItems(category);
+    }
+
+    // Hide the shop panel
+    public void HideShop()
+    {
+        shopPanel.SetActive(false);
+    }
+
+    public void ShowItemInfo(string itemName, string description, string itemUse, int cost, Sprite itemSprite, Sprite currencySprite)
+    {
+        // Set the item info panel contents
+        itemInfoName.text = itemName;
+        itemInfoDescription.text = description;
+        itemInfoUse.text = itemUse;
+        itemInfoCost.text = cost.ToString();
+        itemInfoSprite.sprite = itemSprite;
+        itemInfoCurrencySprite.sprite = currencySprite;
+        
+        // Show the panel
+        itemInfoPanel.SetActive(true);
+    }
+
+    // Add method to hide the info panel
+    public void HideItemInfo()
+    {
+        itemInfoPanel.SetActive(false);
+    }
+
+    // Update the currency display in the shop
+    public void UpdateShopCurrencyDisplay()
+    {
+        if (DatabaseManager.Instance.loggedInUser != null)
+        {
+            user_coins_text.text = DatabaseManager.Instance.loggedInUser.score.ToString();
+            user_gems_text.text = DatabaseManager.Instance.loggedInUser.numGems.ToString();
+        }
+    }
+
+    // Clear all items from the shop content panel
+    public void ClearShopItems()
+    {
+        foreach (Transform child in shopContentPanel) {
+            Destroy(child.gameObject);
+        }
+    }
+
+    // Populate the shop with items from a specific category
+    public void PopulateShopItems(string category)
+    {
+        // Clear existing items
+        ClearShopItems();
+        
+        // Get items from ShopManager for the specified category
+        List<ShopItemData> items = ShopManager.Instance.GetItemsForCategory(category);
+        
+        // Create UI elements for each item
+        foreach (ShopItemData itemData in items)
+        {
+            CreateShopItemUI(itemData);
+        }
+    }
+
+    // Create a UI element for a shop item
+    public void CreateShopItemUI(ShopItemData itemData)
+    {
+        GameObject shopItemObject = Instantiate(shopItemPrefab, shopContentPanel);
+        ShopItemUI shopItemUI = shopItemObject.GetComponent<ShopItemUI>();
+        
+        shopItemUI.itemCategory = itemData.category;
+        shopItemUI.item = itemData.item;
+        shopItemUI.UpdateUI(itemData.sprite, itemData.item.item_name, itemData.item.cost);
+    }
+
+    // Refresh all shop items (update their visual state)
+    public void RefreshShopItems()
+    {
+        foreach (Transform child in shopContentPanel)
+        {
+            child.GetComponent<ShopItemUI>().refreshItem();
+        }
     }
 
     #endregion

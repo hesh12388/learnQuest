@@ -145,6 +145,7 @@ public class NPCManager : MonoBehaviour
             if(isLevelCompleted)
             {
                 Debug.Log("Level already completed, no need to show evaluation dialogue");
+                UIManager.Instance.setObjectiveGuideText("All Objectives Completed", true);
                 yield break;
             }
             else
@@ -158,12 +159,14 @@ public class NPCManager : MonoBehaviour
                     : "It's time for your evaluation!";
                     
                 yield return StartCoroutine(ShowDialogueAndGuide(dialogue, enemyNpcName));
+                UIManager.Instance.setObjectiveGuideText(enemyNpcName, false);
             }
         }
         else if (prerequisiteDialogues.ContainsKey(nextObjective))
         {
             string dialogue = prerequisiteDialogues[nextObjective];
             yield return StartCoroutine(ShowDialogueAndGuide(dialogue, nextObjective));
+            UIManager.Instance.setObjectiveGuideText(nextObjective, false);
         }
     }
 

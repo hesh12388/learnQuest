@@ -66,7 +66,6 @@ public class AchievementManager : MonoBehaviour
     // Call this when an answer is submitted
     public void TrackAnswer(bool isCorrect)
     {
-        // Same implementation as before
         if (isCorrect)
         {
             consecutiveCorrectAnswers++;

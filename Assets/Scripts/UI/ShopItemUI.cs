@@ -88,6 +88,32 @@ public class ShopItemUI: MonoBehaviour
         }
     }
 
+    public void ShowItemInfo()
+    {
+        // Get item data from ShopManager
+        ShopItemData itemData = ShopManager.Instance.GetItemInfo(item.item_name);
+        
+        if (itemData != null)
+        {
+            // Determine which currency sprite to use
+            Sprite currencySprite = itemCategory == "Boost" ? gem_sprite : coin_sprite;
+            
+            // Show item info in UI
+            UIManager.Instance.ShowItemInfo(
+                item.item_name,
+                itemData.itemDescription, 
+                itemData.item_use,
+                itemData.item.cost,
+                itemData.sprite,
+                currencySprite
+            );
+        }
+        else
+        {
+            Debug.LogError($"Failed to get info for item: {item.item_name}");
+        }
+    }
+
     public void refreshItem(){
 
         if(ShopManager.Instance.isPurchased(item.item_name)){

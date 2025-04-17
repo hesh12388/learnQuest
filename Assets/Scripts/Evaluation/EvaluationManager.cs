@@ -528,6 +528,9 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowOptionPanel(true);
         UIManager.Instance.ShowPowerUpPanel(true);
         
+        // Clear previous hover events from all buttons first
+        UIManager.Instance.ClearButtonEventTriggers();
+
         // Start typing the question
         yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
             question.question + "\n\n What will " + playerName + " do?", 
@@ -703,6 +706,7 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowEvaluationPanel(false);
         isEvaluating = false;
         Player.Instance.resumePlayer();
+        Player.Instance.resumeInteraction();
         UIManager.Instance.enablePlayerHUD();
         AudioController.Instance.PlayBackgroundMusic();
     }
