@@ -3,7 +3,7 @@
     {
       "npcName": "Learn about tags and elements",
       "dialogue": [
-        "Hey there, new recruit! I'm Professor Elara. Before you face the wild snakes of Tagroot Forest, you need to understand how HTML is built—I'll walk you through it step by step.",
+        "Hey there, new recruit! I'm Professor Peter. Before you face the wild snakes of Tagroot Forest, you need to understand how HTML is built—I'll walk you through it step by step.",
         "In HTML, we use something called an element to make parts of text stand out.",
         "Let’s say we want to emphasize this phrase: I'm emphasized.",
         "To do that, we start with an opening tag. Type this: <em>",

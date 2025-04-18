@@ -8,7 +8,6 @@ public class NPC : MonoBehaviour, IInteractable
     
     public bool isInstructing;
     public bool isEvaluation;
-    public bool isAssistant;
     private int dialogueIndex;
     private bool isTyping, isDialogueActive;
     private bool isOnPreRequisite = false;
@@ -64,18 +63,7 @@ public class NPC : MonoBehaviour, IInteractable
                 yield break;
             }
         }
-        
-        if(isAssistant)
-        {
-           RagChatManager.Instance.ShowRagPanel();
-           Player.Instance.pausePlayer();
-           Player.Instance.stopInteraction();
-           UIManager.Instance.disablePlayerHUD();
-           NPCManager.Instance.isInstructing = false;
-           isInstructing = false;
-           yield break;
-        }
-        
+          
         if(!isDialogueActive){
             // Load the dialogue data
             dialogueData.LoadDialogue();
@@ -86,6 +74,7 @@ public class NPC : MonoBehaviour, IInteractable
             // Set up dialogue button listeners through UIManager
             UIManager.Instance.SetupDialogueButtons(pauseDemonstration, resumeDemonstration, EndDialogue);
             AudioController.Instance.PlayMenuOpen();
+            DatabaseManager.Instance.UpdateMetric("npc_revisit", dialogueData.npcName);
         }
 
         // Check for prerequisites

@@ -15,7 +15,7 @@ TagManager:
   - Unwalkable
   - NPC
   - Creature
-  - 
+  - Assistant
   - 
   - 
   - 
@@ -47,12 +47,12 @@ TagManager:
   - name: Foreground
     uniqueID: 1713821575
     locked: 0
-  - name: NPC
-    uniqueID: 2689127035
+  - name: Player
+    uniqueID: 4076098191
     locked: 0
   - name: Creature
     uniqueID: 1262116039
     locked: 0
-  - name: Player
-    uniqueID: 4076098191
+  - name: NPC
+    uniqueID: 2689127035
     locked: 0

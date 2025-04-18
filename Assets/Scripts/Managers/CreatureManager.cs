@@ -11,7 +11,7 @@ public class CreatureManager : MonoBehaviour
     [SerializeField] private GameObject[] creaturePrefabs; // Different creatures for different levels
     
     [Header("Spawn Settings")]
-    [SerializeField] private int maxCreatures = 5;
+    [SerializeField] private int maxCreatures = 3;
     [SerializeField] private float minSpawnDistance = 8f;
     [SerializeField] private float maxSpawnDistance = 15f;
     [SerializeField] private float spawnInterval = 15f;
@@ -99,6 +99,8 @@ public class CreatureManager : MonoBehaviour
             
             // Calculate target creature count (up to maxCreatures, at least 1 if there are incomplete objectives)
             int targetCreatureCount = 1 + completedObjectivesCount;
+            // Ensure we don't exceed maxCreatures
+            targetCreatureCount = Mathf.Min(targetCreatureCount, maxCreatures);
             
             Debug.Log($"Target creatures: {targetCreatureCount}, Current: {activeCreatures.Count}, Incomplete objectives: {completedObjectivesCount}");
             

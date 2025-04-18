@@ -122,27 +122,27 @@ public class UIManager : MonoBehaviour
     public GameObject npcIntroPanel;
     public Image battleBackground;
     public Image battleIntroBackground;
-
-    //player hud variables
+    public GameObject powerUpTooltip;
+    public TMP_Text powerUpTooltipText;
+    public GameObject answerToolTip;
     public TMP_Text playerNameText;
     public TMP_Text playerLevelText;
     public Transform playerHealthBar;
     public Button closeDialogue;
     public Button continueDialogue;
     public Button exitDialogue;
+    public TMP_Text npcNameText;
+    public TMP_Text npcLevelText;
+    public Transform npcHealthBar;
+    public Image npcIntroImage;
+    public TMP_Text npcIntroNameText;
 
     [Header("UI Checkmarks")]
     public Toggle [] checkmarks;
     public GameObject [] checkmarkPanels;
+    
 
-    //npc hud variables
-    public TMP_Text npcNameText;
-    public TMP_Text npcLevelText;
-    public Transform npcHealthBar;
-
-    //intro panel variables
-    public Image npcIntroImage;
-    public TMP_Text npcIntroNameText;
+    [Header("Feedback Panels")]
     public GameObject optionPanel;
     public bool isInGame { get; private set; } 
     public GameObject levelCompletePanel;
@@ -176,11 +176,14 @@ public class UIManager : MonoBehaviour
     public GameObject settingsButton;
     public GameObject helpButton;
     public GameObject ragPanel;
+    public GameObject assistantButton;
 
     [Header("Player HUD")]
     public GameObject playerHUD;
     public TextMeshProUGUI playerCoins;
     public TextMeshProUGUI playerGems;
+    public Button hudToolTipButton;
+    public GameObject hudToolTipPanel;
 
     public static UIManager Instance { get; private set; } // Singleton instance
 
@@ -231,8 +234,9 @@ public class UIManager : MonoBehaviour
 
     public void OnToggleMenu()
     {
+        
+
         if(!isInGame || (EvaluationManager.Instance!=null && EvaluationManager.Instance.isEvaluating) || (NPCManager.Instance!=null && NPCManager.Instance.isInstructing) || (RagChatManager.Instance!=null && RagChatManager.Instance.isUsingAssistant)){
-            Debug.Log("Menu toggle ignored due to game state");
             return;
         }
 
@@ -251,6 +255,8 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("Toggling inGameUiPanel");
             inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
+            // Clear selection so Enter won't trigger it again
+            EventSystem.current.SetSelectedGameObject(null);
             
             if (inGameUiPanel.activeSelf)
             {
@@ -311,8 +317,22 @@ public class UIManager : MonoBehaviour
         
         return false;
     }
-    
+
+
+    public void ShowAssistant(){
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
+        setGameUIPanelsInactive();
+        RagChatManager.Instance.ShowRagPanel();
+        Player.Instance.pausePlayer();
+        Player.Instance.stopInteraction();
+        UIManager.Instance.disablePlayerHUD();
+    }
+
     public void showHelp(){
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
+
         helpPanel.SetActive(!helpPanel.activeSelf);
         if(helpPanel.activeSelf){
             settingsHelpPanel.SetActive(true);
@@ -345,11 +365,14 @@ public class UIManager : MonoBehaviour
     }
 
     public void showObjectiveGuide(){
-        Debug.Log("Showing objective guide");
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
         StartCoroutine(NPCManager.Instance.showNpcIndicator(objective_guide_text.text));
     }
 
     public void showLandingSettings(){
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
         landingSettingsPanel.SetActive(!landingSettingsPanel.activeSelf);
         if(landingSettingsPanel.activeSelf){
             settingsHelpPanel.SetActive(true);
@@ -408,6 +431,9 @@ public class UIManager : MonoBehaviour
         levelUnlockPanel.SetActive(false);
         chapterCompletedPanel.SetActive(false);
         questionsPanel.SetActive(false);
+        settingsHelpPanel.SetActive(false);
+        ragPanel.SetActive(false);
+        helpPanel.SetActive(false);
     }
 
     public void StartNextLevel(){
@@ -426,12 +452,16 @@ public class UIManager : MonoBehaviour
         playerHUD.SetActive(false);
         helpButton.SetActive(false);
         menuButton.SetActive(false);
+        assistantButton.SetActive(false);
+        objectiveGuidePanel.SetActive(false);
     }
     
     public void enablePlayerHUD(){
         playerHUD.SetActive(true);
         helpButton.SetActive(true);
         menuButton.SetActive(true);
+        assistantButton.SetActive(true);
+        objectiveGuidePanel.SetActive(true);
     }
 
     public void restartEvaluation(){
@@ -458,6 +488,9 @@ public class UIManager : MonoBehaviour
         setGameUIPanelsInactive();
         characterSelectionPanel.SetActive(true);
         characterSelectionPanel.GetComponent<PlayerSelector>().ShowCharacters();
+
+        // Track Character Selection usage
+        DatabaseManager.Instance.UpdateMetric("character_customizatio");
     }
 
     public void ShowGameLevels(){
@@ -488,7 +521,7 @@ public class UIManager : MonoBehaviour
         Player.Instance.resumePlayer();
     }
     
-    // Add this to your existing UIManager.cs
+    // method for showing chat
     public void ShowChat()
     {
         if(!isInGame){
@@ -502,6 +535,9 @@ public class UIManager : MonoBehaviour
         currentMenu = "chat";
         setGameUIPanelsInactive();
         chatPanel.SetActive(true);
+
+        // Track Chat usage
+        DatabaseManager.Instance.UpdateMetric("chat_use");
     }
 
     public void ShowObjectives() {
@@ -539,6 +575,9 @@ public class UIManager : MonoBehaviour
                 );
             }
         }
+
+        // Track Objectives usage
+        DatabaseManager.Instance.UpdateMetric("objective_view");
       
     }
 
@@ -577,6 +616,9 @@ public class UIManager : MonoBehaviour
         else if(current_achievement_category=="InProgress"){
             ShowInProgressAchievements();
         }
+
+        // Track Achievements usage
+        DatabaseManager.Instance.UpdateMetric("achievement_view");
         
     }
 
@@ -709,6 +751,9 @@ public class UIManager : MonoBehaviour
                 }
             }
         });
+
+        // Track Leaderboard usage
+        DatabaseManager.Instance.UpdateMetric("leaderboard_view");
     }
 
     public void ShowLeaderboardByScore()
@@ -785,7 +830,9 @@ public class UIManager : MonoBehaviour
         AudioController.Instance.PlayPowerUp();
     }
    
-    private void Start(){
+    // Start() method
+    private void Start()
+    {
         StartCoroutine(showLanding());
         AudioController.Instance.PlayBackgroundMusic();
     }
@@ -800,6 +847,8 @@ public class UIManager : MonoBehaviour
 
     public void startLevel(int level) {
         Debug.Log("Starting level " + level);
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
         setPanelsInactive();
         setGameUIPanelsInactive();
         inGameUiPanel.SetActive(false);
@@ -813,9 +862,7 @@ public class UIManager : MonoBehaviour
             {
                 landingPanel.SetActive(false);
                 isInGame = true;
-                playerHUD.SetActive(true);
-                helpButton.SetActive(true);
-                menuButton.SetActive(true);
+                enablePlayerHUD();
                 updatePlayerCoins();
                 updatePlayerGems();
             }
@@ -1374,6 +1421,14 @@ public class UIManager : MonoBehaviour
         npcIntroImage.sprite = sprite;
     }
 
+    public void ShowAnswerToolTip(){
+        answerToolTip.SetActive(true);
+    }
+
+    public void HideAnswerToolTip(){
+        answerToolTip.SetActive(false);
+    }
+
     public void UpdateHealthBar(bool isPlayer, float healthValue)
     {
         healthValue = Mathf.Clamp(healthValue, 0f, 1f);
@@ -1423,6 +1478,27 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void showPowerUpTooltip(string powerUp)
+    {
+        powerUpTooltip.SetActive(true);
+
+        if(powerUp=="Extra Time"){
+            powerUpTooltipText.text = "Doubles time for each question";
+        }
+        else if(powerUp=="Hint Token"){
+            powerUpTooltipText.text = "Removes two wrong options from one question";
+        }
+        else if(powerUp=="Power Reveal"){
+            powerUpTooltipText.text = "Reveal the correct answer to one question";
+        }
+    }
+
+    public void hidePowerUpTooltip()
+    {
+        powerUpTooltip.SetActive(false);
+        powerUpTooltipText.text = "";
+    }
+
     public void SetupPowerUpButton(int buttonIndex, bool interactable)
     {
         if (buttonIndex >= 0 && buttonIndex < power_up_buttons.Length)
@@ -1443,6 +1519,7 @@ public class UIManager : MonoBehaviour
 
     public IEnumerator FlashSprite(Image targetImage, float duration = 0.5f)
     {
+
         // Store the original sprite
         Sprite originalSprite = targetImage.sprite;
         Color originalColor = targetImage.color;
@@ -1450,7 +1527,7 @@ public class UIManager : MonoBehaviour
         // Flash duration and interval
         float endTime = Time.time + duration;
         float flashInterval = 0.1f;
-        
+        AudioController.Instance.PlayHit();
         // Flash the sprite by toggling visibility
         while (Time.time < endTime)
         {
@@ -1514,8 +1591,10 @@ public class UIManager : MonoBehaviour
         // Show the shop panel
         shopPanel.SetActive(true);
 
-
+        // Show the shop category
         ShowShopCategory(current_shop_category);
+        // Track Shop usage
+        DatabaseManager.Instance.UpdateMetric("shop_view");
     }
     // Show the shop panel
     public void ShowShopByCharacters(){

@@ -2,7 +2,7 @@
   "objectives": [
     {
       "objective_name": "Learn about tags and elements",
-      "dialogue": "Welcome to Tagroot Forest! Raven’s presence has stirred the code snakes. To survive, you’ll need to learn the basic building blocks of HTML—tags and elements. Head over to Professor Elara. She’ll walk you through your first lesson."
+      "dialogue": "Welcome to Tagroot Forest! Raven’s presence has stirred the code snakes. To survive, you’ll need to learn the basic building blocks of HTML—tags and elements. Head over to Professor Peter. He’ll walk you through your first lesson."
     },
     {
       "objective_name": "Nest HTML elements",

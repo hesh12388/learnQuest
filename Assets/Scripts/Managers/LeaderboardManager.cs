@@ -38,7 +38,6 @@ public class LeaderboardManager : MonoBehaviour
                 Debug.LogWarning("Failed to load leaderboard data.");
                 leaderboardEntries = new List<LeaderboardEntry>();
             }
-
             onComplete?.Invoke(leaderboardEntries);
         });
     }

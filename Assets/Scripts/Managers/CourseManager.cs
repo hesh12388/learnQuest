@@ -103,6 +103,11 @@ public class CourseManager : MonoBehaviour
                 EvaluationManager.Instance.LoadQuestionsForLevel();
                 DatabaseManager.Instance.loggedInUser.currentLevel = level;
                 DatabaseManager.Instance.StartLevelTime();
+                // Track a level visit (requires context in the format "level_name|chapter_name")
+                User loggedInUser = DatabaseManager.Instance.loggedInUser;
+                string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
+                string chapter_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].chapter_name;
+                DatabaseManager.Instance.UpdateMetric("level_visit", $"{level_name}|{chapter_name}");
             }
             else
             {

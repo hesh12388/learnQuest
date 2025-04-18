@@ -7,6 +7,7 @@ public class PlayerSelector : MonoBehaviour
 {
     public Image playerImageUI; // Reference to the UI Image component
     public TextMeshProUGUI playerNameText; // Reference to the Player Name text
+    public Button selectButton; // Reference to the Select button
 
 
     private int currentIndex = 0; // Track the selected player
@@ -87,23 +88,44 @@ public class PlayerSelector : MonoBehaviour
         characterNames.Clear();
         characterSprites.Clear();
 
-        // Populate the lists from availableCharacters
-        foreach (var character in availableCharacters)
+        // Check if user has an equipped character
+        string equippedCharacter = DatabaseManager.Instance.loggedInUser?.equippedCharacter;
+        
+        // First, check if the equipped character is in available characters
+        if (!string.IsNullOrEmpty(equippedCharacter) && availableCharacters.ContainsKey(equippedCharacter))
         {
-            characterNames.Add(character.Key);
-            characterSprites.Add(character.Value);
-        }
-
-        // Reset currentIndex to 0 if there are characters available
-        if (characterNames.Count > 0)
-        {
-            currentIndex = 0;
+            // Add equipped character first
+            characterNames.Add(equippedCharacter);
+            characterSprites.Add(availableCharacters[equippedCharacter]);
+            
+            // Add all other characters
+            foreach (var character in availableCharacters)
+            {
+                if (character.Key != equippedCharacter)
+                {
+                    characterNames.Add(character.Key);
+                    characterSprites.Add(character.Value);
+                }
+            }
         }
         else
         {
+            // No equipped character or it's not available, add all available characters
+            foreach (var character in availableCharacters)
+            {
+                characterNames.Add(character.Key);
+                characterSprites.Add(character.Value);
+            }
+        }
+
+        // Set currentIndex to 0 to show the first character (which is the equipped one if available)
+        currentIndex = 0;
+        
+        if (characterNames.Count == 0)
+        {
             Debug.LogWarning("No available characters to display");
         }
-    }
+}
 
     void UpdatePlayerDisplay()
     {
@@ -120,12 +142,16 @@ public class PlayerSelector : MonoBehaviour
 
         if(DatabaseManager.Instance.loggedInUser.equippedCharacter == characterNames[currentIndex])
         {
-            playerNameText.text = "Equipped";
+            selectButton.interactable = false;
+            selectButton.GetComponentInChildren<TextMeshProUGUI>().text = "EQUIPPED";
         }
-        else
-        {
-            playerNameText.text = characterNames[currentIndex];
+        else{
+            selectButton.interactable = true;
+            selectButton.GetComponentInChildren<TextMeshProUGUI>().text = "SELECT";
         }
+
+        playerNameText.text = characterNames[currentIndex];
+        
     }
 
     public void NextPlayer()
@@ -162,7 +188,9 @@ public class PlayerSelector : MonoBehaviour
 
         // Set the selected character in the loggedInUser
         DatabaseManager.Instance.loggedInUser.equippedCharacter = characterNames[currentIndex];
-        playerNameText.text = "Equipped";
+
+        selectButton.interactable = false;
+        selectButton.GetComponentInChildren<TextMeshProUGUI>().text = "EQUIPPED";
 
         PlayerManager.Instance.SetActivePlayerAppearance(characterNames[currentIndex]);
         Debug.Log($"Selected character: {characterNames[currentIndex]}");

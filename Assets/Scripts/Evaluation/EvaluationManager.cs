@@ -82,6 +82,9 @@ public class EvaluationManager : MonoBehaviour
     private int numCorrectAnswers;
     private int numQuestions = 0;
     private bool isPaused = false;
+    private float tooltipDelay = 5f; // Time in seconds before showing the tooltip
+    private Coroutine tooltipCoroutine; // Reference to track the tooltip timing
+    private bool isTooltipShowing = false;
     
     private void Awake()
     {
@@ -187,6 +190,12 @@ public class EvaluationManager : MonoBehaviour
         
         // Check purchased boost items and set up power-up buttons
         SetupPowerUpButtons();
+
+        // Track a level evaluation attempt
+        User loggedInUser = DatabaseManager.Instance.loggedInUser;
+        string level_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1].level_name;
+        string chapter_name = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].chapter_name;
+        DatabaseManager.Instance.UpdateMetric("level_evaluation", level_name + "|" + chapter_name);
         
         // Start the evaluation sequence
         StartCoroutine(evaluationSequence());
@@ -198,14 +207,6 @@ public class EvaluationManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             UIManager.Instance.SetupPowerUpButton(i, false);
-        }
-        
-        // Check if user is logged in
-        if (DatabaseManager.Instance.loggedInUser == null || 
-            DatabaseManager.Instance.loggedInUser.purchasedItems == null)
-        {
-            Debug.LogWarning("No user logged in or no purchased items available");
-            return;
         }
         
         // Get all purchased boost items
@@ -240,10 +241,63 @@ public class EvaluationManager : MonoBehaviour
                     break;
             }
         }
-        
+
+        SetupPowerUpTooltip(0, "Extra Time");
+        SetupPowerUpTooltip(1, "Power Reveal");
+        SetupPowerUpTooltip(2, "Hint Token");
         Debug.Log($"Enabled {boostItems.Count} power-up buttons based on purchased items");
     }
-    
+
+    //method to set up tooltips
+    private void SetupPowerUpTooltip(int buttonIndex, string powerUpName)
+    {
+        if (buttonIndex >= 0 && buttonIndex < UIManager.Instance.power_up_buttons.Length)
+        {
+            Button button = UIManager.Instance.power_up_buttons[buttonIndex];
+            
+            // Add event trigger component if it doesn't exist
+            EventTrigger eventTrigger = button.gameObject.GetComponent<EventTrigger>();
+            if (eventTrigger == null)
+            {
+                eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            }
+            
+            // Create pointer enter event
+            EventTrigger.Entry enterEntry = new EventTrigger.Entry();
+            enterEntry.eventID = EventTriggerType.PointerEnter;
+            enterEntry.callback.AddListener((data) => { UIManager.Instance.showPowerUpTooltip(powerUpName); });
+            eventTrigger.triggers.Add(enterEntry);
+            
+            // Create pointer exit event
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry();
+            exitEntry.eventID = EventTriggerType.PointerExit;
+            exitEntry.callback.AddListener((data) => { UIManager.Instance.hidePowerUpTooltip(); });
+            eventTrigger.triggers.Add(exitEntry);
+            
+            // Also hide tooltip when clicking
+            EventTrigger.Entry clickEntry = new EventTrigger.Entry();
+            clickEntry.eventID = EventTriggerType.PointerClick;
+            clickEntry.callback.AddListener((data) => { UIManager.Instance.hidePowerUpTooltip(); });
+            eventTrigger.triggers.Add(clickEntry);
+        }
+    }
+
+    // method to clear tooltip events when needed
+    public void ClearPowerUpTooltips()
+    {
+        for (int i = 0; i < UIManager.Instance.power_up_buttons.Length; i++)
+        {
+            Button button = UIManager.Instance.power_up_buttons[i];
+            
+            // Get and clear event trigger
+            EventTrigger eventTrigger = button.gameObject.GetComponent<EventTrigger>();
+            if (eventTrigger != null)
+            {
+                eventTrigger.triggers.Clear();
+            }
+        }
+    }
+        
     public IEnumerator NotReady()
     {
         UIManager.Instance.disablePlayerHUD();
@@ -416,7 +470,7 @@ public class EvaluationManager : MonoBehaviour
         });
     }
     
-    // Modify the QuestionTimerCoroutine to check for paused state
+    // QuestionTimerCoroutine to handle the countdown
     private IEnumerator QuestionTimerCoroutine()
     {
         currentQuestionTime = questionTimeLimit;
@@ -448,6 +502,19 @@ public class EvaluationManager : MonoBehaviour
     {
         // Toggle the pause state
         isPaused = !isPaused; 
+
+        // If paused, hide any tooltips
+        if (isPaused && isTooltipShowing)
+        {
+            UIManager.Instance.HideAnswerToolTip();
+            isTooltipShowing = false;
+        }
+        
+        // If unpaused, reset the tooltip timer
+        if (!isPaused)
+        {
+            StartTooltipTimer();
+        }
     }
     
     // Optional: Add a method to explicitly resume the battle
@@ -574,7 +641,9 @@ public class EvaluationManager : MonoBehaviour
             StopCoroutine(timerCoroutine);
         }
         timerCoroutine = StartCoroutine(QuestionTimerCoroutine());
-        
+
+        // Start the tooltip timer
+        StartTooltipTimer();
         yield break;
     }
     
@@ -588,6 +657,19 @@ public class EvaluationManager : MonoBehaviour
             StopCoroutine(timerCoroutine);
             timerCoroutine = null;
             UIManager.Instance.ClearTimerText();
+        }
+
+        // Clear tooltip timer and hide tooltip
+        if (tooltipCoroutine != null)
+        {
+            StopCoroutine(tooltipCoroutine);
+            tooltipCoroutine = null;
+        }
+        
+        if (isTooltipShowing)
+        {
+            UIManager.Instance.HideAnswerToolTip();
+            isTooltipShowing = false;
         }
         
         UIManager.Instance.ShowOptionPanel(false);
@@ -607,6 +689,7 @@ public class EvaluationManager : MonoBehaviour
             
             if (isEnemyTurn)
             {
+                AudioController.Instance.PlayAnswerCorrect();
                 yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                     "Correct! You blocked the enemy's attack and countered to deal damage!", 
                     typingSpeed
@@ -614,6 +697,7 @@ public class EvaluationManager : MonoBehaviour
             }
             else
             {
+                AudioController.Instance.PlayAnswerCorrect();
                 yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                     "Correct! You dealt damage to the enemy!", 
                     typingSpeed
@@ -633,6 +717,7 @@ public class EvaluationManager : MonoBehaviour
             
             if (isEnemyTurn)
             {
+                AudioController.Instance.PlayAnswerIncorrect();
                 yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                     "Incorrect! The enemy attacked successfully!", 
                     typingSpeed
@@ -640,6 +725,7 @@ public class EvaluationManager : MonoBehaviour
             }
             else
             {
+                AudioController.Instance.PlayAnswerIncorrect();
                 yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                     "Incorrect! You missed your attack and the enemy has countered to deal damage!", 
                     typingSpeed
@@ -702,6 +788,14 @@ public class EvaluationManager : MonoBehaviour
     {
         // Stop all coroutines to prevent any lingering processes
         StopAllCoroutines();
+
+        // Ensure tooltip is hidden
+        if (isTooltipShowing)
+        {
+            UIManager.Instance.HideAnswerToolTip();
+            isTooltipShowing = false;
+        }
+
         UIManager.Instance.ShowBattlePanel(false);
         UIManager.Instance.ShowEvaluationPanel(false);
         isEvaluating = false;
@@ -743,6 +837,7 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowEvaluationPanel(false);
         UIManager.Instance.enablePlayerHUD();
         isEvaluating = false;
+        
         yield return new WaitForSeconds(2f);
         
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
@@ -812,9 +907,47 @@ public class EvaluationManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
     }
     
+    // method to start the tooltip timer
+    private void StartTooltipTimer()
+    {
+        // Clear any existing tooltip coroutine
+        if (tooltipCoroutine != null)
+        {
+            StopCoroutine(tooltipCoroutine);
+            tooltipCoroutine = null;
+        }
+        
+        // Hide the tooltip if it's showing
+        if (isTooltipShowing)
+        {
+            UIManager.Instance.HideAnswerToolTip();
+            isTooltipShowing = false;
+        }
+        
+        // Start a new tooltip timer
+        tooltipCoroutine = StartCoroutine(TooltipTimerCoroutine());
+    }
+
+    // coroutine to handle tooltip timing
+    private IEnumerator TooltipTimerCoroutine()
+    {
+        // Wait for the specified delay
+        yield return new WaitForSeconds(tooltipDelay);
+        
+        // Only show tooltip if we're still in question mode and not paused
+        if (timerCoroutine != null && !isPaused)
+        {
+            UIManager.Instance.ShowAnswerToolTip();
+            isTooltipShowing = true;
+        }
+    }
+
     // Hover handlers
     private void OnHoverEnter(int index)
     {
+        // Reset the tooltip timer when user hovers over an answer
+        StartTooltipTimer();
+
         if (!isTyping && currentQuestionIndex < currentQuestions.Count)
         {
             UIManager.Instance.eval_dialogueText.text = currentQuestions[currentQuestionIndex].options[index];

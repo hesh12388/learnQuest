@@ -1147,4 +1147,69 @@ public class DatabaseManager : MonoBehaviour
             }
         }
     }
+
+
+    // method to track user metrics
+    public void UpdateMetric(string metricType, string context = null)
+    {
+        if (loggedInUser == null)
+        {
+            Debug.LogWarning("Cannot update metrics: No user is logged in");
+            return;
+        }
+
+        StartCoroutine(UpdateMetricRequest(loggedInUser.username, metricType, context));
+    }
+
+    private IEnumerator UpdateMetricRequest(string username, string metricType, string context)
+    {
+        // Create the request JSON based on whether context is provided
+        string json;
+        if (string.IsNullOrEmpty(context))
+        {
+            json = "{\"username\":\"" + username + "\", \"metric_type\":\"" + metricType + "\"}";
+        }
+        else
+        {
+            json = "{\"username\":\"" + username + "\", \"metric_type\":\"" + metricType + "\", \"context\":\"" + context + "\"}";
+        }
+
+        byte[] jsonData = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(serverUrl + "/update-metrics", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonData);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string responseText = request.downloadHandler.text;
+                Debug.Log("Metric updated successfully: " + responseText);
+            }
+            else
+            {
+                Debug.LogWarning("Failed to update metric: " + request.error);
+                
+                // Attempt to get more detailed error from response if available
+                if (!string.IsNullOrEmpty(request.downloadHandler.text))
+                {
+                    try
+                    {
+                        JObject errorResponse = JObject.Parse(request.downloadHandler.text);
+                        if (errorResponse.ContainsKey("error"))
+                        {
+                            Debug.LogWarning("Error details: " + errorResponse["error"]);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning("Could not parse error response: " + ex.Message);
+                    }
+                }
+            }
+        }
+    }
 }

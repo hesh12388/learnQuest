@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using System.IO;
+using UnityEngine.EventSystems;
 
 public class QuestionManager : MonoBehaviour
 {
@@ -236,6 +237,9 @@ public class QuestionManager : MonoBehaviour
         if (currentQuestion == null)
             return;
         
+        // Clear selection so Enter won't trigger it again
+        EventSystem.current.SetSelectedGameObject(null);
+
         bool isCorrect = (selectedAnswerIndex == currentQuestion.correctAnswerIndex);
         hasAnsweredCorrectly = isCorrect;
         

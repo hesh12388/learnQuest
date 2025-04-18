@@ -134,9 +134,12 @@ public class AchievementManager : MonoBehaviour
         CourseStructure courseStructure = user.courseStructure;
         if (courseStructure == null)
             return;
-            
-        // First Steps - Complete your first level
-        EnqueueAchievement("First Steps");
+        
+        if(!isFailed)
+        {
+            // First Steps - Complete your first level
+            EnqueueAchievement("First Steps");
+        }
         
         CheckObjectiveCompletion();
 

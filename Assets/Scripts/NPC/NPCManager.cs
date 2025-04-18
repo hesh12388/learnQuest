@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine.UI;
 using Cinemachine;
 
-// Add this class for NPC to indicator mapping
+// class for NPC to indicator mapping
 [System.Serializable]
 public class NPCIndicatorMapping
 {
@@ -173,10 +173,10 @@ public class NPCManager : MonoBehaviour
 
     private IEnumerator ShowDialogueAndGuide(string dialogue, string npcName)
     {
-        // Show the dialogue panel
+        // Show the dialogue for guiding the player
         yield return StartCoroutine(ShowDialoguePanel(dialogue));
 
-        // Show the guide indicator for the NPC
+        // Show the guide indicator for the next NPC to visit
         if (npcIndicators.ContainsKey(npcName))
         {
             yield return StartCoroutine(showNpcIndicator(npcName));
@@ -221,6 +221,7 @@ public class NPCManager : MonoBehaviour
         Player.Instance.resumeInteraction();
         Player.Instance.resumePlayer();
         UIManager.Instance.enablePlayerHUD();
+        isInstructing = false;
     }
 
     private IEnumerator TypeText(TMP_Text textObject, string message, float typingSpeed)
@@ -235,11 +236,13 @@ public class NPCManager : MonoBehaviour
 
     public IEnumerator showNpcIndicator(string npcName)
     {
+        UIManager.Instance.disablePlayerHUD();
         CameraManager.SwitchCamera(wideCamera);
         npcIndicators[npcName].SetActive(true);
         yield return new WaitForSeconds(4f);
         CameraManager.SwitchCamera(shallowCamera);
         npcIndicators[npcName].SetActive(false);
+        UIManager.Instance.enablePlayerHUD();
     }
 
     // Show post-evaluation dialogue based on result

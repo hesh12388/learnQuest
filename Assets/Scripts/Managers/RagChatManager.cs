@@ -49,6 +49,8 @@ public class RagChatManager : MonoBehaviour
         {
             ragPanel.SetActive(true);
             isUsingAssistant = true;
+            // Track AI assistant usage
+            DatabaseManager.Instance.UpdateMetric("ai_assistant_use");
         }
         else
         {
