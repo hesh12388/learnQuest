@@ -558,7 +558,8 @@ public class DatabaseManager : MonoBehaviour
 
                         string courseName = obj["course_name"].ToString();
                         int numChapaters = obj["numChapters"].ToObject<int>();
-                        string timeStarted = obj["time_started"].ToString();
+                        DateTime timeStarted = obj["time_started"].ToObject<DateTime>();
+
 
                         courses[i] = new Course(courseName, numChapaters, timeStarted);
                     }
