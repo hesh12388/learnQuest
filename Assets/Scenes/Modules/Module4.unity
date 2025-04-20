@@ -1868,7 +1868,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.13229275, y: 0.05832553}
+  m_Offset: {x: 0.05769235, y: 0.025890112}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1879,7 +1879,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.271294, y: 2.6167564}
+  m_Size: {x: 1.4604214, y: 1.9421117}
   m_EdgeRadius: 0
 --- !u!212 &476974028
 SpriteRenderer:
@@ -9907,7 +9907,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creaturePrefabs:
   - {fileID: 4339165132250604811, guid: b6d7c17a4a3d94c49803fdf618d3fce8, type: 3}
-  maxCreatures: 5
   minSpawnDistance: 8
   maxSpawnDistance: 15
   spawnInterval: 15

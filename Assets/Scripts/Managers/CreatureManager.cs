@@ -11,7 +11,7 @@ public class CreatureManager : MonoBehaviour
     [SerializeField] private GameObject[] creaturePrefabs; // Different creatures for different levels
     
     [Header("Spawn Settings")]
-    [SerializeField] private int maxCreatures = 3;
+    private int maxCreatures = 3;
     [SerializeField] private float minSpawnDistance = 8f;
     [SerializeField] private float maxSpawnDistance = 15f;
     [SerializeField] private float spawnInterval = 15f;

@@ -73,9 +73,9 @@
           "correctIndex": 3
         },
         {
-          "question": "Jay wants line breaks in text. Which tag?",
+          "question": "Jay wants to seperate sections in a page. Which tag?",
           "options": [
-            "br",
+            "<hr>",
             "<h1>",
             "<span>",
             "<a>"
@@ -83,15 +83,15 @@
           "correctIndex": 0
         },
         {
-          "question": "Which code adds paragraphs correctly?",
+          "question": "Which code correctly nests three paragraphs inside a <div>?",
           "options": [
-            "<div><p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p></div>",
-            "<div><paragraph>1</paragraph><paragraph>2</paragraph><paragraph>3</paragraph></div>",
-            "<div><p>p1<p>p2<p>p3</div>",
-            "<div><paragraph>1<paragraph>2<paragraph>3</div>"
+            "<div>\n  <p>Paragraph 1</p>\n  <p>Paragraph 2</p>\n </div>",
+            "<div>\n  <paragraph>1</paragraph>\n  <paragraph>2</paragraph>\n </div>",
+            "<div>\n  <p>p1\n<p>p2\n</div>",
+            "<div>\n  <paragraph>1\n<paragraph>2\n</div>"
           ],
           "correctIndex": 0
-        },
+        },        
         {
           "question": "Shema wants a quote + author link. Which tags?",
           "options": [

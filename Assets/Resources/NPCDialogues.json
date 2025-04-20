@@ -3,18 +3,19 @@
     {
       "npcName": "Learn about tags and elements",
       "dialogue": [
-        "Hey there, new recruit! I'm Professor Peter. Before you face the wild snakes of Tagroot Forest, you need to understand how HTML is built—I'll walk you through it step by step.",
-        "In HTML, we use something called an element to make parts of text stand out.",
-        "Let’s say we want to emphasize this phrase: I'm emphasized.",
-        "To do that, we start with an opening tag. Type this: <em>",
-        "Now add the content inside the element: I’m emphasized",
-        "Next, close the element with a closing tag: </em>",
-        "Here’s how the full element looks together: <em>I’m emphasized</em>",
-        "Let me show you a diagram that breaks it down: opening tag, content, closing tag.",
-        "In the browser, this might appear in italics, but that’s up to the parser—it’s not hardcoded!",
-        "Remember: <em> means emphasis, not italics. If you want to show importance, you might want <strong> instead.",
-        "Or for a change in tone or voice, maybe italic is better.",
-        "You're doing great! You've just built your first real HTML element. Keep going!"
+        "Hey there, new recruit! I'm Professor Peter. Before you take on Tagroot Forest, let me show you how HTML is built—step by step.",
+        "In HTML, we use something called an **element** to add meaning to content. Every element is made up of **tags** and **content**.",
+        "Let’s take a simple example. Suppose we want to emphasize some text. The element for that is called **emphasis**, or `<em>`.",
+        "To start, we use an **opening tag**: `<em>` — this tells the browser that emphasis is starting.",
+        "Next comes the **content** — this is what you want to emphasize. Let’s say: `I'm emphasized`",
+        "Then we use a **closing tag** to finish the element: `</em>` — the `/` means it’s ending.",
+        "Put them all together, and you get a complete element: `<em>I'm emphasized</em>`",
+        "If you followed correctly, you should see the text 'I'm emphasized' in your browser.",
+        "Here’s a diagram that breaks this down: You can see the opening tag, content, and closing tag, all working together.",
+        "When this appears in the browser, it usually looks italic—but remember, that’s up to the browser. It just means 'emphasized,' not 'make this italic.'",
+        "Want to show something is really important? Use `<strong>` instead of `<em>` — this adds makes it bold.",
+        "If you’re changing the tone or voice, then `<em>` is still the better choice.",
+        "Nice job! You've just created your first HTML element. Keep going—you’re on a roll!"
       ],
       "images": [
         null,
@@ -23,7 +24,8 @@
         "em_opening.png",
         "em_content.png",
         "em_closing.png",
-        "em_closing.png",
+        null,
+        "em_real.png",
         "em_element_diagram.png",
         null,
         "strong_element.png",
@@ -36,16 +38,18 @@
     {
       "npcName": "Nest HTML elements",
       "dialogue": [
-        "Welcome back! I'm Professor Brann. You’ve learned about elements—now let’s nest them together.",
-        "Imagine packing a suitcase. You could toss everything into it… but things would get messy.",
-        "Instead, what if you packed smaller bags—one for socks, one for shampoo—and put *those* into the suitcase?",
-        "HTML works the same way. Let’s try it together.",
-        "Start with a <div> element—this is your suitcase.",
-        "Now, nest three <p> elements inside it: <p>Paragraph 1</p>, <p>Paragraph 2</p>, and <p>Paragraph 3</p>",
-        "Here’s what the full structure looks like when everything’s packed nicely:",
-        "See how the paragraphs sit inside the parent <div> element? That’s nesting.",
-        "And guess what? If you apply a style to the parent, like bold text, the children will inherit it!",
-        "This is called inheritance—and it’s a powerful feature of HTML."
+        "Welcome back! I'm Professor Brann. You've learned how to create individual HTML elements—now it’s time to learn how to **nest** them together.",
+        "Think of HTML like packing a suitcase. You wouldn’t just toss everything in—it’s better to organize items into smaller bags inside the suitcase.",
+        "In HTML, we do something similar. We place elements **inside other elements** to keep our structure clean and meaningful.",
+        "Let’s try it. Start by creating a parent element, like a `<div>`. This is your suitcase.",
+        "Now, inside the `<div>`, add three `<p>` elements.",
+        "This is what we call **nesting**—placing child elements inside a parent element.",
+        "In the browser, your paragraphs should appear stacked vertically like this.",
+        "Now here’s something powerful: if you apply a style to the parent `<div>`, like `font-weight: bold`, all the paragraphs inside will become bold too.",
+        "Here’s what the code for that would look like if you wanted to do this.",
+        "And here’s how it would appear in the browser—see how all the text inside became bold?",
+        "This is called **inheritance**. The children inherit some properties from the parent element.",
+        "Nesting helps organize your content and lets styles cascade naturally. It's a core part of how modern web pages are built."
       ],
       "images": [
         null,
@@ -54,27 +58,29 @@
         null,
         "nested_div.png",
         "nested_p2.png",
-        "nested_p2.png",
+        "browser_paragraphs_example.png",
         null,
-        "inheritance_example.png",
+        "div_bold_code.png",            
+        "div_bold_browser_output.png",
+        null,
         null
       ],
-      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false],
       "requiredPreviousDialogues": ["Learn about tags and elements"]
-    },
+    },    
     {
       "npcName": "Understand the anatomy of an HTML page",
       "dialogue": [
-        "Hey there! I'm Professor Vex, here to teach you how to build the skeleton of any HTML page.",
-        "We begin with the DOCTYPE declaration. It tells the browser: 'Hey! This is HTML!' Type this: <!DOCTYPE html>",
-        "Next comes the <html> element. This wraps everything on your page.",
-        "Inside <html>, we split things into two big parts: <head> and <body>.",
-        "Let’s write the <head> element: <head></head>. This part contains info like styles and scripts. It doesn’t show up on the page directly.",
-        "Then we add the <body> element: <body></body>. This is where your actual content goes.",
-        "Here’s the full structure when we put it all together:",
-        "See how everything nests properly? <head> and <body> both live inside <html>.",
-        "This structure helps browsers (parsers) understand your page correctly.",
-        "With this foundation in place, you’re ready to start building real websites!"
+        "Hey there! I'm Professor Vex, and I'm going to show you how to build the **foundation of any HTML page**—its skeleton.",
+        "We start at the very top with the **DOCTYPE declaration**. This line tells the browser: 'Hey! I'm using modern HTML.' It’s written as: `<!DOCTYPE html>`",
+        "Next comes the `<html>` element. This is the **root element**—everything you see on the page goes inside it.",
+        "Inside the `<html>` tag, we usually include **two main sections**: the `<head>` and the `<body>`.",
+        "Let’s add the `<head>` element first. This is where you put things like the page’s title, links to CSS, or scripts. It’s **information for the browser**, not content for the user.",
+        "Next is the `<body>` element. This is where you place everything the user will **actually see**: text, images, buttons—everything!",
+        "Now let me show you what this full page structure looks like when it’s all put together.",
+        "Notice how the `<head>` and `<body>` are both **nested inside** the `<html>` tag. That’s proper structure.",
+        "This structure is important—it helps the browser understand how to process and display your content.",
+        "And just like that, you've built the **core structure of a real HTML document**. You’re ready to start adding content!"
       ],
       "images": [
         null,
@@ -83,61 +89,99 @@
         null,
         "head_tag.png",
         "body_tag.png",
-        "body_tag.png",
-        null,
+        "html_structure.png",
+        "html_structure.png",
         null,
         null
       ],
       "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
       "requiredPreviousDialogues": ["Nest HTML elements"]
-    },
+    },    
     {
       "npcName": "Identify the most common HTML elements",
       "dialogue": [
-        "Hey again! Scientist here. Let’s cook up a full HTML page using common elements—think of them like spices in a recipe.",
-        "Some spices (elements) go in every dish. Others are more specialized. Let’s start with the base structure:",
-        "<!DOCTYPE html>",
-        "<html>",
-        "  <head>",
-        "    <title>My First Page</title>",
-        "  </head>",
-        "  <body>",
-        "  </body>",
-        "</html>",
-        "Now, let’s add a heading to the body: <h1>Welcome to My Page</h1>",
-        "That’ll show as big text on the page.",
-        "Next, add a paragraph: <p>This is my first HTML paragraph.</p>",
-        "Now let’s link to another site using an anchor: <a href='https://example.com'>Visit Example</a>",
-        "Want to style a word? Try this: <span style='color:red;'>red word</span>",
-        "Let’s quote someone: <blockquote>This is a wise quote.</blockquote>",
-        "Separate sections with a horizontal line: <hr>",
-        "Now insert an image: <img src='https://example.com/image.jpg' alt='Example image'>",
-        "And that’s a full HTML doc made with real, common elements!"
+        "Hey again! Scientist here. Let’s cook up a proper HTML page using **common elements**—think of them like spices in your favorite recipe.",
+        
+        "We’ve already learned the structure: `<html>`, `<head>`, and `<body>`. We’ll use that as our base.",
+        
+        "First, in the `<head>`, we’ll add a `<title>` element: it controls what appears in the **browser tab**. Let's set it to: My First Page.",
+        "If you did it correctly, you should see the title change in your browser tab.",
+        
+        "Now let's focus on the `<body>`—this is where your visible content goes. We’ll build it piece by piece.",
+    
+        "Let’s start with a **heading**. The `<h1>` element is like a big title on the page.",
+        "Add: \n`<h1>Welcome to My Page</h1>`",
+        "In the browser, that shows up like this: a big bold line saying *Welcome to My Page*.",
+        
+        "Now to add paragrapgs, we use `<p>` for blocks of text.",
+        "Try: \n`<p>This is my first HTML paragraph.</p>`",
+        "In the browser, you should now see a clean block of text below the heading.",
+        
+        "Want to add a **link** to another page, like your social media accounts? Use the `<a>` tag, short for anchor.",
+        "Add this to your code: \n`<a href='https://example.com'>Visit Example </a>`",
+        "Clicking that will take you to another website.",
+        
+        "If we need to highlight or style just **one word**, we can use `<span>` with a style.",
+        "Add this: \n`<span style='color:red;'>red word</span>`",
+        "That one word will appear red in the sentence—great for custom styling! Notice how it doesn't make a new line like `<p>` does?",
+        
+        "Now let's say I want to quote someone. I'll use `<blockquote>` - it indents and separates the text.",
+        "Try this: \n`<blockquote>This is a wise quote.</blockquote>`",
+        "In the browser, it should look like a nice block of text, set apart from the rest.",
+        
+        "Now I want to seperate sections in my page. I'll use`<hr>` to add a horizontal line",
+        "It’s a single tag, and adds a clean divider across the page.",
+        "If I just wanted to make a new line, I could use `<br>` instead.",
+        
+        "Let’s finish by adding an **image** to the page using the `<img>` element.",
+        "Add: \n`<img src='image.jpg' alt='Example image'>`",
+        "The image will appear directly on the page—and the alt text helps screen readers or loads if the image breaks.",
+        
+        "And that’s it! We've just built a complete HTML page using all the most common elements.",
+        "Each one brings structure, meaning, or style to your content. Keep these in your toolbox—they’ll show up everywhere."
       ],
       "images": [
         "spices_metaphor.png",
+        "html_structure.png",
+        "title_tag.png",
+        "title_browser_tab.png",
+        
         null,
-        "doctype.png",
-        "html_tag.png",
-        "head_tag.png",
-        "title_tag.png",
-        "title_tag.png",
-        "html_structure.png",
-        "html_structure.png",
-        "html_structure.png",
+        
+        null,
         "h1_output.png",
+        "h1_browser_result.png",
+        
         null,
         "p_output.png",
+        "p_browser_result.png",
+        
+        null,
         "a_tag_output.png",
+        "a_browser_result.png",
+        
+        null,
         "span_output.png",
+        "span_browser_result.png",
+        
+        null,
         "blockquote_output.png",
+        "blockquote_browser_result.png",
+        
         "hr_output.png",
+        "hr_browser_result.png",
+        null,
+        
+        null,
         "img_output.png",
+        "img_browser_result.png",
+        
+        null,
         null
       ],
-      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+      "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
       "requiredPreviousDialogues": ["Understand the anatomy of an HTML page"]
-    },
+    },    
     {
       "npcName": "Learn about attributes",
       "dialogue": [
