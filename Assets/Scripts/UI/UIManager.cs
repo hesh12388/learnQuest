@@ -255,6 +255,16 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log("Toggling inGameUiPanel");
             inGameUiPanel.SetActive(!inGameUiPanel.activeSelf);
+
+            if(inGameUiPanel.activeSelf)
+            {
+                disablePlayerHUD();
+            }
+            else
+            {
+                enablePlayerHUD();
+            }
+
             // Clear selection so Enter won't trigger it again
             EventSystem.current.SetSelectedGameObject(null);
             
@@ -1316,6 +1326,12 @@ public class UIManager : MonoBehaviour
     public void ShowQuestionPanel(bool show)
     {
         questionsPanel.SetActive(show);
+        if(show){
+            disablePlayerHUD();
+        }
+        else{
+            enablePlayerHUD();
+        }
     }
 
     public void SetQuestionText(string text)

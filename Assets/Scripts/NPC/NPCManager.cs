@@ -31,6 +31,7 @@ public class NPCManager : MonoBehaviour
     private string nextObjective;
     public Sprite npcImageSprite;
     private float typingSpeed = 0.05f;
+    public bool isGuiding = false;
 
     private void Awake()
     {
@@ -187,6 +188,7 @@ public class NPCManager : MonoBehaviour
         }
 
         isInstructing = false;
+        isGuiding = false;
     }
 
     IEnumerator ShowDialoguePanel(string dialogue)

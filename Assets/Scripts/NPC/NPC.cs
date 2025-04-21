@@ -26,8 +26,10 @@ public class NPC : MonoBehaviour, IInteractable
             UIManager.Instance.setMenuOpen(false);
         }
         
-        if(EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant)
+        if(EvaluationManager.Instance.isEvaluating || isOnPreRequisite || isPaused || RagChatManager.Instance.isUsingAssistant || NPCManager.Instance.isGuiding)
         {
+            // Prevent interaction if already in a dialogue or if prerequisites are not met
+            Debug.Log("Cannot interact with NPC at this time.");
             return;
         }
         
@@ -248,7 +250,7 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void EndDialogue(){
         StopAllCoroutines();
-        
+        NPCManager.Instance.isGuiding=true;
         // Stop flashing enter key
         if (flashingCoroutine != null)
         {

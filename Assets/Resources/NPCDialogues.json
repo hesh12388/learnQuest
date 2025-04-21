@@ -95,7 +95,7 @@
         null
       ],
       "autoProgressLines": [false, false, false, false, false, false, false, false, false, false],
-      "requiredPreviousDialogues": ["Nest HTML elements"]
+      "requiredPreviousDialogues": ["Learn about tags and elements","Nest HTML elements"]
     },    
     {
       "npcName": "Identify the most common HTML elements",
@@ -180,7 +180,7 @@
         null
       ],
       "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
-      "requiredPreviousDialogues": ["Understand the anatomy of an HTML page"]
+      "requiredPreviousDialogues": ["Learn about tags and elements","Nest HTML elements","Understand the anatomy of an HTML page"]
     },    
     {
       "npcName": "Learn about attributes",
@@ -272,7 +272,7 @@
         null
       ],
       "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false],
-      "requiredPreviousDialogues": ["Use attributes of attributes"]
+      "requiredPreviousDialogues": ["Learn about attributes", "Use attributes of attributes"]
     },
     {
       "npcName": "Learn why organizing code matters",
@@ -367,7 +367,7 @@
         null
       ],
       "autoProgressLines": [false, false, false, false, false, false, false, false, false, false, false, false, false],
-      "requiredPreviousDialogues": ["Learn organization techniques for developers"]
+      "requiredPreviousDialogues": ["Learn why organizing code matters","Learn organization techniques for developers"]
     },
     {
       "npcName": "Learn what CSS is",
@@ -503,7 +503,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Learn how styles cascade"
+         "Learn what CSS is","Learn how styles cascade"
       ]
     },
     {
@@ -543,7 +543,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Effectively use inline styles"
+         "Learn what CSS is","Learn how styles cascade","Effectively use inline styles"
       ]
     },
     {
@@ -582,7 +582,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Learn how to use stylesheets"
+        "Learn what CSS is","Learn how styles cascade","Effectively use inline styles","Learn how to use stylesheets"
       ]
     },
     {
@@ -618,7 +618,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Understand the anatomy of a style"
+        "Learn what CSS is","Learn how styles cascade","Effectively use inline styles","Learn how to use stylesheets", "Understand the anatomy of a style"
       ]
     },
     {
@@ -656,7 +656,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Identify types of stylesheet styles"
+        "Learn what CSS is","Learn how styles cascade","Effectively use inline styles","Learn how to use stylesheets", "Understand the anatomy of a style","Identify types of stylesheet styles"
       ]
     },
     {
@@ -792,7 +792,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Identify the components of boxes"
+        "Learn about the CSS box model","Identify the components of boxes"
       ]
     },
     {
@@ -893,7 +893,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Set a proper doctype declaration"
+        "Learn HTML and CSS best practices","Set a proper doctype declaration"
       ]
     },
     {
@@ -926,7 +926,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Use stylesheets over inline styles"
+        "Learn HTML and CSS best practices","Set a proper doctype declaration","Use stylesheets over inline styles"
       ]
     },
     {
@@ -959,7 +959,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Remember to close tags"
+       "Learn HTML and CSS best practices","Set a proper doctype declaration","Use stylesheets over inline styles", "Remember to close tags"
       ]
     },
     {
@@ -998,7 +998,7 @@
         false
       ],
       "requiredPreviousDialogues": [
-        "Save and check your work often"
+        "Learn HTML and CSS best practices","Set a proper doctype declaration","Use stylesheets over inline styles", "Remember to close tags","Save and check your work often"
       ]
     }
   ]

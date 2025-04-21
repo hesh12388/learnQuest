@@ -12,7 +12,7 @@ public class Assistant : MonoBehaviour
 {
     [Header("Follow Settings")]
     [Tooltip("How close the NPC should get to the player before stopping")]
-    public float stoppingDistance = 7.0f;
+    private float stoppingDistance = 12.0f;
     
     [Tooltip("How often to update the destination (seconds)")]
     public float updateFrequency = 0.2f;
@@ -28,7 +28,6 @@ public class Assistant : MonoBehaviour
     private NavMeshAgent agent;
     private Transform playerTransform;
     private float updateTimer;
-    private Vector3 lastPlayerPosition;
     private bool isFollowing = true;
     
     // Optional reference to the NPC component for interaction logic
@@ -45,8 +44,7 @@ public class Assistant : MonoBehaviour
             animator = GetComponent<Animator>();
         }
         
-        // Try to get NPC component (optional)
-        npcComponent = GetComponent<NPC>();
+
     }
     
     void Start()
@@ -63,7 +61,6 @@ public class Assistant : MonoBehaviour
         if (Player.Instance != null)
         {
             playerTransform = Player.Instance.transform;
-            lastPlayerPosition = playerTransform.position;
         }
         else
         {
@@ -71,26 +68,37 @@ public class Assistant : MonoBehaviour
         }
     }
     
+
+    // method to make the assistant always face the player
+    void FacePlayer()
+    {
+        if (playerTransform == null || animator == null)
+            return;
+            
+        // Calculate direction from assistant to player
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        
+        // Only update animation parameters if the direction is significant
+        if (direction.magnitude > 0.1f)
+        {
+            // Set animation parameters to face the player
+            animator.SetFloat("moveX", direction.x);
+            animator.SetFloat("moveY", direction.y);
+        }
+    }
+
     void Update()
     {
         // If the player reference is missing, try to get it
         if (playerTransform == null && Player.Instance != null)
         {
             playerTransform = Player.Instance.transform;
-            lastPlayerPosition = playerTransform.position;
         }
         
         // If we still don't have player or agent, can't do anything
         if (playerTransform == null || agent == null)
             return;
-        
-        // Don't follow during instruction or evaluation
-        if (npcComponent != null && npcComponent.isInstructing)
-        {
-            StopFollowing();
-            return;
-        }
-        
+            
         // Check if player is paused
         if (Player.Instance.isPaused || Player.Instance.stop_interaction)
         {
@@ -104,43 +112,31 @@ public class Assistant : MonoBehaviour
             ResumeFollowing();
         }
         
-        // Update timer for path recalculation
-        updateTimer -= Time.deltaTime;
-        if (updateTimer <= 0f)
-        {
-            updateTimer = updateFrequency;
-            UpdateDestination();
-        }
-        
-        // Update animator based on current movement
-        UpdateAnimator();
-        
-        // Check for teleportation (if player gets too far)
+        // Check if we should be moving or not
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-        if (distanceToPlayer > maxFollowDistance)
+        bool shouldMove = distanceToPlayer > agent.stoppingDistance;
+        
+        if (shouldMove)
         {
-            TeleportNearPlayer();
-        }
-    }
-    
-    void UpdateDestination()
-    {
-        if (playerTransform == null || agent == null)
-            return;
-            
-        // Only update destination if player has moved
-        if (Vector3.Distance(lastPlayerPosition, playerTransform.position) > 0.1f)
-        {
-            // Set the destination to the player's position
-            Vector3 targetPosition = playerTransform.position;
-            
-            // Ensure we're on the NavMesh
-            if (NavMesh.SamplePosition(targetPosition, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+            // Update timer for path recalculation
+            updateTimer -= Time.deltaTime;
+            if (updateTimer <= 0f)
             {
-                agent.SetDestination(targetPosition);
-                lastPlayerPosition = playerTransform.position;
+                updateTimer = updateFrequency;
+                agent.isStopped = false;
+                agent.SetDestination(playerTransform.position);
             }
+            // Update animator based on current movement
+            UpdateAnimator();
         }
+        else
+        {
+            // face the player
+            agent.isStopped = true;
+            animator.SetBool("isMoving", false);
+            FacePlayer();
+        }
+        
     }
     
     void UpdateAnimator()
@@ -186,51 +182,4 @@ public class Assistant : MonoBehaviour
         }
     }
     
-    void TeleportNearPlayer()
-    {
-        if (playerTransform == null)
-            return;
-            
-        // Find a position near the player
-        Vector3 teleportPosition = playerTransform.position;
-        
-        // Add a small offset so we're not exactly on top of the player
-        teleportPosition += new Vector3(stoppingDistance * 0.8f, 0f, 0f);
-        
-        // Ensure the position is on the NavMesh
-        if (NavMesh.SamplePosition(teleportPosition, out NavMeshHit hit, 5f, NavMesh.AllAreas))
-        {
-            // Teleport the NPC
-            agent.Warp(hit.position);
-            
-            // Immediately update the destination
-            UpdateDestination();
-            
-            Debug.Log("NPC Follower teleported to player due to exceeding max follow distance");
-        }
-    }
-    
-    // Optional: Public methods to control following behavior
-    public void EnableFollowing()
-    {
-        isFollowing = false; // Setting to false so ResumeFollowing will work
-        ResumeFollowing();
-    }
-    
-    public void DisableFollowing()
-    {
-        StopFollowing();
-    }
-    
-    // Visualization for debugging
-    private void OnDrawGizmosSelected()
-    {
-        // Draw stopping distance
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
-        
-        // Draw max follow distance
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, maxFollowDistance);
-    }
 }
