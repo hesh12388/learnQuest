@@ -809,6 +809,7 @@ public class EvaluationManager : MonoBehaviour
     IEnumerator EndBattle()
     {
         // Reset pause state
+        bool wasOn= false;
         isPaused = false;
         UIManager.Instance.ShowOptionPanel(false);
         UIManager.Instance.ShowPowerUpPanel(false);
@@ -816,7 +817,10 @@ public class EvaluationManager : MonoBehaviour
         
         if (enemyHealth <= 0)
         {
-            AudioController.Instance.ToggleMusic(false);
+            if(AudioController.Instance.isMusicOn()){
+                AudioController.Instance.ToggleMusic(false);
+                wasOn = true;
+            }
             AudioController.Instance.PlayBattleVictory();
             yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                 "You defeated the enemy! Well done!", 
@@ -825,7 +829,10 @@ public class EvaluationManager : MonoBehaviour
         }
         else if (playerHealth <= 0)
         {
-            AudioController.Instance.ToggleMusic(false);
+            if(AudioController.Instance.isMusicOn()){
+                AudioController.Instance.ToggleMusic(false);
+                wasOn = true;
+            }
             AudioController.Instance.PlayBattleLoss();
             yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(
                 "You were defeated. Better luck next time!", 
@@ -837,7 +844,6 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowBattlePanel(false);
         UIManager.Instance.ShowEvaluationPanel(false);
         UIManager.Instance.enablePlayerHUD();
-        isEvaluating = false;
         
         yield return new WaitForSeconds(2f);
         
@@ -864,7 +870,9 @@ public class EvaluationManager : MonoBehaviour
             // Show post-evaluation success dialogue
             yield return StartCoroutine(NPCManager.Instance.ShowPostEvaluationDialogue(npcName, hasFailed));
             
-            AudioController.Instance.ToggleMusic(true);
+            if(wasOn){
+                AudioController.Instance.ToggleMusic(true);
+            }
             AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
             
@@ -885,11 +893,14 @@ public class EvaluationManager : MonoBehaviour
         }
         else
         {
-            // If already completed, no need to show post evaluation dialogues
-            AudioController.Instance.ToggleMusic(true);
+            if(wasOn){
+                AudioController.Instance.ToggleMusic(true);
+            }
             AudioController.Instance.PlayBackgroundMusic();
             Player.Instance.resumePlayer();
         }
+
+        isEvaluating = false;
     }
     
     // Helper coroutine to wait for achievement processing

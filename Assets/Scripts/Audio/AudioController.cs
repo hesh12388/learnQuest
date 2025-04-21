@@ -328,6 +328,13 @@ public class AudioController : MonoBehaviour
     {
         sfxSource.mute = !isOn;
     }
+
+    public bool isMusicOn()
+    {
+        return !musicSource.mute;
+    }
+
+    
     
     #endregion
 }
