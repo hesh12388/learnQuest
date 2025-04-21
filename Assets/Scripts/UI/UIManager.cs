@@ -1334,6 +1334,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void CloseQuestionPanel(){
+        ShowQuestionPanel(false);
+        Player.Instance.resumeInteraction();
+        Player.Instance.resumePlayer();
+    }
+
     public void SetQuestionText(string text)
     {
         question_text.text = text;
