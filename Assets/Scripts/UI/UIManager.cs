@@ -1582,6 +1582,20 @@ public class UIManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
+    public IEnumerator TypeIntroText(string text, float typingSpeed, Action onComplete = null)
+    {
+        npcIntroNameText.text = "";
+        
+        foreach (char letter in text.ToCharArray())
+        {
+            npcIntroNameText.text += letter;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        
+        onComplete?.Invoke();
+    }
+
+
     public void SetupAnswerButtonHover(Button button, EventTriggerType eventID, UnityAction<BaseEventData> callback)
     {
         EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();

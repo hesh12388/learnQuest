@@ -114,9 +114,7 @@ public class EvaluationManager : MonoBehaviour
             enemyBattleSpritesDict[enemy.characterName] = enemy.battleSprite;
             enemyBackgroundSpritesDict[enemy.characterName] = enemy.battleBackground;
         }
-        
-        enemyImage = enemyBattleSpritesDict[npcName];
-        PlayerImage = characterBattleSpritesDict[DatabaseManager.Instance.loggedInUser.equippedCharacter];
+    
     }
     
     public void LoadQuestionsForLevel()
@@ -168,6 +166,8 @@ public class EvaluationManager : MonoBehaviour
     
     public void StartEvaluation()
     {
+        enemyImage = enemyBattleSpritesDict[npcName];
+        PlayerImage = characterBattleSpritesDict[DatabaseManager.Instance.loggedInUser.equippedCharacter];
         playerMoves = DatabaseManager.Instance.loggedInUser.playerMoves;
         UIManager.Instance.disablePlayerHUD();
         numCorrectAnswers = 0;
@@ -300,6 +300,7 @@ public class EvaluationManager : MonoBehaviour
         
     public IEnumerator NotReady()
     {
+        enemyImage = enemyBattleSpritesDict[npcName];
         UIManager.Instance.disablePlayerHUD();
         AudioController.Instance.PlayBattleMusic();
         Player.Instance.pausePlayer();
@@ -311,7 +312,7 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowNPCIntroPanel(true);
         UIManager.Instance.SetNPCIntroImage(enemyImage);
         
-        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText("You are not ready to battle me yet!", typingSpeed));
+        yield return StartCoroutine(UIManager.Instance.TypeIntroText("You are not ready to battle me yet!", typingSpeed));
         yield return new WaitForSeconds(2f);
         
         UIManager.Instance.ShowEvaluationPanel(false);
@@ -333,7 +334,7 @@ public class EvaluationManager : MonoBehaviour
         UIManager.Instance.ShowNPCIntroPanel(true);
         UIManager.Instance.SetNPCIntroImage(enemyImage);
         
-        yield return StartCoroutine(UIManager.Instance.TypeEvaluationText(npcName + " has appeared!", typingSpeed));
+        yield return StartCoroutine(UIManager.Instance.TypeIntroText(npcName + " has appeared!", typingSpeed));
         yield return new WaitForSeconds(2f);
         
         // Show the battle panel
