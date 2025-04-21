@@ -250,7 +250,6 @@ public class NPC : MonoBehaviour, IInteractable
 
     public void EndDialogue(){
         StopAllCoroutines();
-        NPCManager.Instance.isGuiding=true;
         // Stop flashing enter key
         if (flashingCoroutine != null)
         {
@@ -258,12 +257,14 @@ public class NPC : MonoBehaviour, IInteractable
         }
         
         isDialogueActive = false;
+        isPaused = false;
         UIManager.Instance.SetDialogueText("");
         AudioController.Instance.PlayMenuOpen();
         AudioController.Instance.PlayBackgroundMusic();
         UIManager.Instance.HideDialoguePanel();
 
         if(dialogueIndex >= dialogueData.dialogue.Length){
+             NPCManager.Instance.isGuiding=true;
              ObjectiveManager.Instance.MarkObjectiveCompleted(dialogueData.npcName);
         }
         

@@ -109,6 +109,7 @@ public class ObjectiveManager : MonoBehaviour
             {
                 // If the database update failed, remove from local HashSet to maintain consistency
                 Debug.LogError($"Failed to mark NPC/Objective '{objectiveName}' as completed in database");
+                NPCManager.Instance.isGuiding = false;
             }
         });
     }

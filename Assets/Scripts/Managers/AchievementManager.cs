@@ -286,6 +286,7 @@ public class AchievementManager : MonoBehaviour
         foreach(Achievement achievement in Achievements){
             if(achievement.achievement_name==achievement_name){
                 DatabaseManager.Instance.loggedInUser.numGems+=achievement.gems;
+                achievement.status = "completed";
                 return;
             }
         }
