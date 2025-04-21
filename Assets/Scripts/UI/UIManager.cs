@@ -399,6 +399,7 @@ public class UIManager : MonoBehaviour
         User loggedInUser = DatabaseManager.Instance.loggedInUser;
         Level current_level = loggedInUser.courseStructure.chapters[loggedInUser.currentChapter].levels[loggedInUser.currentLevel-1];
         levelCompletePanel.GetComponent<LevelMessage>().SetLevelUpdateUI(loggedInUser.getLevelScore(), current_level.score, current_level.points, false);
+        updatePlayerCoins();
         AudioController.Instance.PlayLevelComplete();
     }
 

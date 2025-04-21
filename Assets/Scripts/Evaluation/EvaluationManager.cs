@@ -853,6 +853,7 @@ public class EvaluationManager : MonoBehaviour
                 if (success)
                 {
                     Debug.Log("Level completed successfully");
+                    loggedInUser.score+=currentLevel.points;
                 }
                 else
                 {
