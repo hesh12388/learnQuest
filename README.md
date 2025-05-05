@@ -36,3 +36,22 @@ Assets/        → Unity game assets
 Scripts/       → Gameplay logic and event handling, further split into scripts for different systems
 Scenes/        → Game levels and world layout, further split into a scene for each level in the game  
 docs/    → Exported WebGL game files  
+
+## 📚 References
+
+1. **Wooden Pixel Art GUI UI Kit**  
+   Unity Asset Store. Used partially for UI panel design.  
+   [https://assetstore.unity.com/packages/2d/gui/wooden-pixel-art-gui-ui-kit-over-750-png-264906](https://assetstore.unity.com/packages/2d/gui/wooden-pixel-art-gui-ui-kit-over-750-png-264906)
+
+2. **Sound Effects and Background Music**  
+   - Reddit collection of Pokémon sound effects: [https://www.reddit.com/r/PokemonROMhacks/comments/9xgl7j/pokemon_sound_effects_collection_over_3200_sfx/](https://www.reddit.com/r/PokemonROMhacks/comments/9xgl7j/pokemon_sound_effects_collection_over_3200_sfx/)  
+   - Pokémon Game Boy soundtrack (Khinsider): [https://downloads.khinsider.com/game-soundtracks/album/pokemon-game-boy-pok-mon-sound-complete-set-play-cd](https://downloads.khinsider.com/game-soundtracks/album/pokemon-game-boy-pok-mon-sound-complete-set-play-cd)
+
+3. **Battle Backgrounds and UI**  
+   GameDevExperiments: Pokémon Tutorial Art Assets (GitHub)  
+   [https://github.com/GameDevExperiments/Pokemon-Tutorial-Art-Assets](https://github.com/GameDevExperiments/Pokemon-Tutorial-Art-Assets)
+
+4. **Character and Environment Sprites**  
+   DeviantArt – Source for character sprites, enemy sprites, creature spritesheets, tilemaps, and palettes.  
+   [https://www.deviantart.com/](https://www.deviantart.com/)
+
